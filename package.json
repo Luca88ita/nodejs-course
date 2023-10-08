@@ -1,0 +1,29 @@
+{
+  "name": "nodejs-course",
+  "version": "1.0.0",
+  "description": "nodejs course",
+  "author": "Pennini Luca",
+  "licence": "MIT",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start01": "nodemon ./section01/first-app.ts",
+    "start02": "nodemon ./section02/play2.ts",
+    "start03": "nodemon ./section03/app.ts",
+    "start03a": "nodemon ./section03-assignment/app.ts",
+    "start05": "nodemon ./section05/app.ts",
+    "start05b": "nodemon ./section05-assignment2/app.ts"
+  },
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "express": "^4.18.2",
+    "typescript": "^5.2.2"
+  },
+  "devDependencies": {
+    "@types/body-parser": "^1.19.3",
+    "@types/express": "^4.17.18",
+    "@types/node": "^20.8.3",
+    "eslint": "^8.51.0",
+    "nodemon": "^3.0.1",
+    "ts-node": "^10.9.1"
+  }
+}

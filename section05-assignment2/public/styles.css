@@ -1,0 +1,27 @@
+:root {
+  --color1: #2bff00;
+  --color2: #0d00ff;
+}
+
+body,
+ul,
+li,
+h1 {
+  margin: 0;
+  padding: 0;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+li {
+  margin: 0;
+  padding: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: inherit;
+}

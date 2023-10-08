@@ -1,0 +1,10 @@
+<%- include("includes/head.ejs") %>
+<main>
+  <h1>User List</h1>
+  <ul>
+    <% userList.forEach(user=>{ %>
+    <li><%= user.lastName %> - <%= user.firstName %> - <%= user.age %></li>
+    <% }) %>
+  </ul>
+</main>
+<%- include("includes/end.ejs") %>

@@ -13,7 +13,8 @@
     "start05": "nodemon ./section05/app.ts",
     "start05b": "nodemon ./section05-assignment2/app.ts",
     "start06": "nodemon ./section06/app.ts",
-    "start06a": "nodemon ./section06-assignment/app.ts"
+    "start06a": "nodemon ./section06-assignment/app.ts",
+    "start07": "nodemon ./section07/app.ts"
   },
   "dependencies": {
     "body-parser": "^1.20.2",

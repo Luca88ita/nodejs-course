@@ -1,8 +1,16 @@
 import express from "express";
-import { getAddProduct, postAddProduct } from "../controllers/products";
+import AdminController from "../controllers/admin";
 
 export const router = express.Router();
 
-router.get("/add-product", getAddProduct);
+router.get("/add-product", AdminController.getAddProduct);
 
-router.post("/add-product", postAddProduct);
+router.get("/products", AdminController.getProducts);
+
+router.post("/add-product", AdminController.postAddProduct);
+
+router.get("/edit-product/:productId", AdminController.getEditProduct);
+
+router.post("/edit-product", AdminController.postEditProduct);
+
+router.post("/delete-product", AdminController.postDeleteProduct);

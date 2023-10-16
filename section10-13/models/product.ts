@@ -1,4 +1,5 @@
 import {
+  Association,
   CreationOptional,
   DataTypes,
   ForeignKey,
@@ -9,6 +10,7 @@ import {
 } from "sequelize";
 import sequelize from "../util/database";
 import User from "./user";
+import CartItem from "./cart-item";
 
 // Class Approach
 class Product extends Model<
@@ -23,9 +25,14 @@ class Product extends Model<
   declare price: number;
 
   declare user?: NonAttribute<User>;
+  declare CartItem?: NonAttribute<CartItem>;
 
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
+
+  declare static associations: {
+    cartItem: Association<Product, CartItem>;
+  };
 }
 
 Product.init(

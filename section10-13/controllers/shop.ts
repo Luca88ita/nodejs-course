@@ -2,6 +2,7 @@ import { RequestHandler } from "express";
 import { Cart } from "../models/cart";
 import Product from "../models/product";
 import { UserRequest } from "../util/types";
+import CartItem from "../models/cart-item";
 
 namespace ShopController {
   export const getProducts: RequestHandler = (req, res, next) => {
@@ -91,31 +92,30 @@ namespace ShopController {
 
   export const postCart: RequestHandler = (req: UserRequest, res, next) => {
     const productId = req.body.productId;
-    let fetchedCart;
+    let fetchedCart: Cart;
     let newQuantity = 1;
     req
       .user!.getCart()
       .then((cart) => {
         fetchedCart = cart;
-        return cart.getProducts({ where: { id: productId } });
+        return cart.getProducts({
+          where: { id: productId },
+          include: [CartItem],
+        });
       })
       .then((products): Promise<any> | void => {
         const product = products[0];
         if (product) {
-          ///
-        } else {
-          return Product.findByPk(productId)
-            .then((product) => {
-              return fetchedCart.addProduct(product, {
-                through: { quantity: newQuantity },
-              });
-            })
-            .catch((err) => {
-              console.log(err);
-            });
+          const oldQuantity = product.CartItem!.quantity;
+          newQuantity = oldQuantity + 1;
+          return Promise.resolve(product);
         }
-
-        /* return res.redirect("/errors/400"); */
+        return Product.findByPk(productId);
+      })
+      .then((product) => {
+        return fetchedCart.addProduct(product, {
+          through: { quantity: newQuantity },
+        });
       })
       .then(() => res.redirect("/cart"))
       .catch((err) => console.log(err));

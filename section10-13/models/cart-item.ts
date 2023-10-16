@@ -21,25 +21,30 @@ import {
 import sequelize from "../util/database";
 import Product from "./product";
 import User from "./user";
+import Cart from "./cart";
 
-export class Cart extends Model<
-  InferAttributes<Cart>,
-  InferCreationAttributes<Cart>
+export class CartItem extends Model<
+  InferAttributes<CartItem>,
+  InferCreationAttributes<CartItem>
 > {
   declare id: CreationOptional<number>;
-  declare UserId: ForeignKey<User["id"]>;
+  declare CartId: ForeignKey<Cart["id"]>;
+  declare ProductId: ForeignKey<Product["id"]>;
+  declare quantity: number;
 
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
 
-  declare user?: NonAttribute<User>;
+  declare cart?: NonAttribute<Cart>;
+  declare product?: NonAttribute<Product>;
 
   declare static associations: {
-    user: Association<Cart, User>;
+    carts: Association<CartItem, Cart>;
+    products: Association<CartItem, Product>;
   };
 }
 
-Cart.init(
+CartItem.init(
   {
     id: {
       type: DataTypes.INTEGER.UNSIGNED,
@@ -47,20 +52,27 @@ Cart.init(
       allowNull: false,
       primaryKey: true,
     },
-    UserId: {
+    CartId: {
       type: DataTypes.INTEGER.UNSIGNED,
       allowNull: false,
-      unique: true,
+    },
+    ProductId: {
+      type: DataTypes.INTEGER.UNSIGNED,
+      allowNull: false,
+    },
+    quantity: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
     },
     createdAt: DataTypes.DATE,
     updatedAt: DataTypes.DATE,
   },
   {
     sequelize,
-    tableName: "carts",
+    tableName: "cart-items",
     paranoid: true,
     deletedAt: "destroyTime",
   }
 );
 
-export default Cart;
+export default CartItem;

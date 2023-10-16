@@ -14,6 +14,8 @@ import sequelize from "./util/database";
 import User from "./models/user";
 import Product from "./models/product";
 import { UserRequest } from "./util/types";
+import Cart from "./models/cart";
+import CartItem from "./models/cart-item";
 
 const app = express();
 
@@ -45,6 +47,10 @@ Product.sync();*/
 
 User.hasMany(Product);
 Product.belongsTo(User, { constraints: true, onDelete: "CASCADE" });
+User.hasOne(Cart);
+Cart.belongsTo(User);
+Cart.belongsToMany(Product, { through: CartItem });
+Product.belongsToMany(Cart, { through: CartItem });
 
 sequelize
   .sync(/* { force: true } */)

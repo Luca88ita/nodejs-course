@@ -66,7 +66,6 @@ namespace AdminController {
     next
   ) => {
     const productId = req.body.productId;
-    //Product.findByPk(productId)
     req
       .user!.getProducts({ where: { id: productId } })
       .then((products): Promise<any> | void => {
@@ -91,10 +90,6 @@ namespace AdminController {
     next
   ) => {
     const productId = req.body.productId;
-    /*Product.deleteById(productId);
-    res.redirect("/admin/products");*/
-    /* Product.findByPk(productId)
-      .then((product): Promise<any> | void => { */
     req
       .user!.getProducts({ where: { id: productId } })
       .then((products): Promise<any> | void => {

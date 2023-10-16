@@ -1,40 +1,75 @@
 import {
+  Association,
   CreationOptional,
   DataTypes,
+  HasManyAddAssociationMixin,
+  HasManyAddAssociationsMixin,
+  HasManyCountAssociationsMixin,
+  HasManyCreateAssociationMixin,
+  HasManyGetAssociationsMixin,
+  HasManyHasAssociationMixin,
+  HasManyHasAssociationsMixin,
+  HasManyRemoveAssociationMixin,
+  HasManyRemoveAssociationsMixin,
+  HasManySetAssociationsMixin,
   InferAttributes,
   InferCreationAttributes,
   Model,
-  Sequelize,
+  NonAttribute,
 } from "sequelize";
 import sequelize from "../util/database";
+import Product from "./product";
 
-const seq: Sequelize = sequelize;
-
-class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
+class User extends Model<
+  InferAttributes<User, { omit: "products" }>,
+  InferCreationAttributes<User>
+> {
   declare id: CreationOptional<number>;
   declare username: string;
   declare email: string;
+
+  declare createdAt: CreationOptional<Date>;
+  declare updatedAt: CreationOptional<Date>;
+
+  declare getProducts: HasManyGetAssociationsMixin<Product>; // Note the null assertions!
+  declare addProduct: HasManyAddAssociationMixin<Product, number>;
+  declare addProducts: HasManyAddAssociationsMixin<Product, number>;
+  declare setProducts: HasManySetAssociationsMixin<Product, number>;
+  declare removeProduct: HasManyRemoveAssociationMixin<Product, number>;
+  declare removeProducts: HasManyRemoveAssociationsMixin<Product, number>;
+  declare hasProduct: HasManyHasAssociationMixin<Product, number>;
+  declare hasProducts: HasManyHasAssociationsMixin<Product, number>;
+  declare countProducts: HasManyCountAssociationsMixin;
+  declare createProduct: HasManyCreateAssociationMixin<Product>;
+
+  declare products?: NonAttribute<Product[]>;
+
+  declare static associations: {
+    products: Association<User, Product>;
+  };
 }
 
 User.init(
   {
     id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.INTEGER.UNSIGNED,
       autoIncrement: true,
       allowNull: false,
       primaryKey: true,
     },
     username: {
-      type: DataTypes.STRING(120),
+      type: new DataTypes.STRING(120),
       allowNull: false,
     },
     email: {
-      type: DataTypes.STRING(255),
+      type: new DataTypes.STRING(255),
       allowNull: false,
     },
+    createdAt: DataTypes.DATE,
+    updatedAt: DataTypes.DATE,
   },
   {
-    sequelize: seq,
+    sequelize,
     tableName: "users",
     paranoid: true,
     deletedAt: "destroyTime",

@@ -100,7 +100,6 @@ namespace ShopController {
         fetchedCart = cart;
         return cart.getProducts({
           where: { id: productId },
-          include: [CartItem],
         });
       })
       .then((products): Promise<any> | void => {
@@ -117,18 +116,25 @@ namespace ShopController {
       })
       .then(() => res.redirect("/cart"))
       .catch((err) => console.log(err));
-    /*Product.findById(productId, (product) => {
-      Cart.addProduct(productId, +product.price);
-    });
-    res.redirect("/cart");*/
   };
 
-  export const postCartDeleteItem: RequestHandler = (req, res, next) => {
+  export const postCartDeleteItem: RequestHandler = (
+    req: UserRequest,
+    res,
+    next
+  ) => {
     const productId: string = req.body.productId;
-    /*Product.findById(productId, (product) => {
-      Cart.deleteProduct(productId, +product.price);
-      res.redirect("/cart");
-    });*/
+    req
+      .user!.getCart()
+      .then((cart) => {
+        return cart.getProducts({ where: { id: productId } });
+      })
+      .then((products) => {
+        const product = products[0];
+        return product.CartItem!.destroy();
+      })
+      .then((result) => res.redirect("/cart"))
+      .catch((err) => console.log(err));
   };
 
   export const getOrders: RequestHandler = (req, res, next) => {

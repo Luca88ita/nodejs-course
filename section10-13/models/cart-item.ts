@@ -70,8 +70,6 @@ CartItem.init(
   {
     sequelize,
     tableName: "cart-items",
-    paranoid: true,
-    deletedAt: "destroyTime",
   }
 );
 

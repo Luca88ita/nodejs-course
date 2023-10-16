@@ -41,10 +41,7 @@ app.use(shopRoutes);
 app.use(messageRoutes);
 app.use(errorRoutes);
 
-/*User.sync();
-Product.sync();*/
-//console.log(sequelize.models);
-
+// sequelize associations
 User.hasMany(Product);
 Product.belongsTo(User, { constraints: true, onDelete: "CASCADE" });
 User.hasOne(Cart);
@@ -64,6 +61,11 @@ sequelize
       ? Promise.resolve(user)
       : User.create({ username: "Luca", email: "luca1234@567.890" });
   })
+  .then((user) =>
+    user.getCart().then((cart) => {
+      !cart && user.createCart();
+    })
+  )
   .then(() => {
     app.listen(3000);
   })

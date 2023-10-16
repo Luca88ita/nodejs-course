@@ -1,5 +1,7 @@
 import {
   Association,
+  BelongsToGetAssociationMixin,
+  BelongsToManyGetAssociationsMixin,
   CreationOptional,
   DataTypes,
   ForeignKey,
@@ -13,6 +15,8 @@ import {
   HasManyRemoveAssociationMixin,
   HasManyRemoveAssociationsMixin,
   HasManySetAssociationsMixin,
+  HasOneCreateAssociationMixin,
+  HasOneGetAssociationMixin,
   InferAttributes,
   InferCreationAttributes,
   Model,
@@ -32,7 +36,12 @@ export class Cart extends Model<
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
 
+  declare getProducts: BelongsToManyGetAssociationsMixin<Product>;
+
+  declare getUser: BelongsToGetAssociationMixin<User>;
+
   declare user?: NonAttribute<User>;
+  declare products?: NonAttribute<Product[]>;
 
   declare static associations: {
     user: Association<Cart, User>;

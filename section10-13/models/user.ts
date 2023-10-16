@@ -12,6 +12,8 @@ import {
   HasManyRemoveAssociationMixin,
   HasManyRemoveAssociationsMixin,
   HasManySetAssociationsMixin,
+  HasOneCreateAssociationMixin,
+  HasOneGetAssociationMixin,
   InferAttributes,
   InferCreationAttributes,
   Model,
@@ -19,6 +21,7 @@ import {
 } from "sequelize";
 import sequelize from "../util/database";
 import Product from "./product";
+import Cart from "./cart";
 
 class User extends Model<
   InferAttributes<User, { omit: "products" }>,
@@ -31,7 +34,7 @@ class User extends Model<
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
 
-  declare getProducts: HasManyGetAssociationsMixin<Product>; // Note the null assertions!
+  declare getProducts: HasManyGetAssociationsMixin<Product>;
   declare addProduct: HasManyAddAssociationMixin<Product, number>;
   declare addProducts: HasManyAddAssociationsMixin<Product, number>;
   declare setProducts: HasManySetAssociationsMixin<Product, number>;
@@ -41,6 +44,9 @@ class User extends Model<
   declare hasProducts: HasManyHasAssociationsMixin<Product, number>;
   declare countProducts: HasManyCountAssociationsMixin;
   declare createProduct: HasManyCreateAssociationMixin<Product>;
+
+  declare getCart: HasOneGetAssociationMixin<Cart>;
+  declare createCart: HasOneCreateAssociationMixin<Cart>;
 
   declare products?: NonAttribute<Product[]>;
 

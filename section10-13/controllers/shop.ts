@@ -1,7 +1,7 @@
 import { RequestHandler } from "express";
 import { Cart } from "../models/cart";
-import { CartProduct, CartType } from "../util/types";
 import Product from "../models/product";
+import { UserRequest } from "../util/types";
 
 namespace ShopController {
   export const getProducts: RequestHandler = (req, res, next) => {
@@ -44,7 +44,24 @@ namespace ShopController {
       .catch((err) => console.log(err));
   };
 
-  export const getCart: RequestHandler = (req, res, next) => {
+  export const getCart: RequestHandler = (req: UserRequest, res, next) => {
+    req
+      .user!.getCart()
+      .then((cart): void | Promise<any> => {
+        if (!cart) return res.redirect("/errors/400");
+        return cart.getProducts();
+      })
+      .then((products) => {
+        res.render("shop/cart", {
+          pageTitle: "Your Cart",
+          path: "/cart",
+          products,
+          totalPrice: 10, //cart.totalPrice.toFixed(2),
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
     /*Cart.getCart((cart: CartType) => {
       Product.fetchAll((products) => {
         const cartProducts: CartProduct[] = [];

@@ -105,12 +105,10 @@ namespace ShopController {
       })
       .then((products): Promise<any> | void => {
         const product = products[0];
-        if (product) {
-          const oldQuantity = product.CartItem!.quantity;
-          newQuantity = oldQuantity + 1;
-          return Promise.resolve(product);
-        }
-        return Product.findByPk(productId);
+        if (!product) return Product.findByPk(productId);
+        const oldQuantity = product.CartItem!.quantity;
+        newQuantity = oldQuantity + 1;
+        return Promise.resolve(product);
       })
       .then((product) => {
         return fetchedCart.addProduct(product, {

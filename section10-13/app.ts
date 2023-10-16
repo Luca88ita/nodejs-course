@@ -16,6 +16,8 @@ import Product from "./models/product";
 import { UserRequest } from "./util/types";
 import Cart from "./models/cart";
 import CartItem from "./models/cart-item";
+import Order from "./models/order";
+import OrderItem from "./models/order-item";
 
 const app = express();
 
@@ -49,12 +51,20 @@ Cart.belongsTo(User);
 Cart.belongsToMany(Product, { through: CartItem });
 Product.belongsToMany(Cart, { through: CartItem });
 CartItem.belongsTo(Product);
+Product.hasMany(CartItem);
 CartItem.belongsTo(Cart);
 Cart.hasMany(CartItem);
-Product.hasMany(CartItem);
+Order.belongsTo(User);
+User.hasMany(Order);
+Order.belongsToMany(Product, { through: OrderItem });
+Product.belongsToMany(Order, { through: OrderItem });
+OrderItem.belongsTo(Product);
+Product.hasMany(OrderItem);
+OrderItem.belongsTo(Order);
+Order.hasMany(OrderItem);
 
 sequelize
-  .sync(/* { force: true } */)
+  .sync({ force: true })
   .then((res) => {
     //console.log(sequelize.models);
     //console.log(res);

@@ -89,8 +89,36 @@ namespace ShopController {
     });*/
   };
 
-  export const postCart: RequestHandler = (req, res, next) => {
+  export const postCart: RequestHandler = (req: UserRequest, res, next) => {
     const productId = req.body.productId;
+    let fetchedCart;
+    let newQuantity = 1;
+    req
+      .user!.getCart()
+      .then((cart) => {
+        fetchedCart = cart;
+        return cart.getProducts({ where: { id: productId } });
+      })
+      .then((products): Promise<any> | void => {
+        const product = products[0];
+        if (product) {
+          ///
+        } else {
+          return Product.findByPk(productId)
+            .then((product) => {
+              return fetchedCart.addProduct(product, {
+                through: { quantity: newQuantity },
+              });
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+        }
+
+        /* return res.redirect("/errors/400"); */
+      })
+      .then(() => res.redirect("/cart"))
+      .catch((err) => console.log(err));
     /*Product.findById(productId, (product) => {
       Cart.addProduct(productId, +product.price);
     });

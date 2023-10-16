@@ -1,6 +1,7 @@
 import {
   Association,
   BelongsToGetAssociationMixin,
+  BelongsToManyAddAssociationMixin,
   BelongsToManyGetAssociationsMixin,
   CreationOptional,
   DataTypes,
@@ -25,6 +26,7 @@ import {
 import sequelize from "../util/database";
 import Product from "./product";
 import User from "./user";
+import CartItem from "./cart-item";
 
 export class Cart extends Model<
   InferAttributes<Cart>,
@@ -37,6 +39,10 @@ export class Cart extends Model<
   declare updatedAt: CreationOptional<Date>;
 
   declare getProducts: BelongsToManyGetAssociationsMixin<Product>;
+  declare addProduct: BelongsToManyAddAssociationMixin<
+    Product,
+    { through: CartItem }
+  >;
 
   declare getUser: BelongsToGetAssociationMixin<User>;
 

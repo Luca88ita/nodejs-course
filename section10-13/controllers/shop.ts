@@ -8,7 +8,7 @@ namespace ShopController {
     Product.findAll()
       .then((products) => {
         res.render("shop/product-list", {
-          prods: products,
+          products,
           pageTitle: "All Products",
           path: "/products",
         });
@@ -36,7 +36,7 @@ namespace ShopController {
     Product.findAll()
       .then((products) => {
         res.render("shop/index", {
-          prods: products,
+          products,
           pageTitle: "Shop",
           path: "/",
         });

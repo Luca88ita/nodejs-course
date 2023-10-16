@@ -47,7 +47,7 @@ User.hasMany(Product);
 Product.belongsTo(User, { constraints: true, onDelete: "CASCADE" });
 
 sequelize
-  .sync({ force: true })
+  .sync(/* { force: true } */)
   .then((res) => {
     //console.log(sequelize.models);
     //console.log(res);

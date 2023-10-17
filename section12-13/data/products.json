@@ -1,0 +1,30 @@
+[
+  {
+    "id": "0.7300187668442426",
+    "title": "Prova",
+    "imageUrl": "https://cdn.pixabay.com/photo/2016/03/31/20/51/book-1296045_960_720.png",
+    "description": "No description available",
+    "price": 10.56
+  },
+  {
+    "id": "0.2506336266429352",
+    "title": "Second Book",
+    "imageUrl": "https://cdn.pixabay.com/photo/2016/03/31/20/51/book-1296045_960_720.png",
+    "description": "No description available",
+    "price": 15
+  },
+  {
+    "id": "0.6895099998379841",
+    "title": "ndsafjsk",
+    "imageUrl": "https://cdn.pixabay.com/photo/2016/03/31/20/51/book-1296045_960_720.png",
+    "description": "mdfmslmld",
+    "price": 43.52
+  },
+  {
+    "id": "0.32987584324400254",
+    "title": "asdfsdaf",
+    "imageUrl": "https://cdn.pixabay.com/photo/2016/03/31/20/51/book-1296045_960_720.png",
+    "description": "No description available",
+    "price": 12.8
+  }
+]

@@ -121,26 +121,22 @@ class User {
       );
   }
   // ORDER METHODS
-  addOrder() {
-    return this.getCart()
-      .then((products) => {
-        const order: Order = {
-          items: products,
-          user: {
-            _id: this._id,
-            username: this.username,
-            email: this.email,
-          },
-        };
-        return db.collection<Order>("orders").insertOne(order);
-      })
-      .then((result) => {
-        this.cart = { items: [] };
-        db.collection("users").updateOne(
-          { _id: this._id },
-          { $set: { cart: { items: [] } } }
-        );
-      });
+  async addOrder() {
+    const products = await this.getCart();
+    const order: Order = {
+      items: products,
+      user: {
+        _id: this._id,
+        username: this.username,
+        email: this.email,
+      },
+    };
+    await db.collection<Order>("orders").insertOne(order);
+    this.cart = { items: [] };
+    db.collection("users").updateOne(
+      { _id: this._id },
+      { $set: { cart: { items: [] } } }
+    );
   }
 
   getOrders() {

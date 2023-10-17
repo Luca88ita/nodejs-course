@@ -19,4 +19,6 @@ router.get("/checkout", ShopController.getCheckout);
 
 router.get("/orders", ShopController.getOrders);
 
+router.post("/create-order", ShopController.postOrder);
+
 export default router;

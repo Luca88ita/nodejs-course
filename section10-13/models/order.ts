@@ -2,6 +2,7 @@ import {
   Association,
   BelongsToGetAssociationMixin,
   BelongsToManyAddAssociationMixin,
+  BelongsToManyAddAssociationsMixin,
   BelongsToManyGetAssociationsMixin,
   CreationOptional,
   DataTypes,
@@ -43,14 +44,19 @@ export class Order extends Model<
     Product,
     { through: OrderItem }
   >;
+  declare addProducts: BelongsToManyAddAssociationsMixin<
+    Product,
+    { through: OrderItem }
+  >;
 
   declare getUser: BelongsToGetAssociationMixin<User>;
 
-  declare user?: NonAttribute<User>;
-  declare products?: NonAttribute<Product[]>;
+  declare User?: NonAttribute<User>;
+  declare Products?: NonAttribute<Product[]>;
 
   declare static associations: {
     user: Association<Order, User>;
+    Products: Association<Order, Product>;
   };
 }
 
@@ -72,6 +78,8 @@ Order.init(
   {
     sequelize,
     tableName: "orders",
+    paranoid: true,
+    deletedAt: "destroyTime",
   }
 );
 

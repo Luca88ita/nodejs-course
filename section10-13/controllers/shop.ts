@@ -1,8 +1,9 @@
 import { RequestHandler } from "express";
-import { Cart } from "../models/cart";
+import Cart from "../models/cart";
 import Product from "../models/product";
 import { UserRequest } from "../util/types";
-import CartItem from "../models/cart-item";
+import { products } from "../../section06/routes/admin";
+import OrderItem from "../models/order-item";
 
 namespace ShopController {
   export const getProducts: RequestHandler = (req, res, next) => {
@@ -137,22 +138,60 @@ namespace ShopController {
       .catch((err) => console.log(err));
   };
 
-  export const getOrders: RequestHandler = (req, res, next) => {
-    /*Product.fetchAll((products) => {
-      res.render("shop/orders", {
-        pageTitle: "Your Cart",
-        path: "/orders",
+  export const getOrders: RequestHandler = (req: UserRequest, res, next) => {
+    req
+      .user!.getOrders({ include: ["Products"] })
+      .then((orders) => {
+        //orders.forEach((order) => console.log(order.Products));
+        //console.log(orders);
+        res.render("shop/orders", {
+          pageTitle: "Your Cart",
+          path: "/orders",
+          orders,
+        });
+      })
+      .catch((err) => {
+        console.log(err);
       });
-    });*/
+  };
+
+  export const postOrder: RequestHandler = (req: UserRequest, res, next) => {
+    let fetchCart: Cart;
+    req
+      .user!.getCart()
+      .then((cart) => {
+        fetchCart = cart;
+        return cart.getProducts();
+      })
+      .then((products) => {
+        return req
+          .user!.createOrder()
+          .then((order) => {
+            return order.addProducts(
+              products.map((product) => {
+                //@ts-ignore
+                product.OrderItem = { quantity: product.CartItem!.quantity };
+                return product;
+              })
+            );
+          })
+          .catch((err) => console.log(err));
+      })
+      .then((result) => {
+        //@ts-ignore
+        return fetchCart.setProducts(null);
+      })
+      .then(() => {
+        res.redirect("/orders");
+      })
+      .catch((err) => console.log(err));
   };
 
   export const getCheckout: RequestHandler = (req, res, next) => {
-    /*Product.fetchAll((products) => {
-      res.render("shop/checkout", {
-        pageTitle: "Checkout",
-        path: "/checkout",
-      });
-    });*/
+    res.render("shop/checkout", {
+      pageTitle: "Checkout",
+      path: "/checkout",
+    });
   };
 }
 

@@ -70,6 +70,8 @@ OrderItem.init(
   {
     sequelize,
     tableName: "order-items",
+    paranoid: true,
+    deletedAt: "destroyTime",
   }
 );
 

@@ -3,6 +3,8 @@ import {
   BelongsToGetAssociationMixin,
   BelongsToManyAddAssociationMixin,
   BelongsToManyGetAssociationsMixin,
+  BelongsToManyRemoveAssociationsMixin,
+  BelongsToManySetAssociationsMixin,
   CreationOptional,
   DataTypes,
   ForeignKey,
@@ -39,6 +41,14 @@ export class Cart extends Model<
   declare updatedAt: CreationOptional<Date>;
 
   declare getProducts: BelongsToManyGetAssociationsMixin<Product>;
+  declare setProducts: BelongsToManySetAssociationsMixin<
+    Product | null,
+    { through: CartItem }
+  >;
+  declare removeProducts: BelongsToManyRemoveAssociationsMixin<
+    Product,
+    { through: CartItem }
+  >;
   declare addProduct: BelongsToManyAddAssociationMixin<
     Product,
     { through: CartItem }

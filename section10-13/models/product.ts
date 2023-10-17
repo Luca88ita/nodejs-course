@@ -11,6 +11,7 @@ import {
 import sequelize from "../util/database";
 import User from "./user";
 import CartItem from "./cart-item";
+import OrderItem from "./order-item";
 
 // Class Approach
 class Product extends Model<
@@ -26,12 +27,14 @@ class Product extends Model<
 
   declare user?: NonAttribute<User>;
   declare CartItem?: NonAttribute<CartItem>;
+  declare OrderItem?: NonAttribute<OrderItem>;
 
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
 
   declare static associations: {
     cartItem: Association<Product, CartItem>;
+    orderItem: Association<Product, OrderItem>;
   };
 }
 

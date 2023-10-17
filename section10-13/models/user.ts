@@ -22,6 +22,7 @@ import {
 import sequelize from "../util/database";
 import Product from "./product";
 import Cart from "./cart";
+import Order from "./order";
 
 class User extends Model<
   InferAttributes<User, { omit: "products" }>,
@@ -47,6 +48,9 @@ class User extends Model<
 
   declare getCart: HasOneGetAssociationMixin<Cart>;
   declare createCart: HasOneCreateAssociationMixin<Cart>;
+
+  declare getOrders: HasManyGetAssociationsMixin<Order>;
+  declare createOrder: HasManyCreateAssociationMixin<Order>;
 
   declare products?: NonAttribute<Product[]>;
 

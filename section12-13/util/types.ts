@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import User from "../models/user";
+import { ObjectId } from "mongodb";
 
 export type CartProduct = {
   id: string;
@@ -17,4 +18,13 @@ export type CartType = {
 
 export interface UserRequest extends Request {
   user?: User | null;
+}
+
+export interface CartItem {
+  _productId: ObjectId | undefined;
+  quantity: number;
+}
+
+export interface Cart {
+  items: CartItem[] | [];
 }

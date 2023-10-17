@@ -1,173 +1,113 @@
-import {
-  Association,
-  CreationOptional,
-  DataTypes,
-  HasManyAddAssociationMixin,
-  HasManyAddAssociationsMixin,
-  HasManyCountAssociationsMixin,
-  HasManyCreateAssociationMixin,
-  HasManyGetAssociationsMixin,
-  HasManyHasAssociationMixin,
-  HasManyHasAssociationsMixin,
-  HasManyRemoveAssociationMixin,
-  HasManyRemoveAssociationsMixin,
-  HasManySetAssociationsMixin,
-  HasOneCreateAssociationMixin,
-  HasOneGetAssociationMixin,
-  InferAttributes,
-  InferCreationAttributes,
-  Model,
-  NonAttribute,
-} from "sequelize";
-import sequelize from "../util/database";
+import { ObjectId } from "mongodb";
+import { client } from "../util/database";
 import Product from "./product";
-import Cart from "./cart";
-import Order from "./order";
+import { Cart } from "../util/types";
+import { products } from "../../section06/routes/admin";
 
-class User extends Model<
-  InferAttributes<User, { omit: "products" }>,
-  InferCreationAttributes<User>
-> {
-  declare id: CreationOptional<number>;
-  declare username: string;
-  declare email: string;
+const db = client.db();
 
-  declare createdAt: CreationOptional<Date>;
-  declare updatedAt: CreationOptional<Date>;
-
-  declare getProducts: HasManyGetAssociationsMixin<Product>;
-  declare addProduct: HasManyAddAssociationMixin<Product, number>;
-  declare addProducts: HasManyAddAssociationsMixin<Product, number>;
-  declare setProducts: HasManySetAssociationsMixin<Product, number>;
-  declare removeProduct: HasManyRemoveAssociationMixin<Product, number>;
-  declare removeProducts: HasManyRemoveAssociationsMixin<Product, number>;
-  declare hasProduct: HasManyHasAssociationMixin<Product, number>;
-  declare hasProducts: HasManyHasAssociationsMixin<Product, number>;
-  declare countProducts: HasManyCountAssociationsMixin;
-  declare createProduct: HasManyCreateAssociationMixin<Product>;
-
-  declare getCart: HasOneGetAssociationMixin<Cart>;
-  declare createCart: HasOneCreateAssociationMixin<Cart>;
-
-  declare getOrders: HasManyGetAssociationsMixin<Order>;
-  declare createOrder: HasManyCreateAssociationMixin<Order>;
-
-  declare products?: NonAttribute<Product[]>;
-
-  declare static associations: {
-    products: Association<User, Product>;
-  };
-}
-
-User.init(
-  {
-    id: {
-      type: DataTypes.INTEGER.UNSIGNED,
-      autoIncrement: true,
-      allowNull: false,
-      primaryKey: true,
-    },
-    username: {
-      type: new DataTypes.STRING(120),
-      allowNull: false,
-    },
-    email: {
-      type: new DataTypes.STRING(255),
-      allowNull: false,
-    },
-    createdAt: DataTypes.DATE,
-    updatedAt: DataTypes.DATE,
-  },
-  {
-    sequelize,
-    tableName: "users",
-    paranoid: true,
-    deletedAt: "destroyTime",
-  }
-);
-
-export default User;
-
-/*
-import {
-  Table,
-  Column,
-  Model,
-  HasMany,
-  DataType,
-  CreatedAt,
-  DeletedAt,
-  UpdatedAt,
-} from "sequelize-typescript";
-import sequelize from "../util/database";
-import Product from "./product";
-import { Optional } from "sequelize";
-
-type UserAttributes = {
-  id: number;
+class User {
   username: string;
   email: string;
-};
+  cart: Cart;
+  _id: ObjectId | undefined;
 
-type UserCreationAttributes = Optional<UserAttributes, "id">;
+  constructor(
+    username: string,
+    email: string,
+    cart: Cart,
+    id?: string | undefined
+  ) {
+    this.username = username;
+    this.email = email;
+    this.cart = cart;
+    this._id = id ? new ObjectId(id) : undefined;
+  }
 
-@Table
-class User extends Model<UserAttributes, UserCreationAttributes> {
-  @Column({
-    type: DataType.INTEGER,
-    autoIncrement: true,
-    allowNull: false,
-    primaryKey: true,
-  })
-  declare id: number;
-  @Column({
-    type: DataType.STRING(120),
-    allowNull: false,
-  })
-  declare username: string;
-  @Column({
-    type: DataType.STRING(255),
-    allowNull: false,
-  })
-  declare email: string;
+  async save() {
+    const dbOperation = this._id
+      ? db
+          .collection<User>("users")
+          .updateOne({ _id: this._id }, { $set: this })
+      : db.collection<User>("users").insertOne(this);
+    return dbOperation
+      .then((result) => console.log(result))
+      .catch((err) => console.log(err));
+  }
 
-  @CreatedAt
-  creationDate: Date;
+  static async deleteById(userId: string) {
+    try {
+      const result = await db
+        .collection<User>("users")
+        .deleteOne({ _id: new ObjectId(userId) });
+      return console.log(result);
+    } catch (err) {
+      return console.log(err);
+    }
+  }
 
-  @UpdatedAt
-  updatedOn: Date;
+  static async fetchAll() {
+    try {
+      const users = await db.collection<User>("users").find().toArray();
+      //console.log(users);
+      return users;
+    } catch (err) {
+      return console.log(err);
+    }
+  }
 
-  @DeletedAt
-  deletionDate: Date;
+  static async findById(userId: string) {
+    try {
+      const user = await db
+        .collection<User>("users")
+        .findOne({ _id: new ObjectId(userId) });
+      //console.log(user);
+      return user;
+    } catch (err) {
+      return console.log(err);
+    }
+  }
 
-  @HasMany(() => Product)
-  products: Product[];
+  async getCart() {
+    const productIds = this.cart.items.map((item) => {
+      return item._productId;
+    });
+    return db
+      .collection<Product>("products")
+      .find({ _id: { $in: productIds } })
+      .toArray()
+      .then((products) => {
+        return products.map((product) => {
+          return {
+            ...product,
+            quantity: this.cart.items.find((item) => {
+              return item._productId?.toString() === product._id?.toString();
+            })?.quantity,
+          };
+        });
+      });
+  }
+
+  async addToCart(product: Product) {
+    const cartProductIndex = this.cart.items.findIndex((cp) => {
+      return cp._productId?.toString() === product._id?.toString();
+    });
+    const updatedCartItems = [...this.cart.items];
+
+    const quantity =
+      cartProductIndex >= 0
+        ? updatedCartItems[cartProductIndex].quantity + 1
+        : 1;
+
+    cartProductIndex >= 0
+      ? (updatedCartItems[cartProductIndex].quantity = quantity)
+      : updatedCartItems.push({ _productId: product._id, quantity: quantity });
+
+    const updatedCart = { items: updatedCartItems };
+    return db
+      .collection("users")
+      .updateOne({ _id: this._id }, { $set: { cart: updatedCart } });
+  }
 }
 
-User.init(
-  {
-    id: {
-      type: DataType.INTEGER,
-      autoIncrement: true,
-      allowNull: false,
-      primaryKey: true,
-    },
-    username: {
-      type: DataType.STRING(120),
-      allowNull: false,
-    },
-    email: {
-      type: DataType.STRING(255),
-      allowNull: false,
-    },
-  },
-  {
-    sequelize,
-    tableName: "users",
-    paranoid: true,
-    deletedAt: "destroyTime",
-  }
-);
-
 export default User;
-*/

@@ -25,7 +25,13 @@ namespace AdminController {
       ? req.body.description
       : "No description available";
     const price = +req.body.price;
-    const product: Product = new Product(title, price, description, imageUrl);
+    const product: Product = new Product(
+      title,
+      price,
+      description,
+      imageUrl,
+      req.user!._id
+    );
     product
       .save()
       .then(() => {
@@ -65,6 +71,7 @@ namespace AdminController {
       +req.body.price,
       req.body.description,
       req.body.imageUrl,
+      req.user!._id,
       productId
     );
     Product.findById(productId)

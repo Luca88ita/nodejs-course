@@ -1,9 +1,6 @@
 import { RequestHandler } from "express";
-import Cart from "../models/cart";
-//import Product from "../models/product";
 import { UserRequest } from "../util/types";
 import Product from "../models/product";
-import { ObjectId } from "mongodb";
 
 namespace ShopController {
   export const getProducts: RequestHandler = (req, res, next) => {
@@ -51,18 +48,13 @@ namespace ShopController {
   };
 
   export const getCart: RequestHandler = (req: UserRequest, res, next) => {
-    /* req
+    req
       .user!.getCart()
-      .then((cart): void | Promise<Product[]> | Product[] => {
-        if (!cart) return res.redirect("/errors/400");
-        return cart.getProducts();
-      })
       .then((products) => {
         let totalPrice = 0;
         if (products)
           products.forEach((product) => {
-            totalPrice =
-              totalPrice + product.price * product.CartItem!.quantity;
+            totalPrice = totalPrice + product.price * product.quantity!;
           });
         res.render("shop/cart", {
           pageTitle: "Your Cart",
@@ -73,35 +65,17 @@ namespace ShopController {
       })
       .catch((err) => {
         console.log(err);
-      }); */
+      });
   };
 
   export const postCart: RequestHandler = (req: UserRequest, res, next) => {
     const productId = req.body.productId;
-    /* let fetchedCart: Cart;
-    let newQuantity = 1;
-    req
-      .user!.getCart()
-      .then((cart) => {
-        fetchedCart = cart;
-        return cart.getProducts({
-          where: { id: productId },
-        });
-      })
-      .then((products): Promise<any> | void => {
-        const product = products[0];
-        if (!product) return Product.findByPk(productId);
-        const oldQuantity = product.CartItem!.quantity;
-        newQuantity = oldQuantity + 1;
-        return Promise.resolve(product);
-      })
+    Product.findById(productId)
       .then((product) => {
-        return fetchedCart.addProduct(product, {
-          through: { quantity: newQuantity },
-        });
+        return req.user!.addToCart(product as Product);
       })
       .then(() => res.redirect("/cart"))
-      .catch((err) => console.log(err)); */
+      .catch((err) => console.log(err));
   };
 
   export const postCartDeleteItem: RequestHandler = (

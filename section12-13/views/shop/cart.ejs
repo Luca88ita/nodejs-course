@@ -33,7 +33,7 @@
                                     Price: $<%= product.price.toFixed(2) %>
                                 </h3>
                                 <h3 class="item__quantity">
-                                    Q.ty: <%= product.CartItem.quantity %>
+                                    Q.ty: <%= product.quantity %>
                                 </h3>
                                 <form action="/cart-delete-item" method="post">
                                     <input type="hidden" name="productId" value="<%= product._id %>">

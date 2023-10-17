@@ -16,7 +16,8 @@
     "start06a": "nodemon ./section06-assignment/app.ts",
     "start07": "nodemon ./section07-09/app.ts",
     "start10": "nodemon ./section10-11/app.ts",
-    "start12": "nodemon ./section12-13/app.ts"
+    "start12": "nodemon ./section12/app.ts",
+    "start13": "nodemon ./section13/app.ts"
   },
   "dependencies": {
     "body-parser": "^1.20.2",
@@ -24,6 +25,7 @@
     "express": "^4.18.2",
     "express-handlebars": "^7.1.2",
     "mongodb": "^6.1.0",
+    "mongoose": "^7.6.3",
     "mysql2": "^3.6.1",
     "pug": "^3.0.2",
     "sequelize": "^6.33.0",

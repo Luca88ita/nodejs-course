@@ -66,8 +66,6 @@ Order.hasMany(OrderItem);
 sequelize
   .sync(/* { force: true } */)
   .then((res) => {
-    //console.log(sequelize.models);
-    //console.log(res);
     return User.findByPk(1);
   })
   .then((user) => {

@@ -1,7 +1,4 @@
 import { RequestHandler } from "express";
-
-import Product from "../models/product";
-
 import { UserRequest } from "../util/types";
 
 namespace AdminController {

@@ -2,8 +2,6 @@ import { RequestHandler } from "express";
 import Cart from "../models/cart";
 import Product from "../models/product";
 import { UserRequest } from "../util/types";
-import { products } from "../../section06/routes/admin";
-import OrderItem from "../models/order-item";
 
 namespace ShopController {
   export const getProducts: RequestHandler = (req, res, next) => {
@@ -49,46 +47,27 @@ namespace ShopController {
   export const getCart: RequestHandler = (req: UserRequest, res, next) => {
     req
       .user!.getCart()
-      .then((cart): void | Promise<any> => {
+      .then((cart): void | Promise<Product[]> | Product[] => {
         if (!cart) return res.redirect("/errors/400");
         return cart.getProducts();
       })
       .then((products) => {
+        let totalPrice = 0;
+        if (products)
+          products.forEach((product) => {
+            totalPrice =
+              totalPrice + product.price * product.CartItem!.quantity;
+          });
         res.render("shop/cart", {
           pageTitle: "Your Cart",
           path: "/cart",
           products,
-          totalPrice: 10, //cart.totalPrice.toFixed(2),
+          totalPrice: totalPrice.toFixed(2),
         });
       })
       .catch((err) => {
         console.log(err);
       });
-    /*Cart.getCart((cart: CartType) => {
-      Product.fetchAll((products) => {
-        const cartProducts: CartProduct[] = [];
-        products.forEach((product) => {
-          const cartProductData = cart.products.find(
-            (prod) => prod.id === product.id
-          );
-          cartProductData &&
-            cartProducts.push({
-              id: product.id,
-              price: product.price,
-              qty: cartProductData.qty,
-              title: product.title,
-              description: product.description!,
-              imageUrl: product.imageUrl!,
-            });
-        });
-        res.render("shop/cart", {
-          pageTitle: "Your Cart",
-          path: "/cart",
-          products: cartProducts,
-          totalPrice: cart.totalPrice.toFixed(2),
-        });
-      });
-    });*/
   };
 
   export const postCart: RequestHandler = (req: UserRequest, res, next) => {
@@ -142,8 +121,6 @@ namespace ShopController {
     req
       .user!.getOrders({ include: ["Products"] })
       .then((orders) => {
-        //orders.forEach((order) => console.log(order.Products));
-        //console.log(orders);
         res.render("shop/orders", {
           pageTitle: "Your Cart",
           path: "/orders",

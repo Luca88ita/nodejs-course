@@ -9,7 +9,7 @@
             <%} else { %>
                 <ul>
                     <% orders.forEach(order =>{ %>
-                    <li><h1><%= order.id %></h1></li>
+                    <li><h1><%= order._id %></h1></li>
                     <ul>
                         <% order.Products.forEach(product =>{ %>
                             <li><%= product.title %> - <%= product.OrderItem.quantity %></li>

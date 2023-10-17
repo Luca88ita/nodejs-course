@@ -21,7 +21,7 @@
                                 <div class="item__image">
                                     <img src="<%= product.imageUrl %>" alt="<%= product.title %>">
                                 </div>
-                                <a class="btn" href="/products/<%= product.id %>">Details</a>
+                                <a class="btn" href="/products/<%= product._id %>">Details</a>
                             </header>
 
                             <p class="item__description">
@@ -36,7 +36,7 @@
                                     Q.ty: <%= product.CartItem.quantity %>
                                 </h3>
                                 <form action="/cart-delete-item" method="post">
-                                    <input type="hidden" name="productId" value="<%= product.id %>">
+                                    <input type="hidden" name="productId" value="<%= product._id %>">
                                     <button type="submit">Delete</button>
                                 </form>
                             </div>

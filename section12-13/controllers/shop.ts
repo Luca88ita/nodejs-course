@@ -2,23 +2,27 @@ import { RequestHandler } from "express";
 import Cart from "../models/cart";
 //import Product from "../models/product";
 import { UserRequest } from "../util/types";
+import Product from "../models/product";
+import { ObjectId } from "mongodb";
 
 namespace ShopController {
   export const getProducts: RequestHandler = (req, res, next) => {
-    /* Product.findAll()
+    Product.fetchAll()
       .then((products) => {
+        if (!products || products.length <= 0)
+          return res.redirect("/errors/400");
         res.render("shop/product-list", {
           products,
           pageTitle: "All Products",
           path: "/products",
         });
       })
-      .catch((err) => console.log(err)); */
+      .catch((err) => console.log(err));
   };
 
   export const getProduct: RequestHandler = (req, res, next) => {
     const productId: string = req.params.productId;
-    /* Product.findByPk(productId)
+    Product.findById(productId)
       .then((product) => {
         if (!product) return res.redirect("/errors/400");
         res.render("shop/product-detail", {
@@ -29,19 +33,21 @@ namespace ShopController {
       })
       .catch((err) => {
         console.log(err);
-      }); */
+      });
   };
 
   export const getIndex: RequestHandler = (req, res, next) => {
-    /* Product.findAll()
+    Product.fetchAll()
       .then((products) => {
+        if (!products || products.length <= 0)
+          return res.redirect("/errors/400");
         res.render("shop/index", {
           products,
           pageTitle: "Shop",
           path: "/",
         });
       })
-      .catch((err) => console.log(err)); */
+      .catch((err) => console.log(err));
   };
 
   export const getCart: RequestHandler = (req: UserRequest, res, next) => {

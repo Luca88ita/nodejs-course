@@ -1,8 +1,7 @@
 import { ObjectId } from "mongodb";
 import { client } from "../util/database";
 import Product from "./product";
-import { Cart } from "../util/types";
-import { products } from "../../section06/routes/admin";
+import { Cart, Order } from "../util/types";
 
 const db = client.db();
 
@@ -23,7 +22,7 @@ class User {
     this.cart = cart;
     this._id = id ? new ObjectId(id) : undefined;
   }
-
+  // USER METHODS
   async save() {
     const dbOperation = this._id
       ? db
@@ -67,7 +66,7 @@ class User {
       return console.log(err);
     }
   }
-
+  // CART METHODS
   async getCart() {
     const productIds = this.cart.items.map((item) => {
       return item._productId;
@@ -120,6 +119,35 @@ class User {
         { _id: this._id },
         { $set: { cart: { items: updatedCartItems } } }
       );
+  }
+  // ORDER METHODS
+  addOrder() {
+    return this.getCart()
+      .then((products) => {
+        const order: Order = {
+          items: products,
+          user: {
+            _id: this._id,
+            username: this.username,
+            email: this.email,
+          },
+        };
+        return db.collection<Order>("orders").insertOne(order);
+      })
+      .then((result) => {
+        this.cart = { items: [] };
+        db.collection("users").updateOne(
+          { _id: this._id },
+          { $set: { cart: { items: [] } } }
+        );
+      });
+  }
+
+  getOrders() {
+    return db
+      .collection<Order>("orders")
+      .find({ "user._id": this._id })
+      .toArray();
   }
 }
 

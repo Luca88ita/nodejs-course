@@ -91,8 +91,8 @@ namespace ShopController {
   };
 
   export const getOrders: RequestHandler = (req: UserRequest, res, next) => {
-    /* req
-      .user!.getOrders({ include: ["Products"] })
+    req
+      .user!.getOrders()
       .then((orders) => {
         res.render("shop/orders", {
           pageTitle: "Your Cart",
@@ -102,39 +102,16 @@ namespace ShopController {
       })
       .catch((err) => {
         console.log(err);
-      }); */
+      });
   };
 
   export const postOrder: RequestHandler = (req: UserRequest, res, next) => {
-    /* let fetchCart: Cart;
     req
-      .user!.getCart()
-      .then((cart) => {
-        fetchCart = cart;
-        return cart.getProducts();
-      })
-      .then((products) => {
-        return req
-          .user!.createOrder()
-          .then((order) => {
-            return order.addProducts(
-              products.map((product) => {
-                //@ts-ignore
-                product.OrderItem = { quantity: product.CartItem!.quantity };
-                return product;
-              })
-            );
-          })
-          .catch((err) => console.log(err));
-      })
+      .user!.addOrder()
       .then((result) => {
-        //@ts-ignore
-        return fetchCart.setProducts(null);
-      })
-      .then(() => {
         res.redirect("/orders");
       })
-      .catch((err) => console.log(err)); */
+      .catch((err) => console.log(err));
   };
 
   export const getCheckout: RequestHandler = (req, res, next) => {

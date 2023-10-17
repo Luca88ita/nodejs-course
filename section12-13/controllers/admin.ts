@@ -1,5 +1,6 @@
 import { RequestHandler } from "express";
 import { UserRequest } from "../util/types";
+import Product from "../models/product";
 
 namespace AdminController {
   export const getAddProduct: RequestHandler = (req, res, next) => {
@@ -23,7 +24,9 @@ namespace AdminController {
       ? req.body.description
       : "No description available";
     const price = +req.body.price;
-    req
+    const product: Product = new Product(title, price, description, imageUrl);
+    product.save();
+    /* req
       .user!.createProduct({
         title,
         imageUrl,
@@ -34,7 +37,7 @@ namespace AdminController {
         console.log("Product added successfully");
         return res.redirect("/admin/products");
       })
-      .catch((err) => console.log(err));
+      .catch((err) => console.log(err)); */
   };
 
   export const getEditProduct: RequestHandler = (
@@ -45,7 +48,7 @@ namespace AdminController {
     const editMode = req.query.edit;
     if (!editMode) return res.redirect("/");
     const productId = req.params.productId;
-    req.user!.getProducts({ where: { id: productId } }).then((products) => {
+    /* req.user!.getProducts({ where: { id: productId } }).then((products) => {
       const product = products[0];
       if (!product) return res.redirect("/errors/400");
       res.render("admin/edit-product", {
@@ -54,7 +57,7 @@ namespace AdminController {
         editing: editMode,
         product,
       });
-    });
+    }); */
   };
 
   export const postEditProduct: RequestHandler = (
@@ -63,7 +66,7 @@ namespace AdminController {
     next
   ) => {
     const productId = req.body.productId;
-    req
+    /*  req
       .user!.getProducts({ where: { id: productId } })
       .then((products): Promise<any> | void => {
         const product = products[0];
@@ -78,7 +81,7 @@ namespace AdminController {
         console.log("Product info updated succesfully!");
         return res.redirect("/messages/edit-success");
       })
-      .catch((err) => console.log(err));
+      .catch((err) => console.log(err)); */
   };
 
   export const postDeleteProduct: RequestHandler = (
@@ -87,7 +90,7 @@ namespace AdminController {
     next
   ) => {
     const productId = req.body.productId;
-    req
+    /* req
       .user!.getProducts({ where: { id: productId } })
       .then((products): Promise<any> | void => {
         const product = products[0];
@@ -98,11 +101,11 @@ namespace AdminController {
         console.log("Product deleted succesfully!");
         return res.redirect("/messages/delete-success");
       })
-      .catch((err) => console.log(err));
+      .catch((err) => console.log(err)); */
   };
 
   export const getProducts: RequestHandler = (req: UserRequest, res, next) => {
-    req
+    /* req
       .user!.getProducts()
       .then((products) => {
         if (products.length <= 0) return res.redirect("/errors/400");
@@ -112,7 +115,7 @@ namespace AdminController {
           products,
         });
       })
-      .catch((err) => console.log(err));
+      .catch((err) => console.log(err)); */
   };
 }
 

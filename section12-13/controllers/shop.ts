@@ -1,11 +1,11 @@
 import { RequestHandler } from "express";
 import Cart from "../models/cart";
-import Product from "../models/product";
+//import Product from "../models/product";
 import { UserRequest } from "../util/types";
 
 namespace ShopController {
   export const getProducts: RequestHandler = (req, res, next) => {
-    Product.findAll()
+    /* Product.findAll()
       .then((products) => {
         res.render("shop/product-list", {
           products,
@@ -13,12 +13,12 @@ namespace ShopController {
           path: "/products",
         });
       })
-      .catch((err) => console.log(err));
+      .catch((err) => console.log(err)); */
   };
 
   export const getProduct: RequestHandler = (req, res, next) => {
     const productId: string = req.params.productId;
-    Product.findByPk(productId)
+    /* Product.findByPk(productId)
       .then((product) => {
         if (!product) return res.redirect("/errors/400");
         res.render("shop/product-detail", {
@@ -29,11 +29,11 @@ namespace ShopController {
       })
       .catch((err) => {
         console.log(err);
-      });
+      }); */
   };
 
   export const getIndex: RequestHandler = (req, res, next) => {
-    Product.findAll()
+    /* Product.findAll()
       .then((products) => {
         res.render("shop/index", {
           products,
@@ -41,11 +41,11 @@ namespace ShopController {
           path: "/",
         });
       })
-      .catch((err) => console.log(err));
+      .catch((err) => console.log(err)); */
   };
 
   export const getCart: RequestHandler = (req: UserRequest, res, next) => {
-    req
+    /* req
       .user!.getCart()
       .then((cart): void | Promise<Product[]> | Product[] => {
         if (!cart) return res.redirect("/errors/400");
@@ -67,12 +67,12 @@ namespace ShopController {
       })
       .catch((err) => {
         console.log(err);
-      });
+      }); */
   };
 
   export const postCart: RequestHandler = (req: UserRequest, res, next) => {
     const productId = req.body.productId;
-    let fetchedCart: Cart;
+    /* let fetchedCart: Cart;
     let newQuantity = 1;
     req
       .user!.getCart()
@@ -95,7 +95,7 @@ namespace ShopController {
         });
       })
       .then(() => res.redirect("/cart"))
-      .catch((err) => console.log(err));
+      .catch((err) => console.log(err)); */
   };
 
   export const postCartDeleteItem: RequestHandler = (
@@ -104,7 +104,7 @@ namespace ShopController {
     next
   ) => {
     const productId: string = req.body.productId;
-    req
+    /* req
       .user!.getCart()
       .then((cart) => {
         return cart.getProducts({ where: { id: productId } });
@@ -114,11 +114,11 @@ namespace ShopController {
         return product.CartItem!.destroy();
       })
       .then((result) => res.redirect("/cart"))
-      .catch((err) => console.log(err));
+      .catch((err) => console.log(err)); */
   };
 
   export const getOrders: RequestHandler = (req: UserRequest, res, next) => {
-    req
+    /* req
       .user!.getOrders({ include: ["Products"] })
       .then((orders) => {
         res.render("shop/orders", {
@@ -129,11 +129,11 @@ namespace ShopController {
       })
       .catch((err) => {
         console.log(err);
-      });
+      }); */
   };
 
   export const postOrder: RequestHandler = (req: UserRequest, res, next) => {
-    let fetchCart: Cart;
+    /* let fetchCart: Cart;
     req
       .user!.getCart()
       .then((cart) => {
@@ -161,7 +161,7 @@ namespace ShopController {
       .then(() => {
         res.redirect("/orders");
       })
-      .catch((err) => console.log(err));
+      .catch((err) => console.log(err)); */
   };
 
   export const getCheckout: RequestHandler = (req, res, next) => {

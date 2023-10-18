@@ -1,6 +1,6 @@
 import { RequestHandler } from "express";
 import { UserRequest } from "../util/types";
-import Product from "../models/product";
+import Product, { ProductType } from "../models/product";
 
 namespace ShopController {
   export const getProducts: RequestHandler = (req, res, next) => {
@@ -70,12 +70,13 @@ namespace ShopController {
 
   export const postCart: RequestHandler = (req: UserRequest, res, next) => {
     const productId = req.body.productId;
-    /* Product.findById(productId)
+    Product.findById(productId)
       .then((product) => {
-        return req.user!.addToCart(product as Product);
+        //@ts-ignore
+        return req.user!.addToCart(product as ProductType);
       })
       .then(() => res.redirect("/cart"))
-      .catch((err) => console.log(err)); */
+      .catch((err) => console.log(err));
   };
 
   export const postCartDeleteItem: RequestHandler = (

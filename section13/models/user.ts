@@ -1,26 +1,56 @@
-import { Schema, Types, model } from "mongoose";
-import { Cart } from "../util/types";
+import { Model, Schema, Types, model } from "mongoose";
+import { Cart, CartItem, CartProduct } from "../util/types";
+import { ProductType } from "./product";
 
-export interface UserType {
+export interface IUser {
   username: string;
   email: string;
   cart: Cart;
+  _id: Types.ObjectId;
 }
 
-const userSchema = new Schema<UserType>({
+interface IUserMethods {
+  addToCart(): void;
+}
+
+type UserModel = Model<IUser, {}, IUserMethods>;
+
+const userSchema = new Schema<IUser, UserModel, IUserMethods>({
   username: { type: String, required: true },
   email: { type: String, required: true },
   cart: {
     items: [
       {
-        _productId: { type: Types.ObjectId, required: true },
+        _productId: {
+          type: Schema.Types.ObjectId,
+          ref: "Product",
+          required: true,
+        },
         quantity: { type: Number, required: true },
       },
     ],
   },
 });
 
-const User = model<UserType>("User", userSchema);
+userSchema.method("addToCart", function addToCart(product: ProductType) {
+  const cartProductIndex = this.cart.items.findIndex((ci: CartItem) => {
+    return ci._productId?.toString() === product._id?.toString();
+  });
+  const updatedCartItems = [...this.cart.items];
+
+  const quantity =
+    cartProductIndex >= 0 ? updatedCartItems[cartProductIndex].quantity + 1 : 1;
+
+  cartProductIndex >= 0
+    ? (updatedCartItems[cartProductIndex].quantity = quantity)
+    : updatedCartItems.push({ _productId: product._id, quantity: quantity });
+
+  const updatedCart = { items: updatedCartItems };
+  this.cart = updatedCart;
+  return this.save();
+});
+
+const User = model<IUser, UserModel>("User", userSchema);
 
 export default User;
 /* 

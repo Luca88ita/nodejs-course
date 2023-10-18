@@ -29,7 +29,7 @@ namespace AdminController {
       price,
       description,
       imageUrl,
-      //_id:req.user!._id
+      _userId: req.user,
     });
     product
       .save()
@@ -98,6 +98,9 @@ namespace AdminController {
 
   export const getProducts: RequestHandler = (req: UserRequest, res, next) => {
     Product.find()
+      //the code commented below is only here as example
+      /* .select("title price -imageUrl")
+      .populate("_userId", "name") */
       .then((products) => {
         if (!products || products.length <= 0)
           return res.redirect("/errors/400");

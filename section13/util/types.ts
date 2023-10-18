@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { UserType } from "../models/user";
+import { IUser } from "../models/user";
 import Product from "../models/product";
 import { Types } from "mongoose";
 
@@ -18,7 +18,7 @@ export type CartType = {
 };
 
 export interface UserRequest extends Request {
-  user?: UserType | null;
+  user?: IUser | null;
 }
 
 export interface CartItem {

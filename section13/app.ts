@@ -13,9 +13,10 @@ import mainPath from "./util/path";
 import mongoose from "mongoose";
 
 import { UserRequest } from "./util/types";
+import User from "./models/user";
 
 const app = express();
-const userId = "652efa81698c348fb6ae91fb";
+const userId = "652fd6ba0dd5af92c46c8866";
 
 app.set("view engine", "ejs"); // here we tell to express that we want to compile dinamic templates with ejs engine
 
@@ -24,15 +25,14 @@ app.set("views", "./section13/views"); // necessary because we put our views in 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(mainPath as string, "public")));
 
-/* app.use((req: UserRequest, res, next) => {
+app.use((req: UserRequest, res, next) => {
   User.findById(userId)
     .then((user) => {
-      if (user)
-        req.user = new User(user.username, user.email, user.cart, userId);
+      if (user) req.user = user;
       next();
     })
     .catch((err) => console.log(err));
-}); */
+});
 
 // used routes
 app.use("/admin", adminRoutes);
@@ -44,15 +44,19 @@ mongoose
   .connect(
     "mongodb+srv://nodejs:chmIiGq8tLlXsnHd@cluster0.1h7avzh.mongodb.net/shop?retryWrites=true&w=majority"
   )
-  /*.then(() => {
+  .then(() => {
     return User.findById(userId);
   })
   .then((result) => {
     if (!result) {
-      const user = new User("luca1988", "prova@prova.com", { items: [] });
+      const user = new User({
+        username: "luca1988",
+        email: "prova@prova.com",
+        cart: { items: [] },
+      });
       user.save();
     }
-  })*/
+  })
   .then(() => {
     app.listen(3000);
   })

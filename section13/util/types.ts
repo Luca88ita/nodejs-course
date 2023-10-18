@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
-import User from "../models/user";
-import { ObjectId } from "mongodb";
+import { UserType } from "../models/user";
 import Product from "../models/product";
+import { Types } from "mongoose";
 
 export type CartProduct = {
   id: string;
@@ -18,11 +18,11 @@ export type CartType = {
 };
 
 export interface UserRequest extends Request {
-  user?: User | null;
+  user?: UserType | null;
 }
 
 export interface CartItem {
-  _productId: ObjectId | undefined;
+  _productId: Types.ObjectId | undefined;
   quantity: number;
 }
 
@@ -36,14 +36,14 @@ export interface OrderItem {
   price: number;
   description: string;
   imageUrl: string;
-  _userId: ObjectId | undefined;
-  _id: ObjectId | undefined;
+  _userId: Types.ObjectId | undefined;
+  _id: Types.ObjectId | undefined;
 }
 
 export interface Order {
   items: OrderItem[] | [];
   user: {
-    _id: ObjectId | undefined;
+    _id: Types.ObjectId | undefined;
     username: string;
     email: string;
   };

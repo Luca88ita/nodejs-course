@@ -1,13 +1,23 @@
-import mongoose from "mongoose";
+import { Schema, Types, model } from "mongoose";
 
-const Schema = mongoose.Schema;
+export interface ProductType {
+  title: string;
+  price: number;
+  description: string;
+  imageUrl: string;
+  _id: Types.ObjectId;
+}
 
-const productSchema = new Schema({
+const productSchema = new Schema<ProductType>({
   title: { type: String, required: true },
   price: { type: Number, required: true },
   description: { type: String, required: true },
   imageUrl: { type: String, required: true },
 });
+
+const Product = model<ProductType>("Product", productSchema);
+
+export default Product;
 
 /* 
 const db = client.db();

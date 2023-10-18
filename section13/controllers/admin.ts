@@ -1,5 +1,6 @@
 import { RequestHandler } from "express";
 import { UserRequest } from "../util/types";
+import Product, { ProductType } from "../models/product";
 
 namespace AdminController {
   export const getAddProduct: RequestHandler = (req, res, next) => {
@@ -23,20 +24,20 @@ namespace AdminController {
       ? req.body.description
       : "No description available";
     const price = +req.body.price;
-    /* const product: Product = new Product(
+    const product = new Product({
       title,
       price,
       description,
       imageUrl,
-      req.user!._id
-    );
+      //_id:req.user!._id
+    });
     product
       .save()
       .then(() => {
         console.log("Product added successfully");
         return res.redirect("/admin/products");
       })
-      .catch((err) => console.log(err)); */
+      .catch((err) => console.log(err));
   };
 
   export const getEditProduct: RequestHandler = (
@@ -47,7 +48,7 @@ namespace AdminController {
     const editMode = req.query.edit;
     if (!editMode) return res.redirect("/");
     const productId = req.params.productId;
-    /* Product.findById(productId).then((product) => {
+    Product.findById(productId).then((product) => {
       if (!product) return res.redirect("/errors/400");
       res.render("admin/edit-product", {
         pageTitle: "Edit Product",
@@ -55,7 +56,7 @@ namespace AdminController {
         editing: editMode,
         product,
       });
-    }); */
+    });
   };
 
   export const postEditProduct: RequestHandler = (
@@ -64,24 +65,21 @@ namespace AdminController {
     next
   ) => {
     const productId = req.body.productId;
-    /* const updatedProduct = new Product(
-      req.body.title,
-      +req.body.price,
-      req.body.description,
-      req.body.imageUrl,
-      req.user!._id,
-      productId
-    );
+
     Product.findById(productId)
-      .then((productData) => {
-        if (!productData) return res.redirect("/errors/400");
-        return updatedProduct.save();
+      .then((product): ProductType | void | Promise<ProductType> => {
+        if (!product) return res.redirect("/errors/400");
+        product.title = req.body.title;
+        product.price = +req.body.price;
+        product.description = req.body.description;
+        product.imageUrl = req.body.imageUrl;
+        return product.save();
       })
       .then((result) => {
         console.log("Product info updated succesfully!");
         return res.redirect("/messages/edit-success");
       })
-      .catch((err) => console.log(err)); */
+      .catch((err) => console.log(err));
   };
 
   export const postDeleteProduct: RequestHandler = (
@@ -90,16 +88,16 @@ namespace AdminController {
     next
   ) => {
     const productId = req.body.productId;
-    /* Product.deleteById(productId)
+    Product.findByIdAndRemove(productId)
       .then((result) => {
         console.log("Product deleted succesfully!");
         return res.redirect("/messages/delete-success");
       })
-      .catch((err) => console.log(err)); */
+      .catch((err) => console.log(err));
   };
 
   export const getProducts: RequestHandler = (req: UserRequest, res, next) => {
-    /* Product.fetchAll()
+    Product.find()
       .then((products) => {
         if (!products || products.length <= 0)
           return res.redirect("/errors/400");
@@ -109,7 +107,7 @@ namespace AdminController {
           products,
         });
       })
-      .catch((err) => console.log(err)); */
+      .catch((err) => console.log(err));
   };
 }
 

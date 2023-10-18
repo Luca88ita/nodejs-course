@@ -1,9 +1,10 @@
 import { RequestHandler } from "express";
 import { UserRequest } from "../util/types";
+import Product from "../models/product";
 
 namespace ShopController {
   export const getProducts: RequestHandler = (req, res, next) => {
-    /* Product.fetchAll()
+    Product.find()
       .then((products) => {
         if (!products || products.length <= 0)
           return res.redirect("/errors/400");
@@ -13,12 +14,12 @@ namespace ShopController {
           path: "/products",
         });
       })
-      .catch((err) => console.log(err)); */
+      .catch((err) => console.log(err));
   };
 
   export const getProduct: RequestHandler = (req, res, next) => {
     const productId: string = req.params.productId;
-    /* Product.findById(productId)
+    Product.findById(productId)
       .then((product) => {
         if (!product) return res.redirect("/errors/400");
         res.render("shop/product-detail", {
@@ -29,11 +30,11 @@ namespace ShopController {
       })
       .catch((err) => {
         console.log(err);
-      }); */
+      });
   };
 
   export const getIndex: RequestHandler = (req, res, next) => {
-    /* Product.fetchAll()
+    Product.find()
       .then((products) => {
         if (!products || products.length <= 0)
           return res.redirect("/errors/400");
@@ -43,7 +44,7 @@ namespace ShopController {
           path: "/",
         });
       })
-      .catch((err) => console.log(err)); */
+      .catch((err) => console.log(err));
   };
 
   export const getCart: RequestHandler = (req: UserRequest, res, next) => {

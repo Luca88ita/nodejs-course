@@ -1,7 +1,28 @@
-import { ObjectId } from "mongodb";
-import { Cart, Order } from "../util/types";
-import mongoose from "mongoose";
+import { Schema, Types, model } from "mongoose";
+import { Cart } from "../util/types";
 
+export interface UserType {
+  username: string;
+  email: string;
+  cart: Cart;
+}
+
+const userSchema = new Schema<UserType>({
+  username: { type: String, required: true },
+  email: { type: String, required: true },
+  cart: {
+    items: [
+      {
+        _productId: { type: Types.ObjectId, required: true },
+        quantity: { type: Number, required: true },
+      },
+    ],
+  },
+});
+
+const User = model<UserType>("User", userSchema);
+
+export default User;
 /* 
 class User {
   username: string;
@@ -70,7 +91,7 @@ class User {
       return item._productId;
     });
     return db
-      .collection<Product>("products")
+      .collection<User>("products")
       .find({ _id: { $in: productIds } })
       .toArray()
       .then((products) => {
@@ -85,7 +106,7 @@ class User {
       });
   }
 
-  async addToCart(product: Product) {
+  async addToCart(product: User) {
     const cartProductIndex = this.cart.items.findIndex((cp) => {
       return cp._productId?.toString() === product._id?.toString();
     });

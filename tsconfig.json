@@ -17,5 +17,9 @@
   "exclude": [
     "node_modules"
   ],
-  "files":[]
+  "typeRoots": [
+    "./src/types", // this is where you define your types
+    "./node_modules/@types" //this where npm packages containing types are located
+  ],
+  "files":["./src/types/index.d.ts"],
 }

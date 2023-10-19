@@ -3,11 +3,16 @@ import { UserRequest } from "../util/types";
 import Product, { ProductType } from "../models/product";
 
 namespace AdminController {
-  export const getAddProduct: RequestHandler = (req, res, next) => {
+  export const getAddProduct: RequestHandler = (
+    req: UserRequest,
+    res,
+    next
+  ) => {
     res.render("admin/edit-product", {
       pageTitle: "Add Product",
       path: "/admin/add-product",
       editing: false,
+      isAuthenticated: req.isLoggedIn,
     });
   };
 
@@ -55,6 +60,7 @@ namespace AdminController {
         path: "/admin/edit-product",
         editing: editMode,
         product,
+        isAuthenticated: req.isLoggedIn,
       });
     });
   };
@@ -108,6 +114,7 @@ namespace AdminController {
           pageTitle: "Admin Products",
           path: "/admin/products",
           products,
+          isAuthenticated: req.isLoggedIn,
         });
       })
       .catch((err) => console.log(err));

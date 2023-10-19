@@ -5,12 +5,15 @@ import bodyParser from "body-parser";
 // Routes
 import adminRoutes from "./routes/admin";
 import shopRoutes from "./routes/shop";
+import authRoutes from "./routes/auth";
 import errorRoutes from "./routes/error";
 import messageRoutes from "./routes/messages";
 // Paths
 import mainPath from "./util/path";
 // DB
 import mongoose from "mongoose";
+// session manager
+import session from "express-session";
 
 import { UserRequest } from "./util/types";
 import User from "./models/user";
@@ -24,6 +27,14 @@ app.set("views", "./section14/views"); // necessary because we put our views in 
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(mainPath as string, "public")));
+app.use(
+  session({
+    secret: "my secret", // to save the password for hashing
+    resave: false, // the session will be saved only if there will be chnages
+    saveUninitialized: false,
+    //cookie: { maxAge: 3600 },
+  })
+);
 
 app.use((req: UserRequest, res, next) => {
   User.findById(userId)
@@ -38,6 +49,7 @@ app.use((req: UserRequest, res, next) => {
 app.use("/admin", adminRoutes);
 app.use(shopRoutes);
 app.use(messageRoutes);
+app.use(authRoutes);
 app.use(errorRoutes);
 
 mongoose

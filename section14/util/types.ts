@@ -18,6 +18,7 @@ export type CartType = {
 };
 
 export interface UserRequest extends Request {
+  isLoggedIn?: boolean;
   user?: IUser | null;
 }
 

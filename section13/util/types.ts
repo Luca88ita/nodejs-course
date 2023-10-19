@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { IUser } from "../models/user";
-import Product from "../models/product";
+import { ProductType } from "../models/product";
 import { Types } from "mongoose";
 
 export type CartProduct = {
@@ -22,7 +22,7 @@ export interface UserRequest extends Request {
 }
 
 export interface CartItem {
-  _productId: Types.ObjectId | undefined;
+  _productId: Types.ObjectId | ProductType | undefined;
   quantity: number;
 }
 

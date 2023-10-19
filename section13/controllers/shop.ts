@@ -1,6 +1,8 @@
 import { RequestHandler } from "express";
-import { UserRequest } from "../util/types";
+import { CartItem, UserRequest } from "../util/types";
 import Product, { ProductType } from "../models/product";
+import User from "../models/user";
+import Order from "../models/order";
 
 namespace ShopController {
   export const getProducts: RequestHandler = (req, res, next) => {
@@ -48,13 +50,18 @@ namespace ShopController {
   };
 
   export const getCart: RequestHandler = (req: UserRequest, res, next) => {
-    /* req
-      .user!.getCart()
-      .then((products) => {
+    const user = new User(req.user);
+    user
+      .populate("cart.items._productId")
+      .then((user) => {
+        const products = user.cart.items;
+
         let totalPrice = 0;
         if (products)
           products.forEach((product) => {
-            totalPrice = totalPrice + product.price * product.quantity!;
+            const productDetails: ProductType =
+              product._productId as ProductType;
+            totalPrice = totalPrice + productDetails.price * product.quantity!;
           });
         res.render("shop/cart", {
           pageTitle: "Your Cart",
@@ -65,7 +72,7 @@ namespace ShopController {
       })
       .catch((err) => {
         console.log(err);
-      }); */
+      });
   };
 
   export const postCart: RequestHandler = (req: UserRequest, res, next) => {
@@ -85,16 +92,18 @@ namespace ShopController {
     next
   ) => {
     const productId: string = req.body.productId;
-    /* req
-      .user!.removeFromCart(productId)
-      .then((result) => res.redirect("/cart"))
-      .catch((err) => console.log(err)); */
+    const user = new User(req.user);
+    user
+      .removeFromCart(productId)
+      .then(() => res.redirect("/cart"))
+      .catch((err) => console.log(err));
   };
 
   export const getOrders: RequestHandler = (req: UserRequest, res, next) => {
-    /* req
-      .user!.getOrders()
+    const user = new User(req.user);
+    Order.find({ "user._userId": user._id })
       .then((orders) => {
+        console.log(orders);
         res.render("shop/orders", {
           pageTitle: "Your Cart",
           path: "/orders",
@@ -103,16 +112,32 @@ namespace ShopController {
       })
       .catch((err) => {
         console.log(err);
-      }); */
+      });
   };
 
   export const postOrder: RequestHandler = (req: UserRequest, res, next) => {
-    /* req
-      .user!.addOrder()
-      .then((result) => {
+    const user = new User(req.user);
+    user
+      .populate("cart.items._productId")
+      .then((user) => {
+        const products = user.cart.items.map((item) => {
+          const prod = item as CartItem;
+          return { quantity: prod.quantity, product: { ...prod._productId } };
+        });
+        console.log(user);
+        const order = new Order({
+          products,
+          user: { _userId: user, username: user.username, email: user.email },
+        });
+        order.save();
+      })
+      .then(() => user.clearCart())
+      .then(() => {
         res.redirect("/orders");
       })
-      .catch((err) => console.log(err)); */
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   export const getCheckout: RequestHandler = (req, res, next) => {

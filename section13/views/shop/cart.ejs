@@ -16,27 +16,27 @@
                         <article class="card cart-item">
                             <header class="item__header">
                                 <h1 class="item__title">
-                                    <%= product.title %>
+                                    <%= product._productId.title %>
                                 </h1>
                                 <div class="item__image">
-                                    <img src="<%= product.imageUrl %>" alt="<%= product.title %>">
+                                    <img src="<%= product._productId.imageUrl %>" alt="<%= product.title %>">
                                 </div>
                                 <a class="btn" href="/products/<%= product._id %>">Details</a>
                             </header>
 
                             <p class="item__description">
-                                <%= product.description %>
+                                <%= product._productId.description %>
                             </p>
 
                             <div class="cart__actions">
                                 <h3 class="item__price">
-                                    Price: $<%= product.price.toFixed(2) %>
+                                    Price: $<%= product._productId.price.toFixed(2) %>
                                 </h3>
                                 <h3 class="item__quantity">
                                     Q.ty: <%= product.quantity %>
                                 </h3>
                                 <form action="/cart-delete-item" method="post">
-                                    <input type="hidden" name="productId" value="<%= product._id %>">
+                                    <input type="hidden" name="productId" value="<%= product._productId._id %>">
                                     <button type="submit">Delete</button>
                                 </form>
                             </div>

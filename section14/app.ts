@@ -14,12 +14,15 @@ import mainPath from "./util/path";
 import mongoose from "mongoose";
 // session manager
 import session from "express-session";
+import MongoStore from "connect-mongo";
 
-import { UserRequest } from "./util/types";
 import User from "./models/user";
+import { RequestData } from "./util/types";
 
 const app = express();
-const userId = "652fd6ba0dd5af92c46c8866";
+export const userId = "653270fbeb02c722f6b8fafe";
+const MONGODB_URI =
+  "mongodb+srv://nodejs:chmIiGq8tLlXsnHd@cluster0.1h7avzh.mongodb.net/shop?retryWrites=true&w=majority";
 
 app.set("view engine", "ejs"); // here we tell to express that we want to compile dinamic templates with ejs engine
 
@@ -31,18 +34,33 @@ app.use(
   session({
     secret: "my secret", // to save the password for hashing
     resave: false, // the session will be saved only if there will be chnages
-    saveUninitialized: false,
+    saveUninitialized: true,
+    store: MongoStore.create({
+      mongoUrl: MONGODB_URI,
+      //dbName: "shop-session",
+      collectionName: "sessions",
+      ttl: 7 * 24 * 60 * 60,
+      //stringify: false,
+      touchAfter: 24 * 3600,
+      /*crypto: {
+        secret: "my secret",
+      },*/
+    }),
     //cookie: { maxAge: 3600 },
   })
 );
 
-app.use((req: UserRequest, res, next) => {
-  User.findById(userId)
+// middleware for adding the user instance to every request
+app.use((req: RequestData, res, next) => {
+  if (!req.session.user) return next();
+  User.findById(req.session.user!._id)
     .then((user) => {
       if (user) req.user = user;
       next();
     })
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      console.log(err);
+    });
 });
 
 // used routes
@@ -53,9 +71,7 @@ app.use(authRoutes);
 app.use(errorRoutes);
 
 mongoose
-  .connect(
-    "mongodb+srv://nodejs:chmIiGq8tLlXsnHd@cluster0.1h7avzh.mongodb.net/shop?retryWrites=true&w=majority"
-  )
+  .connect(MONGODB_URI)
   .then(() => {
     return User.findById(userId);
   })

@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { IUser } from "../models/user";
 import { ProductType } from "../models/product";
 import { Types } from "mongoose";
+import { Session } from "express-session";
 
 export type CartProduct = {
   id: string;
@@ -16,10 +17,14 @@ export type CartType = {
   products: CartProduct[];
   totalPrice: number;
 };
+export interface SessionData {
+  user: IUser;
+  isLoggedIn: boolean;
+}
 
-export interface UserRequest extends Request {
-  isLoggedIn?: boolean;
-  user?: IUser | null;
+export interface RequestData extends Request {
+  session: Session & Partial<SessionData>;
+  user?: IUser;
 }
 
 export interface CartItem {

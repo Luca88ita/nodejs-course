@@ -13,10 +13,9 @@ interface IUserMethods {
   addToCart(product: ProductType): void;
   removeFromCart(productId: string): any;
   clearCart(): any;
-  addOrder(): any;
 }
 
-type UserModel = Model<IUser, {}, IUserMethods>;
+export type UserModel = Model<IUser, {}, IUserMethods>;
 
 const userSchema = new Schema<IUser, UserModel, IUserMethods>({
   username: { type: String, required: true },
@@ -39,6 +38,7 @@ userSchema.method("addToCart", function addToCart(product: ProductType) {
   const cartProductIndex = this.cart.items.findIndex((ci: CartItem) => {
     return ci._productId?.toString() === product._id?.toString();
   });
+
   const updatedCartItems = [...this.cart.items];
 
   const quantity =
@@ -49,12 +49,14 @@ userSchema.method("addToCart", function addToCart(product: ProductType) {
     : updatedCartItems.push({ _productId: product._id, quantity: quantity });
 
   const updatedCart = { items: updatedCartItems };
+
   this.cart = updatedCart;
+
   return this.save();
 });
 
 userSchema.method("removeFromCart", function removeFromCart(productId: string) {
-  const updatedCartItems = this.cart.items.filter((item) => {
+  const updatedCartItems = this.cart.items.filter((item: CartItem) => {
     return item._productId!._id.toString() !== productId;
   });
   this.cart.items = updatedCartItems;

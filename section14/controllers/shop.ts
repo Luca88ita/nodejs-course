@@ -1,11 +1,11 @@
 import { RequestHandler } from "express";
-import { CartItem, UserRequest } from "../util/types";
+import { CartItem, RequestData } from "../util/types";
 import Product, { ProductType } from "../models/product";
 import User from "../models/user";
 import Order from "../models/order";
 
 namespace ShopController {
-  export const getProducts: RequestHandler = (req: UserRequest, res, next) => {
+  export const getProducts: RequestHandler = (req: RequestData, res, next) => {
     Product.find()
       .then((products) => {
         if (!products || products.length <= 0)
@@ -14,13 +14,13 @@ namespace ShopController {
           products,
           pageTitle: "All Products",
           path: "/products",
-          isAuthenticated: req.isLoggedIn,
+          isAuthenticated: req.session.isLoggedIn,
         });
       })
       .catch((err) => console.log(err));
   };
 
-  export const getProduct: RequestHandler = (req: UserRequest, res, next) => {
+  export const getProduct: RequestHandler = (req: RequestData, res, next) => {
     const productId: string = req.params.productId;
     Product.findById(productId)
       .then((product) => {
@@ -29,7 +29,7 @@ namespace ShopController {
           product,
           pageTitle: `${product.title} - details`,
           path: `/products/:${productId}`,
-          isAuthenticated: req.isLoggedIn,
+          isAuthenticated: req.session.isLoggedIn,
         });
       })
       .catch((err) => {
@@ -37,7 +37,7 @@ namespace ShopController {
       });
   };
 
-  export const getIndex: RequestHandler = (req: UserRequest, res, next) => {
+  export const getIndex: RequestHandler = (req: RequestData, res, next) => {
     Product.find()
       .then((products) => {
         if (!products || products.length <= 0)
@@ -46,19 +46,19 @@ namespace ShopController {
           products,
           pageTitle: "Shop",
           path: "/",
-          isAuthenticated: req.isLoggedIn,
+          isAuthenticated: req.session.isLoggedIn,
         });
       })
       .catch((err) => console.log(err));
   };
 
-  export const getCart: RequestHandler = (req: UserRequest, res, next) => {
+  export const getCart: RequestHandler = (req: RequestData, res, next) => {
     const user = new User(req.user);
+    user.isNew = false;
     user
       .populate("cart.items._productId")
       .then((user) => {
         const products = user.cart.items;
-
         let totalPrice = 0;
         if (products)
           products.forEach((product) => {
@@ -71,7 +71,7 @@ namespace ShopController {
           path: "/cart",
           products,
           totalPrice: totalPrice.toFixed(2),
-          isAuthenticated: req.isLoggedIn,
+          isAuthenticated: req.session.isLoggedIn,
         });
       })
       .catch((err) => {
@@ -79,39 +79,43 @@ namespace ShopController {
       });
   };
 
-  export const postCart: RequestHandler = (req: UserRequest, res, next) => {
+  export const postCart: RequestHandler = (req: RequestData, res, next) => {
     const productId = req.body.productId;
+    const user = new User(req.user);
+    user.isNew = false;
     Product.findById(productId)
       .then((product) => {
-        //@ts-ignore
-        return req.user!.addToCart(product as ProductType);
+        //console.log(user);
+        return user.addToCart(product as ProductType);
       })
       .then(() => res.redirect("/cart"))
       .catch((err) => console.log(err));
   };
 
   export const postCartDeleteItem: RequestHandler = (
-    req: UserRequest,
+    req: RequestData,
     res,
     next
   ) => {
     const productId: string = req.body.productId;
     const user = new User(req.user);
+    user.isNew = false;
     user
       .removeFromCart(productId)
       .then(() => res.redirect("/cart"))
       .catch((err) => console.log(err));
   };
 
-  export const getOrders: RequestHandler = (req: UserRequest, res, next) => {
+  export const getOrders: RequestHandler = (req: RequestData, res, next) => {
     const user = new User(req.user);
+    user.isNew = false;
     Order.find({ "user._userId": user._id })
       .then((orders) => {
         res.render("shop/orders", {
           pageTitle: "Your Cart",
           path: "/orders",
           orders,
-          isAuthenticated: req.isLoggedIn,
+          isAuthenticated: req.session.isLoggedIn,
         });
       })
       .catch((err) => {
@@ -119,8 +123,9 @@ namespace ShopController {
       });
   };
 
-  export const postOrder: RequestHandler = (req: UserRequest, res, next) => {
+  export const postOrder: RequestHandler = (req: RequestData, res, next) => {
     const user = new User(req.user);
+    user.isNew = false;
     user
       .populate("cart.items._productId")
       .then((user) => {
@@ -143,11 +148,11 @@ namespace ShopController {
       });
   };
 
-  export const getCheckout: RequestHandler = (req: UserRequest, res, next) => {
+  export const getCheckout: RequestHandler = (req: RequestData, res, next) => {
     /* res.render("shop/checkout", {
       pageTitle: "Checkout",
       path: "/checkout",
-      isAuthenticated: req.isLoggedIn,
+      isAuthenticated: req.session.isLoggedIn,
     }); */
   };
 }

@@ -1,10 +1,10 @@
 import { RequestHandler } from "express";
-import { UserRequest } from "../util/types";
+import { RequestData } from "../util/types";
 import Product, { ProductType } from "../models/product";
 
 namespace AdminController {
   export const getAddProduct: RequestHandler = (
-    req: UserRequest,
+    req: RequestData,
     res,
     next
   ) => {
@@ -12,12 +12,12 @@ namespace AdminController {
       pageTitle: "Add Product",
       path: "/admin/add-product",
       editing: false,
-      isAuthenticated: req.isLoggedIn,
+      isAuthenticated: req.session.isLoggedIn,
     });
   };
 
   export const postAddProduct: RequestHandler = (
-    req: UserRequest,
+    req: RequestData,
     res,
     next
   ) => {
@@ -46,7 +46,7 @@ namespace AdminController {
   };
 
   export const getEditProduct: RequestHandler = (
-    req: UserRequest,
+    req: RequestData,
     res,
     next
   ) => {
@@ -60,13 +60,13 @@ namespace AdminController {
         path: "/admin/edit-product",
         editing: editMode,
         product,
-        isAuthenticated: req.isLoggedIn,
+        isAuthenticated: req.session.isLoggedIn,
       });
     });
   };
 
   export const postEditProduct: RequestHandler = (
-    req: UserRequest,
+    req: RequestData,
     res,
     next
   ) => {
@@ -89,7 +89,7 @@ namespace AdminController {
   };
 
   export const postDeleteProduct: RequestHandler = (
-    req: UserRequest,
+    req: RequestData,
     res,
     next
   ) => {
@@ -102,7 +102,7 @@ namespace AdminController {
       .catch((err) => console.log(err));
   };
 
-  export const getProducts: RequestHandler = (req: UserRequest, res, next) => {
+  export const getProducts: RequestHandler = (req: RequestData, res, next) => {
     Product.find()
       //the code commented below is only here as example
       /* .select("title price -imageUrl")
@@ -114,7 +114,7 @@ namespace AdminController {
           pageTitle: "Admin Products",
           path: "/admin/products",
           products,
-          isAuthenticated: req.isLoggedIn,
+          isAuthenticated: req.session.isLoggedIn,
         });
       })
       .catch((err) => console.log(err));

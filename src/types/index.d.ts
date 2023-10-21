@@ -8,3 +8,9 @@ declare module "express-session" {
     isLoggedIn: boolean;
   }
 }
+
+declare module "csrf-csrf" {
+  export interface DoubleCsrfConfigOptions {
+    secret: string;
+  }
+}

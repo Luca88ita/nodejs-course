@@ -18,7 +18,8 @@
     "start10": "nodemon ./section10-11/app.ts",
     "start12": "nodemon ./section12/app.ts",
     "start13": "nodemon ./section13/app.ts",
-    "start14": "nodemon ./section14/app.ts"
+    "start14": "nodemon ./section14/app.ts",
+    "start15": "nodemon ./section15/app.ts"
   },
   "dependencies": {
     "body-parser": "^1.20.2",

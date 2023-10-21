@@ -64,7 +64,6 @@ namespace ShopController {
           products.forEach((product) => {
             const productDetails: ProductType =
               product._productId as ProductType;
-            console.log(product);
             totalPrice = totalPrice + productDetails.price * product.quantity!;
           });
         res.render("shop/cart", {
@@ -136,7 +135,7 @@ namespace ShopController {
         });
         const order = new Order({
           products,
-          user: { _userId: user, username: user.username, email: user.email },
+          user: { _userId: user, password: user.password, email: user.email },
         });
         order.save();
       })

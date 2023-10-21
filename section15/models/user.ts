@@ -3,7 +3,7 @@ import { Cart, CartItem } from "../util/types";
 import { ProductType } from "./product";
 
 export interface IUser {
-  username: string;
+  password: string;
   email: string;
   cart: Cart;
   _id: Types.ObjectId;
@@ -18,8 +18,8 @@ interface IUserMethods {
 export type UserModel = Model<IUser, {}, IUserMethods>;
 
 const userSchema = new Schema<IUser, UserModel, IUserMethods>({
-  username: { type: String, required: true },
-  email: { type: String, required: true },
+  password: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
   cart: {
     items: [
       {

@@ -50,7 +50,7 @@ export interface Order {
   items: OrderItem[] | [];
   user: {
     _id: Types.ObjectId | undefined;
-    username: string;
+    password: string;
     email: string;
   };
 }

@@ -1,4 +1,5 @@
 import { RequestHandler } from "express";
+import bcrypt from "bcrypt";
 import User, { IUser } from "../models/user";
 import { userId } from "../app";
 import { RequestData } from "../util/types";
@@ -16,20 +17,19 @@ namespace AuthController {
     const email = req.body.email;
     const password = req.body.password;
 
-    const validCredentials = email === "123@123.it" && password === "123";
-
-    User.findById(userId)
+    User.findOne({ email })
       .then((user) => {
-        req.session.user = user as IUser;
-        req.session.isLoggedIn = validCredentials && true;
-
-        //req.user = req.session.user;
-        req.session.save((err) => {
-          console.log(err);
-          validCredentials && user
-            ? res.redirect("/")
-            : res.redirect("/errors/404");
-        });
+        return !user
+          ? res.redirect("/login")
+          : bcrypt.compare(password, user.password).then((result) => {
+              if (!result) return res.redirect("/login");
+              req.session.user = user as IUser;
+              req.session.isLoggedIn = result;
+              return req.session.save((err) => {
+                console.log(err);
+                res.redirect("/");
+              });
+            });
       })
       .catch((err) => console.log(err));
   };
@@ -43,7 +43,29 @@ namespace AuthController {
   };
 
   export const postSignup: RequestHandler = (req: RequestData, res, next) => {
-    console.log("singup");
+    const email = req.body.email;
+    const password = req.body.password;
+    const confirmPassword = req.body.confirmPassword;
+
+    User.findOne({ email })
+      .then((user) => {
+        return user
+          ? res.redirect("/signup")
+          : bcrypt
+              .hash(password, 12)
+              .then((hashedpw) => {
+                const newUser = new User({
+                  email,
+                  password: hashedpw,
+                  cart: { items: [] },
+                });
+                return newUser.save();
+              })
+              .then((result) => {
+                res.redirect("login");
+              });
+      })
+      .catch((err) => console.log(err));
   };
 
   export const postLogout: RequestHandler = (req: RequestData, res, next) => {

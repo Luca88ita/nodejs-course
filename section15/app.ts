@@ -73,19 +73,6 @@ app.use(errorRoutes);
 mongoose
   .connect(MONGODB_URI)
   .then(() => {
-    return User.findById(userId);
-  })
-  .then((result) => {
-    if (!result) {
-      const user = new User({
-        username: "luca1988",
-        email: "prova@prova.com",
-        cart: { items: [] },
-      });
-      user.save();
-    }
-  })
-  .then(() => {
     app.listen(3000);
   })
   .catch(console.dir);

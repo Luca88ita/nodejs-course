@@ -21,8 +21,8 @@ export const sendEmail = async (
   email: string,
   from: string,
   subject: string,
-  url: string,
-  htmlFileName: string
+  htmlFileName: string,
+  url?: string
 ) => {
   const filePath = path.join(
     mainPath as string,
@@ -32,6 +32,7 @@ export const sendEmail = async (
   const template = handlebars.compile(source);
   const replacements = {
     email,
+    url,
   };
   const htmlToSend = template(replacements);
 
@@ -39,7 +40,6 @@ export const sendEmail = async (
     from,
     to: email,
     subject: subject,
-    text: url,
     html: htmlToSend,
   };
   const info = await transporter.sendMail(mailOptions);

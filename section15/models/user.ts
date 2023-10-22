@@ -5,6 +5,8 @@ import { ProductType } from "./product";
 export interface IUser {
   password: string;
   email: string;
+  resetToken: string;
+  resetTokenExpiration: number;
   cart: Cart;
   _id: Types.ObjectId;
 }
@@ -20,6 +22,8 @@ export type UserModel = Model<IUser, {}, IUserMethods>;
 const userSchema = new Schema<IUser, UserModel, IUserMethods>({
   password: { type: String, required: true },
   email: { type: String, required: true, unique: true },
+  resetToken: String,
+  resetTokenExpiration: Date,
   cart: {
     items: [
       {

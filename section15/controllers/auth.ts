@@ -1,4 +1,5 @@
 import { RequestHandler } from "express";
+import crypto from "crypto";
 import bcrypt from "bcrypt";
 import User, { IUser } from "../models/user";
 import { RequestData } from "../util/types";
@@ -83,7 +84,6 @@ namespace AuthController {
               email,
               '"noreply@yourdomain.com" <noreply@yourdomain.com>',
               "Signup succeeded",
-              "",
               "signup-success"
             );
           })
@@ -100,6 +100,52 @@ namespace AuthController {
     req.session.destroy((err) => {
       err && console.log(err);
       res.redirect("/");
+    });
+  };
+
+  export const getReset: RequestHandler = (req, res, next) => {
+    res.render("auth/reset", {
+      pageTitle: "Reset Password",
+      path: "/reset",
+      errorMessage: req.flash("error"),
+    });
+  };
+
+  export const postReset: RequestHandler = (req: RequestData, res, next) => {
+    const email = req.body.email;
+
+    crypto.randomBytes(32, (err, buffer) => {
+      if (err) {
+        console.log(err);
+        return res.redirect("/reset");
+      }
+      const token = buffer.toString("hex");
+      User.findOne({ email })
+        .then((user): void | IUser | Promise<IUser> => {
+          if (!user) {
+            req.flash(
+              "error",
+              `No account with registered with this email: ${email}`
+            );
+            return res.redirect("/reset");
+          }
+          user.resetToken = token;
+          user.resetTokenExpiration = Date.now() + 60 * 60 * 1000;
+          return user.save();
+        })
+        .then(() => {
+          res.redirect("/login");
+          sendEmail(
+            email,
+            '"noreply-password-reset@yourdomain.com" <noreply-password-reset@yourdomain.com>',
+            "Password reset",
+            "password-reset",
+            `http://localhost:3000/reset/${token}`
+          );
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     });
   };
 }

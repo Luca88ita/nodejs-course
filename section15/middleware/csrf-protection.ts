@@ -10,7 +10,7 @@ export const { invalidCsrfTokenError, generateToken, doubleCsrfProtection } =
     //@ts-ignore
     secret: CSRF_SECRET,
     cookieName: CSRF_COOKIE_NAME,
-    cookieOptions: { sameSite: false, secure: false, signed: true }, // not ideal for production, development only
+    cookieOptions: { sameSite: false, secure: false, signed: true, path: "/" }, // not ideal for production, development only
     size: 64,
     ignoredMethods: ["GET", "HEAD", "OPTIONS"],
   });

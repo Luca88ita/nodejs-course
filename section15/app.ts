@@ -12,12 +12,24 @@ import messageRoutes from "./routes/messages";
 import mainPath from "./util/path";
 // DB
 import mongoose from "mongoose";
-// session manager
+// Session manager
 import session from "express-session";
 import MongoStore from "connect-mongo";
+// Security
+import { doubleCsrf } from "csrf-csrf";
+import cookieParser from "cookie-parser";
 
 import User from "./models/user";
 import { RequestData } from "./util/types";
+
+const { doubleCsrfProtection } = doubleCsrf({
+  getSecret: () => "my secret",
+  cookieName: "csrfToken",
+  cookieOptions: { sameSite: "lax", secure: false, signed: true },
+  size: 64,
+  ignoredMethods: ["GET", "HEAD", "OPTIONS"],
+  getTokenFromRequest: (req) => req.body.csrfToken,
+});
 
 const app = express();
 export const userId = "6532fa6cffbc4d98938721d3";
@@ -49,6 +61,16 @@ app.use(
     //cookie: { maxAge: 3600 },
   })
 );
+
+app.use(cookieParser("my secret"));
+app.use(doubleCsrfProtection);
+
+app.use((req: RequestData, res, next) => {
+  console.log(req.csrfToken(true));
+  res.locals.isLoggedIn = req.session.isLoggedIn;
+  res.locals.csrfToken = req.csrfToken(true);
+  next();
+});
 
 // middleware for adding the user instance to every request
 app.use((req: RequestData, res, next) => {

@@ -6,7 +6,6 @@ namespace ErrorController {
     res.status(404).render("errors/404", {
       pageTitle: "Page not found",
       path: "",
-      isAuthenticated: req.session.isLoggedIn,
     });
   };
 
@@ -14,7 +13,6 @@ namespace ErrorController {
     res.status(400).render("errors/400", {
       pageTitle: "Bad Request",
       path: "",
-      isAuthenticated: req.session.isLoggedIn,
     });
   };
 }

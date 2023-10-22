@@ -62,15 +62,9 @@ app.use(
   })
 );
 
+// middlewares for managing the CSRF protection
 app.use(cookieParser("my secret"));
 app.use(doubleCsrfProtection);
-
-app.use((req: RequestData, res, next) => {
-  console.log(req.csrfToken(true));
-  res.locals.isLoggedIn = req.session.isLoggedIn;
-  res.locals.csrfToken = req.csrfToken(true);
-  next();
-});
 
 // middleware for adding the user instance to every request
 app.use((req: RequestData, res, next) => {
@@ -83,6 +77,13 @@ app.use((req: RequestData, res, next) => {
     .catch((err) => {
       console.log(err);
     });
+});
+
+// middleware for adding the authentication and csrf token in every request
+app.use((req: RequestData, res, next) => {
+  res.locals.isAuthenticated = req.session.isLoggedIn;
+  res.locals.csrfToken = req.csrfToken();
+  next();
 });
 
 // used routes

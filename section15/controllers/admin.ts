@@ -12,7 +12,6 @@ namespace AdminController {
       pageTitle: "Add Product",
       path: "/admin/add-product",
       editing: false,
-      isAuthenticated: req.session.isLoggedIn,
     });
   };
 
@@ -60,7 +59,6 @@ namespace AdminController {
         path: "/admin/edit-product",
         editing: editMode,
         product,
-        isAuthenticated: req.session.isLoggedIn,
       });
     });
   };
@@ -114,7 +112,6 @@ namespace AdminController {
           pageTitle: "Admin Products",
           path: "/admin/products",
           products,
-          isAuthenticated: req.session.isLoggedIn,
         });
       })
       .catch((err) => console.log(err));

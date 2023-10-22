@@ -25,7 +25,7 @@ namespace AuthController {
               req.session.user = user as IUser;
               req.session.isLoggedIn = result;
               return req.session.save((err) => {
-                console.log(err);
+                err && console.log(err);
                 res.redirect("/");
               });
             });
@@ -60,7 +60,8 @@ namespace AuthController {
                 });
                 return newUser.save();
               })
-              .then((result) => {
+              .then((err) => {
+                err && console.log(err);
                 res.redirect("login");
               });
       })
@@ -69,7 +70,7 @@ namespace AuthController {
 
   export const postLogout: RequestHandler = (req: RequestData, res, next) => {
     req.session.destroy((err) => {
-      console.log(err);
+      err && console.log(err);
       res.redirect("/");
     });
   };

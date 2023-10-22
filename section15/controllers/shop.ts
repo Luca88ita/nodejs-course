@@ -14,7 +14,6 @@ namespace ShopController {
           products,
           pageTitle: "All Products",
           path: "/products",
-          isAuthenticated: req.session.isLoggedIn,
         });
       })
       .catch((err) => console.log(err));
@@ -29,7 +28,6 @@ namespace ShopController {
           product,
           pageTitle: `${product.title} - details`,
           path: `/products/:${productId}`,
-          isAuthenticated: req.session.isLoggedIn,
         });
       })
       .catch((err) => {
@@ -46,8 +44,6 @@ namespace ShopController {
           products,
           pageTitle: "Shop",
           path: "/",
-          isAuthenticated: req.session.isLoggedIn,
-          csrfToken: req.csrfToken(),
         });
       })
       .catch((err) => console.log(err));
@@ -72,7 +68,6 @@ namespace ShopController {
           path: "/cart",
           products,
           totalPrice: totalPrice.toFixed(2),
-          isAuthenticated: req.session.isLoggedIn,
         });
       })
       .catch((err) => {
@@ -116,7 +111,6 @@ namespace ShopController {
           pageTitle: "Your Cart",
           path: "/orders",
           orders,
-          isAuthenticated: req.session.isLoggedIn,
         });
       })
       .catch((err) => {
@@ -153,7 +147,6 @@ namespace ShopController {
     /* res.render("shop/checkout", {
       pageTitle: "Checkout",
       path: "/checkout",
-      isAuthenticated: req.session.isLoggedIn,
     }); */
   };
 }

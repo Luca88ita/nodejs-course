@@ -6,7 +6,6 @@ namespace MessagesController {
     res.status(200).render("messages/edit-success", {
       pageTitle: "Success",
       path: "",
-      isAuthenticated: req.session.isLoggedIn,
     });
   };
 
@@ -18,7 +17,6 @@ namespace MessagesController {
     res.status(200).render("messages/delete-success", {
       pageTitle: "Success",
       path: "",
-      isAuthenticated: req.session.isLoggedIn,
     });
   };
 }

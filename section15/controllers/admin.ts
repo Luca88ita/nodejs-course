@@ -1,6 +1,7 @@
 import { RequestHandler } from "express";
 import { RequestData } from "../util/types";
-import Product, { ProductType } from "../models/product";
+import Product from "../models/product";
+import { userId } from "../app";
 
 namespace AdminController {
   export const getAddProduct: RequestHandler = (
@@ -52,15 +53,17 @@ namespace AdminController {
     const editMode = req.query.edit;
     if (!editMode) return res.redirect("/");
     const productId = req.params.productId;
-    Product.findById(productId).then((product) => {
-      if (!product) return res.redirect("/errors/400");
-      res.render("admin/edit-product", {
-        pageTitle: "Edit Product",
-        path: "/admin/edit-product",
-        editing: editMode,
-        product,
-      });
-    });
+    Product.findOne({ _id: productId, _userId: req.user?._id }).then(
+      (product) => {
+        if (!product) return res.redirect("/errors/400");
+        res.render("admin/edit-product", {
+          pageTitle: "Edit Product",
+          path: "/admin/edit-product",
+          editing: editMode,
+          product,
+        });
+      }
+    );
   };
 
   export const postEditProduct: RequestHandler = (
@@ -69,19 +72,17 @@ namespace AdminController {
     next
   ) => {
     const productId = req.body.productId;
-
-    Product.findById(productId)
-      .then((product): ProductType | void | Promise<ProductType> => {
+    Product.findOne({ _id: productId, _userId: req.user?._id })
+      .then((product): void | Promise<void> => {
         if (!product) return res.redirect("/errors/400");
         product.title = req.body.title;
         product.price = +req.body.price;
         product.description = req.body.description;
         product.imageUrl = req.body.imageUrl;
-        return product.save();
-      })
-      .then((result) => {
-        console.log("Product info updated succesfully!");
-        return res.redirect("/messages/edit-success");
+        return product.save().then((result) => {
+          console.log("Product info updated succesfully!");
+          return res.redirect("/messages/edit-success");
+        });
       })
       .catch((err) => console.log(err));
   };
@@ -92,8 +93,8 @@ namespace AdminController {
     next
   ) => {
     const productId = req.body.productId;
-    Product.findByIdAndRemove(productId)
-      .then((result) => {
+    Product.deleteOne({ _id: productId, _userId: req.user?._id })
+      .then(() => {
         console.log("Product deleted succesfully!");
         return res.redirect("/messages/delete-success");
       })
@@ -101,7 +102,7 @@ namespace AdminController {
   };
 
   export const getProducts: RequestHandler = (req: RequestData, res, next) => {
-    Product.find()
+    Product.find({ _userId: req.user?._id })
       //the code commented below is only here as example
       /* .select("title price -imageUrl")
       .populate("_userId", "name") */

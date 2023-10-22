@@ -82,6 +82,7 @@ app.use((req: RequestData, res, next) => {
 // middleware for adding the authentication and csrf token in every request
 app.use((req: RequestData, res, next) => {
   res.locals.isAuthenticated = req.session.isLoggedIn;
+  //@ts-ignore
   res.locals.csrfToken = req.csrfToken();
   next();
 });

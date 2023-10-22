@@ -20,7 +20,6 @@ const orderSchema = new Schema<IOrder, OrderModel, IOrderMethods>({
   ],
   user: {
     _userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    password: { type: String, required: true },
     email: { type: String, required: true },
   },
 });

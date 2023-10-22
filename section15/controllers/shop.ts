@@ -130,7 +130,7 @@ namespace ShopController {
         });
         const order = new Order({
           products,
-          user: { _userId: user, password: user.password, email: user.email },
+          user: { _userId: user, email: user.email },
         });
         order.save();
       })

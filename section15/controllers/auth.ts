@@ -1,4 +1,5 @@
 import { RequestHandler } from "express";
+import { validationResult } from "express-validator";
 import crypto from "crypto";
 import bcrypt from "bcrypt";
 import User, { IUser } from "../models/user";
@@ -52,7 +53,13 @@ namespace AuthController {
     const email = req.body.email;
     const password = req.body.password;
     const confirmPassword = req.body.confirmPassword;
-
+    const errors = validationResult(req);
+    if (!errors.isEmpty())
+      return res.status(422).render("auth/signup", {
+        pageTitle: "Signup",
+        path: "/signup",
+        errorMessage: errors.array()[0].msg,
+      });
     User.findOne({ email })
       .then((user) => {
         if (user) {

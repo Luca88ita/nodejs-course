@@ -121,7 +121,7 @@ namespace AuthController {
       }
       const token = buffer.toString("hex");
       User.findOne({ email })
-        .then((user): void | IUser | Promise<IUser> => {
+        .then((user): void | Promise<void> => {
           if (!user) {
             req.flash(
               "error",
@@ -131,22 +131,95 @@ namespace AuthController {
           }
           user.resetToken = token;
           user.resetTokenExpiration = Date.now() + 60 * 60 * 1000;
-          return user.save();
-        })
-        .then(() => {
-          res.redirect("/login");
-          sendEmail(
-            email,
-            '"noreply-password-reset@yourdomain.com" <noreply-password-reset@yourdomain.com>',
-            "Password reset",
-            "password-reset",
-            `http://localhost:3000/reset/${token}`
-          );
+          return user.save().then(() => {
+            res.redirect("/login");
+            sendEmail(
+              email,
+              '"noreply-password-reset@yourdomain.com" <noreply-password-reset@yourdomain.com>',
+              "Password reset",
+              "password-reset",
+              `http://localhost:3000/reset/${token}`
+            );
+          });
         })
         .catch((err) => {
           console.log(err);
         });
     });
+  };
+
+  export const getNewPassword: RequestHandler = (req, res, next) => {
+    const resetToken = req.params.token;
+    User.findOne({ resetToken, resetTokenExpiration: { $gt: Date.now() } })
+      .then((user) => {
+        if (!user) {
+          req.flash(
+            "error",
+            `The token is not valid anymore. Please request a new one`
+          );
+          return res.redirect("/reset");
+        }
+        return res.render("auth/new-password", {
+          pageTitle: "New Password",
+          path: "/new-password",
+          errorMessage: req.flash("error"),
+          userId: user._id.toString(),
+          token: resetToken,
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  export const postNewPassword: RequestHandler = (
+    req: RequestData,
+    res,
+    next
+  ) => {
+    const password = req.body.password;
+    const userId = req.body.userId;
+    const resetToken = req.body.token;
+    User.findOne({
+      _id: userId,
+      resetToken,
+      resetTokenExpiration: { $gt: Date.now() },
+    })
+      .then((user) => {
+        if (!user) {
+          req.flash(
+            "error",
+            `The token is not valid anymore. Please request a new one`
+          );
+          return res.redirect("/reset");
+        }
+
+        return bcrypt
+          .hash(password, 12)
+          .then((hashedpw) => {
+            user.password = hashedpw;
+            user.resetToken = undefined;
+            user.resetTokenExpiration = undefined;
+            return user.save();
+          })
+          .then((err) => {
+            res.redirect("/login");
+            // better if this part of code is not blocking otherwise for larger scale apps it may slow down the server
+            return sendEmail(
+              user.email,
+              '"noreply-password-reset@yourdomain.com" <noreply-password-reset@yourdomain.com>',
+              "Password successfully changed",
+              "reset-success",
+              `http://localhost:3000/login`
+            );
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 }
 

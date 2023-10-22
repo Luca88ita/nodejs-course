@@ -5,8 +5,8 @@ import { ProductType } from "./product";
 export interface IUser {
   password: string;
   email: string;
-  resetToken: string;
-  resetTokenExpiration: number;
+  resetToken?: string;
+  resetTokenExpiration?: number;
   cart: Cart;
   _id: Types.ObjectId;
 }

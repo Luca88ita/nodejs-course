@@ -18,6 +18,8 @@ import MongoStore from "connect-mongo";
 // Security
 import { doubleCsrf } from "csrf-csrf";
 import cookieParser from "cookie-parser";
+// flash messages for MPAs
+import flash from "connect-flash";
 
 import User from "./models/user";
 import { RequestData } from "./util/types";
@@ -65,6 +67,8 @@ app.use(
 // middlewares for managing the CSRF protection
 app.use(cookieParser("my secret"));
 app.use(doubleCsrfProtection);
+// middleware for managinf flash messages in MPAs
+app.use(flash());
 
 // middleware for adding the user instance to every request
 app.use((req: RequestData, res, next) => {

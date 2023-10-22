@@ -2,6 +2,7 @@ import { RequestHandler } from "express";
 import bcrypt from "bcrypt";
 import User, { IUser } from "../models/user";
 import { RequestData } from "../util/types";
+import { sendEmail } from "../util/mailTransporter";
 
 namespace AuthController {
   export const getLogin: RequestHandler = (req, res, next) => {
@@ -76,8 +77,18 @@ namespace AuthController {
             return newUser.save();
           })
           .then((err) => {
-            err && console.log(err);
             res.redirect("login");
+            // better if this part of code is not blocking otherwise for larger scale apps it may slow down the server
+            return sendEmail(
+              email,
+              '"noreply@yourdomain.com" <noreply@yourdomain.com>',
+              "Signup succeeded",
+              "",
+              "signup-success"
+            );
+          })
+          .catch((err) => {
+            console.log(err);
           });
       })
       .catch((err) => {

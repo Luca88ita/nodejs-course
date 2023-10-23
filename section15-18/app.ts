@@ -40,7 +40,7 @@ const MONGODB_URI =
 
 app.set("view engine", "ejs"); // here we tell to express that we want to compile dinamic templates with ejs engine
 
-app.set("views", "./section15/views"); // necessary because we put our views in a path different from ./views
+app.set("views", "./section15-18/views"); // necessary because we put our views in a path different from ./views
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(mainPath as string, "public")));

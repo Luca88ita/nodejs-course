@@ -1,5 +1,5 @@
 import express from "express";
-import { check } from "express-validator";
+import { body, check } from "express-validator";
 import AuthController from "../controllers/auth";
 
 const router = express.Router();
@@ -12,7 +12,29 @@ router.get("/signup", AuthController.getSignup);
 
 router.post(
   "/signup",
-  check("email").isEmail().withMessage("Please enter a valid email"),
+  [
+    check("email")
+      .isEmail()
+      .withMessage("Please enter a valid email")
+      .custom((value, { req }) => {
+        if (value === "456@456.com")
+          throw new Error("This email address is forbidden");
+        return true;
+      }),
+    body(
+      "password",
+      "Password should have one uppercase, one lower case, one special char, one digit and be long between 8 and 20 characters"
+    )
+      .isLength({ min: 8, max: 20 })
+      .matches(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{8,}$/, "i"),
+    body("confirmPassword").custom((value, { req }) => {
+      if (value !== req.body.password)
+        throw new Error(
+          "Passwords have to match. Please re-enter the same password"
+        );
+      return true;
+    }),
+  ],
   AuthController.postSignup
 );
 

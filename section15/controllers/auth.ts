@@ -12,31 +12,50 @@ namespace AuthController {
       pageTitle: "Login",
       path: "/login",
       errorMessage: req.flash("error"),
+      previousInput: { email: "", password: "" },
+      validationErrors: [],
     });
   };
 
   export const postLogin: RequestHandler = (req: RequestData, res, next) => {
     const email = req.body.email;
     const password = req.body.password;
+    const errors = validationResult(req);
+    if (!errors.isEmpty())
+      return res.status(422).render("auth/login", {
+        pageTitle: "Login",
+        path: "/login",
+        errorMessage: errors.array()[0].msg,
+        previousInput: { email, password },
+        validationErrors: errors.array(),
+      });
 
     User.findOne({ email })
       .then((user) => {
         if (!user) {
-          req.flash("error", "Invalid email or password");
-          return res.redirect("/login");
-        }
-        return bcrypt.compare(password, user.password).then((result) => {
-          if (!result) {
-            req.flash("error", "Invalid email or password");
-            return res.redirect("/login");
-          }
-          req.session.user = user as IUser;
-          req.session.isLoggedIn = result;
-          return req.session.save((err) => {
-            err && console.log(err);
-            res.redirect("/");
+          return res.status(422).render("auth/login", {
+            pageTitle: "Login",
+            path: "/login",
+            errorMessage: errors.array()[0].msg,
+            previousInput: { email, password },
+            validationErrors: errors.array(),
           });
-        });
+        }
+        return (
+          user &&
+          bcrypt.compare(password, user.password).then((result) => {
+            if (!result) {
+              req.flash("error", "Invalid email or password");
+              return res.redirect("/login");
+            }
+            req.session.user = user as IUser;
+            req.session.isLoggedIn = result;
+            return req.session.save((err) => {
+              err && console.log(err);
+              res.redirect("/");
+            });
+          })
+        );
       })
       .catch((err) => console.log(err));
   };
@@ -46,6 +65,8 @@ namespace AuthController {
       pageTitle: "Signup",
       path: "/signup",
       errorMessage: req.flash("error"),
+      previousInput: { email: "", password: "", confirmPassword: "" },
+      validationErrors: [],
     });
   };
 
@@ -59,8 +80,10 @@ namespace AuthController {
         pageTitle: "Signup",
         path: "/signup",
         errorMessage: errors.array()[0].msg,
+        previousInput: { email, password, confirmPassword },
+        validationErrors: errors.array(),
       });
-    User.findOne({ email })
+    /*User.findOne({ email })
       .then((user) => {
         if (user) {
           req.flash("error", "E-mail address already exists");
@@ -74,29 +97,25 @@ namespace AuthController {
           req.flash("error", "Please re-enter the same password");
           return res.redirect("/signup");
         }
-        return bcrypt
-          .hash(password, 12)
-          .then((hashedpw) => {
-            const newUser = new User({
-              email,
-              password: hashedpw,
-              cart: { items: [] },
-            });
-            return newUser.save();
-          })
-          .then((err) => {
-            res.redirect("login");
-            // better if this part of code is not blocking otherwise for larger scale apps it may slow down the server
-            return sendEmail(
-              email,
-              '"noreply@yourdomain.com" <noreply@yourdomain.com>',
-              "Signup succeeded",
-              "signup-success"
-            );
-          })
-          .catch((err) => {
-            console.log(err);
-          });
+        return*/ bcrypt
+      .hash(password, 12)
+      .then((hashedpw) => {
+        const newUser = new User({
+          email,
+          password: hashedpw,
+          cart: { items: [] },
+        });
+        return newUser.save();
+      })
+      .then((err) => {
+        res.redirect("login");
+        // better if this part of code is not blocking otherwise for larger scale apps it may slow down the server
+        return sendEmail(
+          email,
+          '"noreply@yourdomain.com" <noreply@yourdomain.com>',
+          "Signup succeeded",
+          "signup-success"
+        );
       })
       .catch((err) => {
         console.log(err);

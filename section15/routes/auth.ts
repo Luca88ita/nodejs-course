@@ -1,12 +1,23 @@
 import express from "express";
 import { body, check } from "express-validator";
 import AuthController from "../controllers/auth";
+import User from "../models/user";
 
 const router = express.Router();
 
 router.get("/login", AuthController.getLogin);
 
-router.post("/login", AuthController.postLogin);
+router.post(
+  "/login",
+  [
+    check("email").isEmail().withMessage("Please enter a valid email"),
+    body(
+      "password",
+      "Please enter a valid password (a password must have one uppercase, one lower case, one special char, one digit and be long between 8 and 20 characters)"
+    ).matches(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{8,}$/, "i"),
+  ],
+  AuthController.postLogin
+);
 
 router.get("/signup", AuthController.getSignup);
 
@@ -17,13 +28,21 @@ router.post(
       .isEmail()
       .withMessage("Please enter a valid email")
       .custom((value, { req }) => {
-        if (value === "456@456.com")
+        /* if (value === "456@456.com")
           throw new Error("This email address is forbidden");
-        return true;
+        return true; */
+        //the code below is here as example, but would be better to keep it in the controller
+        return User.findOne({ email: value }).then((user) => {
+          if (user) {
+            return Promise.reject(
+              "This e-mail address already exists, please login or signup with a different one"
+            );
+          }
+        });
       }),
     body(
       "password",
-      "Password should have one uppercase, one lower case, one special char, one digit and be long between 8 and 20 characters"
+      "Password must have one uppercase, one lower case, one special char, one digit and be long between 8 and 20 characters"
     )
       .isLength({ min: 8, max: 20 })
       .matches(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{8,}$/, "i"),

@@ -34,7 +34,6 @@ namespace AdminController {
       : "No description available";
     const price = +req.body.price;
     const errors = validationResult(req);
-    console.log(req.user);
     if (!errors.isEmpty())
       return res.status(422).render("admin/edit-product", {
         pageTitle: "Add Product",
@@ -82,6 +81,9 @@ namespace AdminController {
           pageTitle: "Edit Product",
           path: "/admin/edit-product",
           editing: editMode,
+          errorMessage: "",
+          hasError: false,
+          validationErrors: [],
           product,
         });
       }
@@ -94,13 +96,37 @@ namespace AdminController {
     next
   ) => {
     const productId = req.body.productId;
+
+    const title = req.body.title;
+    const imageUrl = req.body.imageUrl;
+    const description = req.body.description;
+    const price = +req.body.price;
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty())
+      return res.status(422).render("admin/edit-product", {
+        pageTitle: "Edit Product",
+        path: "/admin/edit-product",
+        editing: true,
+        errorMessage: errors.array()[0].msg,
+        hasError: true,
+        validationErrors: errors.array(),
+        product: {
+          _id: productId,
+          title,
+          imageUrl,
+          description,
+          price,
+        },
+      });
+
     Product.findOne({ _id: productId, _userId: req.user?._id })
       .then((product): void | Promise<void> => {
         if (!product) return res.redirect("/errors/400");
-        product.title = req.body.title;
-        product.price = +req.body.price;
-        product.description = req.body.description;
-        product.imageUrl = req.body.imageUrl;
+        product.title = title;
+        product.price = price;
+        product.description = description;
+        product.imageUrl = imageUrl;
         return product.save().then((result) => {
           console.log("Product info updated succesfully!");
           return res.redirect("/messages/edit-success");

@@ -3,8 +3,10 @@ import ErrorController from "../controllers/errors";
 
 const router = express.Router();
 
-router.get("/errors/400", ErrorController.itemNotFound);
+router.get("/400", ErrorController.itemNotFound);
 
-router.use(ErrorController.pageNotFound);
+router.get("/500", ErrorController.get500);
+
+router.get("/404", ErrorController.pageNotFound);
 
 export default router;

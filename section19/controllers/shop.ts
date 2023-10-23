@@ -8,8 +8,7 @@ namespace ShopController {
   export const getProducts: RequestHandler = (req: RequestData, res, next) => {
     Product.find()
       .then((products) => {
-        if (!products || products.length <= 0)
-          return res.redirect("/errors/400");
+        if (!products || products.length <= 0) return res.redirect("/400");
         res.render("shop/product-list", {
           products,
           pageTitle: "All Products",
@@ -23,7 +22,7 @@ namespace ShopController {
     const productId: string = req.params.productId;
     Product.findById(productId)
       .then((product) => {
-        if (!product) return res.redirect("/errors/400");
+        if (!product) return res.redirect("/400");
         res.render("shop/product-detail", {
           product,
           pageTitle: `${product.title} - details`,
@@ -38,8 +37,7 @@ namespace ShopController {
   export const getIndex: RequestHandler = (req: RequestData, res, next) => {
     Product.find()
       .then((products) => {
-        if (!products || products.length <= 0)
-          return res.redirect("/errors/400");
+        if (!products || products.length <= 0) return res.redirect("/400");
         res.render("shop/index", {
           products,
           pageTitle: "Shop",

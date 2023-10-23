@@ -1,5 +1,5 @@
 import { RequestHandler } from "express";
-import { RequestData } from "../util/types";
+import { ExtendedError, RequestData } from "../util/types";
 import Product from "../models/product";
 import { validationResult } from "express-validator";
 
@@ -62,7 +62,26 @@ namespace AdminController {
         console.log("Product added successfully");
         return res.redirect("/admin/products");
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        /* return res.status(500).render("admin/edit-product", {
+          pageTitle: "Add Product",
+          path: "/admin/add-product",
+          editing: false,
+          errorMessage: "Database operation failed, please try again.",
+          hasError: true,
+          validationErrors: [],
+          product: {
+            title,
+            imageUrl: req.body.imageUrl,
+            description: req.body.description,
+            price,
+          },
+        }); */
+        //res.redirect("/500");
+        const error: ExtendedError = new Error(err);
+        error.httpStatusCode = 500;
+        return next(error);
+      });
   };
 
   export const getEditProduct: RequestHandler = (
@@ -74,9 +93,9 @@ namespace AdminController {
     if (!editMode) return res.redirect("/");
     const productId = req.params.productId;
 
-    Product.findOne({ _id: productId, _userId: req.user?._id }).then(
-      (product) => {
-        if (!product) return res.redirect("/errors/400");
+    Product.findOne({ _id: productId, _userId: req.user?._id })
+      .then((product) => {
+        if (!product) return res.redirect("/400");
         res.render("admin/edit-product", {
           pageTitle: "Edit Product",
           path: "/admin/edit-product",
@@ -86,8 +105,12 @@ namespace AdminController {
           validationErrors: [],
           product,
         });
-      }
-    );
+      })
+      .catch((err) => {
+        const error: ExtendedError = new Error(err);
+        error.httpStatusCode = 500;
+        return next(error);
+      });
   };
 
   export const postEditProduct: RequestHandler = (
@@ -122,7 +145,7 @@ namespace AdminController {
 
     Product.findOne({ _id: productId, _userId: req.user?._id })
       .then((product): void | Promise<void> => {
-        if (!product) return res.redirect("/errors/400");
+        if (!product) return res.redirect("/400");
         product.title = title;
         product.price = price;
         product.description = description;
@@ -155,8 +178,7 @@ namespace AdminController {
       /* .select("title price -imageUrl")
       .populate("_userId", "name") */
       .then((products) => {
-        if (!products || products.length <= 0)
-          return res.redirect("/errors/400");
+        if (!products || products.length <= 0) return res.redirect("/400");
         res.render("admin/products", {
           pageTitle: "Admin Products",
           path: "/admin/products",

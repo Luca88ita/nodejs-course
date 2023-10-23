@@ -79,7 +79,7 @@ app.use((req: RequestData, res, next) => {
       next();
     })
     .catch((err) => {
-      console.log(err);
+      throw new Error(err);
     });
 });
 
@@ -97,6 +97,10 @@ app.use(shopRoutes);
 app.use(messageRoutes);
 app.use(authRoutes);
 app.use(errorRoutes);
+
+app.use((error, req, res, next) => {
+  res.redirect("/500");
+});
 
 mongoose
   .connect(MONGODB_URI)

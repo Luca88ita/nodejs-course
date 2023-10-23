@@ -1,4 +1,4 @@
-import { IUser } from "../../section15/models/user"; // "../../section14/models/user"
+import { IUser } from "../../section15-18/models/user"; // "../../section14/models/user"
 
 export {};
 

@@ -10,11 +10,16 @@ router.get("/login", AuthController.getLogin);
 router.post(
   "/login",
   [
-    check("email").isEmail().withMessage("Please enter a valid email"),
+    check("email")
+      .isEmail()
+      .withMessage("Please enter a valid email")
+      .normalizeEmail(),
     body(
       "password",
       "Please enter a valid password (a password must have one uppercase, one lower case, one special char, one digit and be long between 8 and 20 characters)"
-    ).matches(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{8,}$/, "i"),
+    )
+      .matches(/^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{8,20}$/)
+      .trim(),
   ],
   AuthController.postLogin
 );
@@ -39,20 +44,24 @@ router.post(
             );
           }
         });
-      }),
+      })
+      .normalizeEmail(),
     body(
       "password",
       "Password must have one uppercase, one lower case, one special char, one digit and be long between 8 and 20 characters"
     )
       .isLength({ min: 8, max: 20 })
-      .matches(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{8,}$/, "i"),
-    body("confirmPassword").custom((value, { req }) => {
-      if (value !== req.body.password)
-        throw new Error(
-          "Passwords have to match. Please re-enter the same password"
-        );
-      return true;
-    }),
+      .matches(/^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{8,20}$/)
+      .trim(),
+    body("confirmPassword")
+      .trim()
+      .custom((value, { req }) => {
+        if (value !== req.body.password)
+          throw new Error(
+            "Passwords have to match. Please re-enter the same password"
+          );
+        return true;
+      }),
   ],
   AuthController.postSignup
 );

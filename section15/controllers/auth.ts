@@ -36,17 +36,22 @@ namespace AuthController {
           return res.status(422).render("auth/login", {
             pageTitle: "Login",
             path: "/login",
-            errorMessage: errors.array()[0].msg,
+            errorMessage: "Invalid email and password combination",
             previousInput: { email, password },
-            validationErrors: errors.array(),
+            validationErrors: [{ path: "email" }, { path: "password" }],
           });
         }
         return (
           user &&
           bcrypt.compare(password, user.password).then((result) => {
             if (!result) {
-              req.flash("error", "Invalid email or password");
-              return res.redirect("/login");
+              return res.status(422).render("auth/login", {
+                pageTitle: "Login",
+                path: "/login",
+                errorMessage: "Invalid email and password combination",
+                previousInput: { email, password },
+                validationErrors: [{ path: "email" }, { path: "password" }],
+              });
             }
             req.session.user = user as IUser;
             req.session.isLoggedIn = result;
@@ -75,7 +80,8 @@ namespace AuthController {
     const password = req.body.password;
     const confirmPassword = req.body.confirmPassword;
     const errors = validationResult(req);
-    if (!errors.isEmpty())
+    if (!errors.isEmpty()) {
+      console.log(errors.array());
       return res.status(422).render("auth/signup", {
         pageTitle: "Signup",
         path: "/signup",
@@ -83,6 +89,7 @@ namespace AuthController {
         previousInput: { email, password, confirmPassword },
         validationErrors: errors.array(),
       });
+    }
     /*User.findOne({ email })
       .then((user) => {
         if (user) {

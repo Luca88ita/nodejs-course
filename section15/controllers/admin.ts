@@ -1,7 +1,7 @@
 import { RequestHandler } from "express";
 import { RequestData } from "../util/types";
 import Product from "../models/product";
-import { userId } from "../app";
+import { validationResult } from "express-validator";
 
 namespace AdminController {
   export const getAddProduct: RequestHandler = (
@@ -13,6 +13,10 @@ namespace AdminController {
       pageTitle: "Add Product",
       path: "/admin/add-product",
       editing: false,
+      errorMessage: "",
+      hasError: false,
+      validationErrors: [],
+      product: { title: "", imageUrl: "", description: "", price: 0 },
     });
   };
 
@@ -29,6 +33,23 @@ namespace AdminController {
       ? req.body.description
       : "No description available";
     const price = +req.body.price;
+    const errors = validationResult(req);
+    console.log(req.user);
+    if (!errors.isEmpty())
+      return res.status(422).render("admin/edit-product", {
+        pageTitle: "Add Product",
+        path: "/admin/add-product",
+        editing: false,
+        errorMessage: errors.array()[0].msg,
+        hasError: true,
+        validationErrors: errors.array(),
+        product: {
+          title,
+          imageUrl: req.body.imageUrl,
+          description: req.body.description,
+          price,
+        },
+      });
     const product = new Product({
       title,
       price,
@@ -53,6 +74,7 @@ namespace AdminController {
     const editMode = req.query.edit;
     if (!editMode) return res.redirect("/");
     const productId = req.params.productId;
+
     Product.findOne({ _id: productId, _userId: req.user?._id }).then(
       (product) => {
         if (!product) return res.redirect("/errors/400");

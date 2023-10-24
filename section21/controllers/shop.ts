@@ -8,13 +8,30 @@ import PDFModel from "../templates/pdf/invoice";
 
 namespace ShopController {
   export const getProducts: RequestHandler = (req: RequestData, res, next) => {
-    Product.find()
+    const page: number = req.query.page ? +req.query.page : 1;
+    const itemsPerPage = +process.env.ITEMS_PER_PAGE!;
+    let totalProducts: number = 0;
+
+    Product.countDocuments()
+      .then((prodNumber) => {
+        totalProducts = prodNumber;
+        return Product.find()
+          .skip((page - 1) * itemsPerPage)
+          .limit(itemsPerPage);
+      })
       .then((products) => {
         if (!products || products.length <= 0) return res.redirect("/400");
         res.render("shop/product-list", {
           products,
           pageTitle: "All Products",
           path: "/products",
+          totalProducts,
+          currentPage: page,
+          hasNextPage: itemsPerPage * page < totalProducts,
+          hasPreviousPage: page > 1,
+          nextPage: page + 1,
+          previousPage: page - 1,
+          lastPage: Math.ceil(totalProducts / itemsPerPage),
         });
       })
       .catch((err) => {
@@ -59,10 +76,11 @@ namespace ShopController {
           pageTitle: "Shop",
           path: "/",
           totalProducts,
+          currentPage: page,
           hasNextPage: itemsPerPage * page < totalProducts,
           hasPreviousPage: page > 1,
           nextPage: page + 1,
-          previousPage: page - 1 > 0 ? page - 1 : null,
+          previousPage: page - 1,
           lastPage: Math.ceil(totalProducts / itemsPerPage),
         });
       })

@@ -129,7 +129,9 @@ namespace AuthController {
         );
       })
       .catch((err) => {
-        console.log(err);
+        const error: ExtendedError = new Error(err);
+        error.httpStatusCode = 500;
+        return next(error);
       });
   };
 
@@ -180,7 +182,9 @@ namespace AuthController {
           });
         })
         .catch((err) => {
-          console.log(err);
+          const error: ExtendedError = new Error(err);
+          error.httpStatusCode = 500;
+          return next(error);
         });
     });
   };
@@ -205,7 +209,9 @@ namespace AuthController {
         });
       })
       .catch((err) => {
-        console.log(err);
+        const error: ExtendedError = new Error(err);
+        error.httpStatusCode = 500;
+        return next(error);
       });
   };
 
@@ -255,7 +261,9 @@ namespace AuthController {
           });
       })
       .catch((err) => {
-        console.log(err);
+        const error: ExtendedError = new Error(err);
+        error.httpStatusCode = 500;
+        return next(error);
       });
   };
 }

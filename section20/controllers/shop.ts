@@ -80,7 +80,9 @@ namespace ShopController {
         });
       })
       .catch((err) => {
-        console.log(err);
+        const error: ExtendedError = new Error(err);
+        error.httpStatusCode = 500;
+        return next(error);
       });
   };
 
@@ -131,7 +133,9 @@ namespace ShopController {
         });
       })
       .catch((err) => {
-        console.log(err);
+        const error: ExtendedError = new Error(err);
+        error.httpStatusCode = 500;
+        return next(error);
       });
   };
 
@@ -156,25 +160,41 @@ namespace ShopController {
         res.redirect("/orders");
       })
       .catch((err) => {
-        console.log(err);
+        const error: ExtendedError = new Error(err);
+        error.httpStatusCode = 500;
+        return next(error);
       });
   };
 
   export const getInvoice: RequestHandler = (req: RequestData, res, next) => {
     const orderId = req.params.orderId;
-    const invoiceName = `invoice-${orderId}.pdf`;
-    const invoicePath = path.join(
-      mainPath as string,
-      "data",
-      "invoices",
-      invoiceName
-    );
-    fs.readFile(invoicePath, (err, data) => {
-      if (err) return next(err);
-      res.setHeader("Content-Type", "application/pdf");
-      res.setHeader("Content-Disposition", `inline; filename="${invoiceName}"`);
-      res.send(data);
-    });
+    Order.findById(orderId)
+      .then((order) => {
+        if (!order) return next(new Error("Unable to find the order"));
+        if (order.user._userId.toString() !== req.user?._id.toString())
+          return next(new Error("Unauthorized!"));
+        const invoiceName = `invoice-${orderId}.pdf`;
+        const invoicePath = path.join(
+          mainPath as string,
+          "data",
+          "invoices",
+          invoiceName
+        );
+        fs.readFile(invoicePath, (err, data) => {
+          if (err) return next(err);
+          res.setHeader("Content-Type", "application/pdf");
+          res.setHeader(
+            "Content-Disposition",
+            `inline; filename="${invoiceName}"`
+          );
+          res.send(data);
+        });
+      })
+      .catch((err) => {
+        const error: ExtendedError = new Error(err);
+        error.httpStatusCode = 500;
+        return next(error);
+      });
   };
 
   export const getCheckout: RequestHandler = (req: RequestData, res, next) => {

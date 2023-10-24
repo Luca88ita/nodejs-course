@@ -1,12 +1,9 @@
-import fs from "fs";
-import path from "path";
-import PDFDocument from "pdfkit";
 import { RequestHandler } from "express";
+import dotenv from "dotenv";
 import { CartItem, ExtendedError, RequestData } from "../util/types";
 import Product, { ProductType } from "../models/product";
 import User from "../models/user";
 import Order from "../models/order";
-import mainPath from "../util/path";
 import PDFModel from "../templates/pdf/invoice";
 
 namespace ShopController {
@@ -44,13 +41,29 @@ namespace ShopController {
   };
 
   export const getIndex: RequestHandler = (req: RequestData, res, next) => {
+    const page: number = req.query.page ? +req.query.page : 1;
+    const itemsPerPage = +process.env.ITEMS_PER_PAGE!;
+    let totalProducts: number = 0;
     Product.find()
+      .countDocuments()
+      .then((prodNumber) => {
+        totalProducts = prodNumber;
+        return Product.find()
+          .skip((page - 1) * itemsPerPage)
+          .limit(itemsPerPage);
+      })
       .then((products) => {
         if (!products || products.length <= 0) return res.redirect("/400");
         res.render("shop/index", {
           products,
           pageTitle: "Shop",
           path: "/",
+          totalProducts,
+          hasNextPage: itemsPerPage * page < totalProducts,
+          hasPreviousPage: page > 1,
+          nextPage: page + 1,
+          previousPage: page - 1 > 0 ? page - 1 : null,
+          lastPage: Math.ceil(totalProducts / itemsPerPage),
         });
       })
       .catch((err) => {

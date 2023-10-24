@@ -1,5 +1,5 @@
 import { RequestHandler } from "express";
-import { CartItem, RequestData } from "../util/types";
+import { CartItem, ExtendedError, RequestData } from "../util/types";
 import Product, { ProductType } from "../models/product";
 import User from "../models/user";
 import Order from "../models/order";
@@ -15,7 +15,11 @@ namespace ShopController {
           path: "/products",
         });
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        const error: ExtendedError = new Error(err);
+        error.httpStatusCode = 500;
+        return next(error);
+      });
   };
 
   export const getProduct: RequestHandler = (req: RequestData, res, next) => {
@@ -44,7 +48,11 @@ namespace ShopController {
           path: "/",
         });
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        const error: ExtendedError = new Error(err);
+        error.httpStatusCode = 500;
+        return next(error);
+      });
   };
 
   export const getCart: RequestHandler = (req: RequestData, res, next) => {
@@ -83,7 +91,11 @@ namespace ShopController {
         return user.addToCart(product as ProductType);
       })
       .then(() => res.redirect("/cart"))
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        const error: ExtendedError = new Error(err);
+        error.httpStatusCode = 500;
+        return next(error);
+      });
   };
 
   export const postCartDeleteItem: RequestHandler = (
@@ -97,7 +109,11 @@ namespace ShopController {
     user
       .removeFromCart(productId)
       .then(() => res.redirect("/cart"))
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        const error: ExtendedError = new Error(err);
+        error.httpStatusCode = 500;
+        return next(error);
+      });
   };
 
   export const getOrders: RequestHandler = (req: RequestData, res, next) => {

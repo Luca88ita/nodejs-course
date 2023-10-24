@@ -155,7 +155,11 @@ namespace AdminController {
           return res.redirect("/messages/edit-success");
         });
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        const error: ExtendedError = new Error(err);
+        error.httpStatusCode = 500;
+        return next(error);
+      });
   };
 
   export const postDeleteProduct: RequestHandler = (
@@ -169,7 +173,11 @@ namespace AdminController {
         console.log("Product deleted succesfully!");
         return res.redirect("/messages/delete-success");
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        const error: ExtendedError = new Error(err);
+        error.httpStatusCode = 500;
+        return next(error);
+      });
   };
 
   export const getProducts: RequestHandler = (req: RequestData, res, next) => {
@@ -185,7 +193,11 @@ namespace AdminController {
           products,
         });
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        const error: ExtendedError = new Error(err);
+        error.httpStatusCode = 500;
+        return next(error);
+      });
   };
 }
 

@@ -3,7 +3,7 @@ import { validationResult } from "express-validator";
 import crypto from "crypto";
 import bcrypt from "bcrypt";
 import User, { IUser } from "../models/user";
-import { RequestData } from "../util/types";
+import { ExtendedError, RequestData } from "../util/types";
 import { sendEmail } from "../util/mailTransporter";
 
 namespace AuthController {
@@ -62,7 +62,11 @@ namespace AuthController {
           })
         );
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        const error: ExtendedError = new Error(err);
+        error.httpStatusCode = 500;
+        return next(error);
+      });
   };
 
   export const getSignup: RequestHandler = (req, res, next) => {

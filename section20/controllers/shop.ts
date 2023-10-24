@@ -1,11 +1,13 @@
 import fs from "fs";
 import path from "path";
+import PDFDocument from "pdfkit";
 import { RequestHandler } from "express";
 import { CartItem, ExtendedError, RequestData } from "../util/types";
 import Product, { ProductType } from "../models/product";
 import User from "../models/user";
 import Order from "../models/order";
 import mainPath from "../util/path";
+import PDFModel from "../templates/pdf/invoice";
 
 namespace ShopController {
   export const getProducts: RequestHandler = (req: RequestData, res, next) => {
@@ -173,32 +175,7 @@ namespace ShopController {
         if (!order) return next(new Error("Unable to find the order"));
         if (order.user._userId.toString() !== req.user?._id.toString())
           return next(new Error("Unauthorized!"));
-        const invoiceName = `invoice-${orderId}.pdf`;
-        const invoicePath = path.join(
-          mainPath as string,
-          "data",
-          "invoices",
-          invoiceName
-        );
-
-        //for long dimension files the below code may overflow the memory usage!
-        /* fs.readFile(invoicePath, (err, data) => {
-          if (err) return next(err);
-          res.setHeader("Content-Type", "application/pdf");
-          res.setHeader(
-            "Content-Disposition",
-            `inline; filename="${invoiceName}"`
-          );
-          res.send(data);
-        }); */
-        // the below code instead streams the invoice data
-        const file = fs.createReadStream(invoicePath);
-        res.setHeader("Content-Type", "application/pdf");
-        res.setHeader(
-          "Content-Disposition",
-          `inline; filename="${invoiceName}"`
-        );
-        file.pipe(res);
+        PDFModel.getPDFInvoice(res, order);
       })
       .catch((err) => {
         const error: ExtendedError = new Error(err);

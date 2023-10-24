@@ -1,8 +1,8 @@
 import { Model, Schema, Types, model } from "mongoose";
-import { CartItem, Order } from "../util/types";
+import { OrderItem, Order } from "../util/types";
 
 export interface IOrder {
-  products: CartItem;
+  products: OrderItem[];
   user: any;
   _id: Types.ObjectId;
 }

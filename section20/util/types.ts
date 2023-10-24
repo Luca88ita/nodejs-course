@@ -38,12 +38,14 @@ export interface Cart {
 
 export interface OrderItem {
   quantity: number | undefined;
-  title: string;
-  price: number;
-  description: string;
-  imageUrl: string;
-  _userId: Types.ObjectId | undefined;
-  _id: Types.ObjectId | undefined;
+  product: {
+    title: string;
+    price: number;
+    description: string;
+    imageUrl: string;
+    _userId: Types.ObjectId | undefined;
+    _id: Types.ObjectId | undefined;
+  };
 }
 
 export interface Order {

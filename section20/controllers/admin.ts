@@ -2,6 +2,7 @@ import { RequestHandler } from "express";
 import { ExtendedError, RequestData } from "../util/types";
 import Product from "../models/product";
 import { validationResult } from "express-validator";
+import FileHelper from "../util/file";
 
 namespace AdminController {
   export const getAddProduct: RequestHandler = (
@@ -164,7 +165,10 @@ namespace AdminController {
         product.title = title;
         product.price = price;
         product.description = description;
-        if (imageUrl) product.imageUrl = imageUrl;
+        if (imageUrl) {
+          FileHelper.deleteFile(product.imageUrl);
+          product.imageUrl = imageUrl;
+        }
         return product.save().then((result) => {
           console.log("Product info updated succesfully!");
           return res.redirect("/messages/edit-success");
@@ -183,7 +187,12 @@ namespace AdminController {
     next
   ) => {
     const productId = req.body.productId;
-    Product.deleteOne({ _id: productId, _userId: req.user?._id })
+    Product.findOne({ _id: productId, _userId: req.user?._id })
+      .then((product): any => {
+        if (!product) return next(new Error("Product not found"));
+        FileHelper.deleteFile(product.imageUrl);
+        return product.deleteOne();
+      })
       .then(() => {
         console.log("Product deleted succesfully!");
         return res.redirect("/messages/delete-success");

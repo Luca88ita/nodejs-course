@@ -180,7 +180,9 @@ namespace ShopController {
           "invoices",
           invoiceName
         );
-        fs.readFile(invoicePath, (err, data) => {
+
+        //for long dimension files the below code may overflow the memory usage!
+        /* fs.readFile(invoicePath, (err, data) => {
           if (err) return next(err);
           res.setHeader("Content-Type", "application/pdf");
           res.setHeader(
@@ -188,7 +190,15 @@ namespace ShopController {
             `inline; filename="${invoiceName}"`
           );
           res.send(data);
-        });
+        }); */
+        // the below code instead streams the invoice data
+        const file = fs.createReadStream(invoicePath);
+        res.setHeader("Content-Type", "application/pdf");
+        res.setHeader(
+          "Content-Disposition",
+          `inline; filename="${invoiceName}"`
+        );
+        file.pipe(res);
       })
       .catch((err) => {
         const error: ExtendedError = new Error(err);

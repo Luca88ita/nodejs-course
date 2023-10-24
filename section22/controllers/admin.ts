@@ -182,12 +182,12 @@ namespace AdminController {
       });
   };
 
-  export const postDeleteProduct: RequestHandler = (
+  export const deleteProduct: RequestHandler = (
     req: RequestData,
     res,
     next
   ) => {
-    const productId = req.body.productId;
+    const productId = req.params.productId;
     Product.findOne({ _id: productId, _userId: req.user?._id })
       .then((product): any => {
         if (!product) return next(new Error("Product not found"));
@@ -196,12 +196,10 @@ namespace AdminController {
       })
       .then(() => {
         console.log("Product deleted succesfully!");
-        return res.redirect("/messages/delete-success");
+        res.status(200).json({ message: "Success!" });
       })
       .catch((err) => {
-        const error: ExtendedError = new Error(err);
-        error.httpStatusCode = 500;
-        return next(error);
+        res.status(500).json({ message: "Product deletion failed!" });
       });
   };
 

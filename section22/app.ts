@@ -32,7 +32,7 @@ const { doubleCsrfProtection } = doubleCsrf({
   cookieOptions: { sameSite: "lax", secure: false, signed: true },
   size: 64,
   ignoredMethods: ["GET", "HEAD", "OPTIONS"],
-  getTokenFromRequest: (req) => req.body.csrfToken,
+  getTokenFromRequest: (req) => req.headers["x-csrf-token"], //req.body.csrfToken,
 });
 const fileStorage = multer.diskStorage({
   /* destination: (req, file, cb) => {

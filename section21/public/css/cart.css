@@ -1,0 +1,33 @@
+.cart-item {
+  display: flex;
+  padding: 1rem;
+}
+
+.item__header {
+  margin-top: 0;
+}
+
+.item__title {
+  font-size: 20px;
+}
+
+.item__image img {
+  max-height: 100px;
+}
+
+.item__description {
+  display: flex;
+  width: -webkit-fill-available;
+}
+
+.cart__actions {
+  display: flex;
+  flex-direction: column;
+  min-width: 120px;
+}
+
+.cart__total-price {
+  display: flex;
+  justify-content: flex-end;
+  margin-right: 1rem;
+}

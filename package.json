@@ -20,7 +20,8 @@
     "start13": "nodemon ./section13/app.ts",
     "start14": "nodemon ./section14/app.ts",
     "start15": "nodemon ./section15-19/app.ts",
-    "start20": "nodemon ./section20/app.ts"
+    "start20": "nodemon ./section20/app.ts",
+    "start21": "nodemon ./section21/app.ts"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",

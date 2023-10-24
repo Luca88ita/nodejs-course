@@ -214,7 +214,7 @@ namespace AdminController {
       .countDocuments()
       .then((prodNumber) => {
         totalProducts = prodNumber;
-        return Product.find()
+        return Product.find({ _userId: req.user?._id })
           .skip((page - 1) * itemsPerPage)
           .limit(itemsPerPage);
       })

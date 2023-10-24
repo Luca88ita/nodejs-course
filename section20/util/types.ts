@@ -54,3 +54,7 @@ export interface Order {
     email: string;
   };
 }
+
+export interface ExtendedError extends Error {
+  httpStatusCode?: number;
+}

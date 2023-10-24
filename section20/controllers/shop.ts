@@ -1,5 +1,5 @@
 import { RequestHandler } from "express";
-import { CartItem, RequestData } from "../util/types";
+import { CartItem, ExtendedError, RequestData } from "../util/types";
 import Product, { ProductType } from "../models/product";
 import User from "../models/user";
 import Order from "../models/order";
@@ -8,22 +8,25 @@ namespace ShopController {
   export const getProducts: RequestHandler = (req: RequestData, res, next) => {
     Product.find()
       .then((products) => {
-        if (!products || products.length <= 0)
-          return res.redirect("/errors/400");
+        if (!products || products.length <= 0) return res.redirect("/400");
         res.render("shop/product-list", {
           products,
           pageTitle: "All Products",
           path: "/products",
         });
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        const error: ExtendedError = new Error(err);
+        error.httpStatusCode = 500;
+        return next(error);
+      });
   };
 
   export const getProduct: RequestHandler = (req: RequestData, res, next) => {
     const productId: string = req.params.productId;
     Product.findById(productId)
       .then((product) => {
-        if (!product) return res.redirect("/errors/400");
+        if (!product) return res.redirect("/400");
         res.render("shop/product-detail", {
           product,
           pageTitle: `${product.title} - details`,
@@ -38,15 +41,18 @@ namespace ShopController {
   export const getIndex: RequestHandler = (req: RequestData, res, next) => {
     Product.find()
       .then((products) => {
-        if (!products || products.length <= 0)
-          return res.redirect("/errors/400");
+        if (!products || products.length <= 0) return res.redirect("/400");
         res.render("shop/index", {
           products,
           pageTitle: "Shop",
           path: "/",
         });
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        const error: ExtendedError = new Error(err);
+        error.httpStatusCode = 500;
+        return next(error);
+      });
   };
 
   export const getCart: RequestHandler = (req: RequestData, res, next) => {
@@ -85,7 +91,11 @@ namespace ShopController {
         return user.addToCart(product as ProductType);
       })
       .then(() => res.redirect("/cart"))
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        const error: ExtendedError = new Error(err);
+        error.httpStatusCode = 500;
+        return next(error);
+      });
   };
 
   export const postCartDeleteItem: RequestHandler = (
@@ -99,7 +109,11 @@ namespace ShopController {
     user
       .removeFromCart(productId)
       .then(() => res.redirect("/cart"))
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        const error: ExtendedError = new Error(err);
+        error.httpStatusCode = 500;
+        return next(error);
+      });
   };
 
   export const getOrders: RequestHandler = (req: RequestData, res, next) => {

@@ -25,6 +25,7 @@ import User from "./models/user";
 import { RequestData } from "./util/types";
 import multer from "multer";
 
+const currentSection = "20";
 const { doubleCsrfProtection } = doubleCsrf({
   getSecret: () => "my secret",
   cookieName: "csrfToken",
@@ -34,8 +35,11 @@ const { doubleCsrfProtection } = doubleCsrf({
   getTokenFromRequest: (req) => req.body.csrfToken,
 });
 const fileStorage = multer.diskStorage({
-  destination: (req, file, cb) => {
+  /* destination: (req, file, cb) => {
     cb(null, path.join(mainPath as string, "images").toString());
+  }, */
+  destination: (req, file, cb) => {
+    cb(null, `section${currentSection}/images`);
   },
   filename: (erq, file, cb) => {
     cb(null, `${Date.now()} - ${file.originalname}`);
@@ -65,11 +69,15 @@ const MONGODB_URI =
 
 app.set("view engine", "ejs"); // here we tell to express that we want to compile dinamic templates with ejs engine
 
-app.set("views", "./section20/views"); // necessary because we put our views in a path different from ./views
+app.set("views", `./section${currentSection}/views`); // necessary because we put our views in a path different from ./views
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(multer({ storage: fileStorage, fileFilter }).single("image"));
 app.use(express.static(path.join(mainPath as string, "public")));
+app.use(
+  `/section${currentSection}/images`,
+  express.static(path.join(mainPath as string, "images"))
+);
 app.use(
   session({
     secret: "my secret", // to save the password for hashing

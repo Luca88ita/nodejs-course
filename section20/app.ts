@@ -39,7 +39,7 @@ const fileStorage = multer.diskStorage({
     cb(null, path.join(mainPath as string, "images").toString());
   }, */
   destination: (req, file, cb) => {
-    cb(null, `section${currentSection}/images`);
+    cb(null, `section${currentSection}/data/images`);
   },
   filename: (erq, file, cb) => {
     cb(null, `${Date.now()} - ${file.originalname}`);
@@ -75,8 +75,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(multer({ storage: fileStorage, fileFilter }).single("image"));
 app.use(express.static(path.join(mainPath as string, "public")));
 app.use(
-  `/section${currentSection}/images`,
-  express.static(path.join(mainPath as string, "images"))
+  `/section${currentSection}/data/images`,
+  express.static(path.join(mainPath as string, "data/images"))
 );
 app.use(
   session({

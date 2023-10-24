@@ -21,7 +21,8 @@ router.post(
       .isString()
       .trim()
       .isLength({ min: 5, max: 40 }),
-    body("imageUrl", "You must submit a valid URL").isURL(),
+    //body("imageUrl", "You must submit a valid URL").isURL(),
+    body("image").isBase64(),
     body(
       "description",
       "The description must be long between 20 and 500 characters"
@@ -46,7 +47,7 @@ router.post(
       .isString()
       .trim()
       .isLength({ min: 5, max: 40 }),
-    body("imageUrl", "You must submit a valid URL").isURL(),
+    //body("imageUrl", "You must submit a valid URL").isURL(),
     body(
       "description",
       "The description must be long between 20 and 500 characters"

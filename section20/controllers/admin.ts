@@ -26,14 +26,30 @@ namespace AdminController {
     next
   ) => {
     const title = req.body.title;
-    const imageUrl = req.body.imageUrl
+    /*const imageUrl = req.body.imageUrl
       ? req.body.imageUrl
-      : "https://cdn.pixabay.com/photo/2016/03/31/20/51/book-1296045_960_720.png";
+      : "https://cdn.pixabay.com/photo/2016/03/31/20/51/book-1296045_960_720.png";*/
+    const image = req.file;
     const description = req.body.description
       ? req.body.description
       : "No description available";
     const price = +req.body.price;
     const errors = validationResult(req);
+    if (!image)
+      return res.status(422).render("admin/edit-product", {
+        pageTitle: "Add Product",
+        path: "/admin/add-product",
+        editing: false,
+        errorMessage: "The attached file is not a valid image",
+        hasError: true,
+        validationErrors: [{ path: "image" }],
+        product: {
+          title,
+          description: req.body.description,
+          price,
+        },
+      });
+    const imageUrl = image.path;
     if (!errors.isEmpty())
       return res.status(422).render("admin/edit-product", {
         pageTitle: "Add Product",
@@ -44,7 +60,7 @@ namespace AdminController {
         validationErrors: errors.array(),
         product: {
           title,
-          imageUrl: req.body.imageUrl,
+          image,
           description: req.body.description,
           price,
         },
@@ -121,10 +137,10 @@ namespace AdminController {
     const productId = req.body.productId;
 
     const title = req.body.title;
-    const imageUrl = req.body.imageUrl;
+    const image = req.file;
     const description = req.body.description;
     const price = +req.body.price;
-
+    const imageUrl = image && image.path;
     const errors = validationResult(req);
     if (!errors.isEmpty())
       return res.status(422).render("admin/edit-product", {
@@ -137,7 +153,6 @@ namespace AdminController {
         product: {
           _id: productId,
           title,
-          imageUrl,
           description,
           price,
         },
@@ -149,7 +164,7 @@ namespace AdminController {
         product.title = title;
         product.price = price;
         product.description = description;
-        product.imageUrl = imageUrl;
+        if (imageUrl) product.imageUrl = imageUrl;
         return product.save().then((result) => {
           console.log("Product info updated succesfully!");
           return res.redirect("/messages/edit-success");

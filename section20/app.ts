@@ -23,6 +23,7 @@ import flash from "connect-flash";
 
 import User from "./models/user";
 import { RequestData } from "./util/types";
+import multer from "multer";
 
 const { doubleCsrfProtection } = doubleCsrf({
   getSecret: () => "my secret",
@@ -32,6 +33,30 @@ const { doubleCsrfProtection } = doubleCsrf({
   ignoredMethods: ["GET", "HEAD", "OPTIONS"],
   getTokenFromRequest: (req) => req.body.csrfToken,
 });
+const fileStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, path.join(mainPath as string, "images").toString());
+  },
+  filename: (erq, file, cb) => {
+    cb(null, `${Date.now()} - ${file.originalname}`);
+  },
+});
+const fileFilter = (req, file, cb) => {
+  switch (file.mimetype) {
+    case "image/png":
+    case "image/jpg":
+    case "image/jpeg":
+    case "image/tiff":
+    case "image/bmp":
+      cb(null, true);
+      break;
+    default:
+      cb(null, false);
+      break;
+  }
+  /* cb(null,true)
+  cb(null,false) */
+};
 
 const app = express();
 export const userId = "6532fa6cffbc4d98938721d3";
@@ -43,6 +68,7 @@ app.set("view engine", "ejs"); // here we tell to express that we want to compil
 app.set("views", "./section20/views"); // necessary because we put our views in a path different from ./views
 
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(multer({ storage: fileStorage, fileFilter }).single("image"));
 app.use(express.static(path.join(mainPath as string, "public")));
 app.use(
   session({

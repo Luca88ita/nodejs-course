@@ -135,3 +135,6 @@ dist
 # Stores
 *.zip
 *.rar
+
+# Images
+/images/

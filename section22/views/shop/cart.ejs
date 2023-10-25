@@ -21,7 +21,7 @@
                                 <div class="item__image">
                                     <img src="<%= product._productId.imageUrl %>" alt="<%= product.title %>">
                                 </div>
-                                <a class="btn" href="/products/<%= product._id %>">Details</a>
+                                <a class="btn" href="/products/<%= product._productId._id %>">Details</a>
                             </header>
 
                             <p class="item__description">
@@ -47,10 +47,11 @@
                 </ul>
                 <hr>
                 <div class="centered">
-                    <form action="/create-order" method="POST">
+                    <!-- <form action="/create-order" method="POST">
                         <input type="hidden" name="csrfToken" value="<%= csrfToken %>" />
                         <button type="submit" class="btn">Order now!</button>
-                    </form>
+                    </form> -->
+                    <a href="/checkout" class="btn">Order Now!</a>
                 </div>
                 
                 <h1 class="cart__total-price">Total Price: $<%= totalPrice %></h1>

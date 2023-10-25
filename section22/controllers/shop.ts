@@ -216,10 +216,31 @@ namespace ShopController {
   };
 
   export const getCheckout: RequestHandler = (req: RequestData, res, next) => {
-    /* res.render("shop/checkout", {
-      pageTitle: "Checkout",
-      path: "/checkout",
-    }); */
+    const user = new User(req.user);
+    user.isNew = false;
+    user
+      .populate("cart.items._productId")
+      .then((user) => {
+        const products: CartItem[] = user.cart.items;
+        let totalPrice = 0;
+        if (products.length === 0)
+          return next(new Error("Unable to find cart items"));
+        products.forEach((product) => {
+          const productDetails: ProductType = product._productId as ProductType;
+          totalPrice = totalPrice + productDetails.price * product.quantity!;
+        });
+        res.render("shop/checkout", {
+          pageTitle: "Checkout",
+          path: "/checkout",
+          products,
+          totalPrice: totalPrice.toFixed(2),
+        });
+      })
+      .catch((err) => {
+        const error: ExtendedError = new Error(err);
+        error.httpStatusCode = 500;
+        return next(error);
+      });
   };
 }
 

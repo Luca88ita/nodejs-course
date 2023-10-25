@@ -229,11 +229,10 @@ namespace ShopController {
       .populate("cart.items._productId")
       .then((user) => {
         products = user.cart.items;
-        console.log("1");
+
         if (products.length === 0)
           return next(new Error("Oops! It seems the cart is empty"));
 
-        console.log("2");
         products.forEach((product) => {
           const productDetails: ProductType = product._productId as ProductType;
           totalPrice = totalPrice + productDetails.price * product.quantity!;
@@ -260,7 +259,6 @@ namespace ShopController {
         });
       })
       .then((session) => {
-        console.log("3");
         res.render("shop/checkout", {
           pageTitle: "Checkout",
           path: "/checkout",

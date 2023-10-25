@@ -43,10 +43,17 @@
                 </ul>
                 <hr>
                 <div class="centered">
-                    <!-- <form action="/create-order" method="POST">
-                        <input type="hidden" name="csrfToken" value="<%= csrfToken %>" />
-                        <button type="submit" class="btn">Order now!</button>
-                    </form> -->
+                    <button id="order-btn" class="btn">CONFIRM ORDER</button>
+
+                    <script>
+                      const stripe = Stripe('pk_test_51O4t92L7A0oKoqZ2P0LzBPtClcXv2CCHNID4wJAhm6i6MxJChzJ5DJbxt8GQY5RmkD0AoX6y8nS5wqDW6bLUwbwd00iTQVhi0Q');
+                        const orderBtn = document.getElementById("order-btn");
+                        orderBtn.addEventListener("click",()=>{
+                          stripe.redirectToCheckout({
+                            sessionId:"<%= sessionId %>"
+                          })
+                        })
+                    </script>  
                 </div>
                 
                 <h1 class="cart__total-price">Total Price: $<%= totalPrice %></h1>

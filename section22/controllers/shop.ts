@@ -1,10 +1,14 @@
 import { RequestHandler } from "express";
+const Stripe = require("stripe");
 import dotenv from "dotenv";
 import { CartItem, ExtendedError, RequestData } from "../util/types";
 import Product, { ProductType } from "../models/product";
 import User from "../models/user";
 import Order from "../models/order";
 import PDFModel from "../templates/pdf/invoice";
+
+dotenv.config();
+const stripe = Stripe(process.env.SK);
 
 namespace ShopController {
   export const getProducts: RequestHandler = (req: RequestData, res, next) => {
@@ -218,29 +222,102 @@ namespace ShopController {
   export const getCheckout: RequestHandler = (req: RequestData, res, next) => {
     const user = new User(req.user);
     user.isNew = false;
+    let products: CartItem[];
+    let totalPrice = 0;
+
     user
       .populate("cart.items._productId")
       .then((user) => {
-        const products: CartItem[] = user.cart.items;
-        let totalPrice = 0;
+        products = user.cart.items;
+        console.log("1");
         if (products.length === 0)
-          return next(new Error("Unable to find cart items"));
+          return next(new Error("Oops! It seems the cart is empty"));
+
+        console.log("2");
         products.forEach((product) => {
           const productDetails: ProductType = product._productId as ProductType;
           totalPrice = totalPrice + productDetails.price * product.quantity!;
         });
+        return stripe.checkout.sessions.create({
+          line_items: products.map((product) => {
+            const productDetails: ProductType =
+              product._productId as ProductType;
+            return {
+              price_data: {
+                currency: "usd",
+                unit_amount: Math.ceil(+productDetails.price * 100),
+                product_data: {
+                  name: productDetails.title,
+                  description: productDetails.description,
+                },
+              },
+              quantity: product.quantity,
+            };
+          }),
+          mode: "payment",
+          success_url: `${req.protocol}://${req.get("host")}/checkout/success`,
+          cancel_url: `${req.protocol}://${req.get("host")}/checkout/cancel`,
+        });
+      })
+      .then((session) => {
+        console.log("3");
         res.render("shop/checkout", {
           pageTitle: "Checkout",
           path: "/checkout",
-          products,
+          products: products,
           totalPrice: totalPrice.toFixed(2),
+          sessionId: session.id,
         });
+      })
+      .catch((err) => {
+        console.log(err);
+        const error: ExtendedError = new Error(err);
+        console.log(error);
+        error.httpStatusCode = 500;
+        return next(error);
+      });
+  };
+
+  export const getCheckoutSuccess: RequestHandler = (
+    req: RequestData,
+    res,
+    next
+  ) => {
+    const user = new User(req.user);
+    user.isNew = false;
+    user
+      .populate("cart.items._productId")
+      .then((user) => {
+        const products = user.cart.items.map((item) => {
+          const prod = item as CartItem;
+          return { quantity: prod.quantity, product: { ...prod._productId } };
+        });
+        const order = new Order({
+          products,
+          user: { _userId: user, email: user.email },
+        });
+        order.save();
+      })
+      .then(() => user.clearCart())
+      .then(() => {
+        res.redirect("/orders");
       })
       .catch((err) => {
         const error: ExtendedError = new Error(err);
         error.httpStatusCode = 500;
         return next(error);
       });
+  };
+
+  export const getCheckoutCancel: RequestHandler = (
+    req: RequestData,
+    res,
+    next
+  ) => {
+    res.render("shop/checkout-cancel", {
+      pageTitle: "Checkout canceled",
+      path: "/checkout/cancel",
+    });
   };
 }
 

@@ -103,15 +103,26 @@ const Feed = ({ userId, token }: Props) => {
     setEditPost(null);
   };
 
-  const finishEditHandler = (/* postData */) => {
+  const finishEditHandler = (postData: any) => {
     setEditLoading(true);
 
-    let url = "URL";
+    let url = "http://localhost:8080/feed/post";
+    const method = "POST";
+    const headers = { "Content-Type": "application/json" };
+    const body = JSON.stringify({
+      title: postData.title,
+      content: postData.content,
+    });
+
     if (editPost) {
       url = "URL";
     }
 
-    fetch(url)
+    fetch(url, {
+      method,
+      headers,
+      body,
+    })
       .then((res) => {
         if (res.status !== 200 && res.status !== 201) {
           throw new Error("Creating or editing a post failed!");
@@ -119,6 +130,7 @@ const Feed = ({ userId, token }: Props) => {
         return res.json();
       })
       .then((resData) => {
+        console.log(resData);
         const post: PostType = {
           _id: resData.post._id,
           title: resData.post.title,

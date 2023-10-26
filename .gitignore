@@ -138,3 +138,6 @@ dist
 
 # Images
 /images/
+
+# frontend original setup
+/section25/00-frontend-starting-setup/

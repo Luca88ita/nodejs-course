@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import Image from "../../../components/Image/Image";
 import styles from "./SinglePost.module.css";
 
@@ -15,34 +16,30 @@ const SinglePost = ({ userId, token }: Props) => {
     image: "",
     content: "",
   });
+  const { postId } = useParams();
 
-  useEffect(
-    () => {
-      //const postId = props.match.params.postId;
-      fetch("URL")
-        .then((res) => {
-          if (res.status !== 200) {
-            throw new Error("Failed to fetch status");
-          }
-          return res.json();
-        })
-        .then((resData) => {
-          setPost({
-            title: resData.post.title,
-            author: resData.post.creator.name,
-            date: new Date(resData.post.createdAt).toLocaleDateString("en-US"),
-            image: resData.post.image, // Assuming the response contains an 'image' property
-            content: resData.post.content,
-          });
-        })
-        .catch((err) => {
-          console.log(err);
+  useEffect(() => {
+    fetch(`http://localhost:8080/feed/post/${postId}`)
+      .then((res) => {
+        if (res.status !== 200) {
+          throw new Error("Failed to fetch status");
+        }
+        return res.json();
+      })
+      .then((resData) => {
+        console.log(`http://localhost:8080/${resData.post.image}`);
+        setPost({
+          title: resData.post.title,
+          author: resData.post.creator.name,
+          date: new Date(resData.post.createdAt).toLocaleDateString("en-US"),
+          image: `http://localhost:8080/${resData.post.imageUrl}`, // Assuming the response contains an 'image' property
+          content: resData.post.content,
         });
-    },
-    [
-      /* props.match.params.postId */
-    ]
-  );
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, [postId]);
 
   return (
     <section className={styles["single-post"]}>

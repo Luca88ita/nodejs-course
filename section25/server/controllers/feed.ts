@@ -1,8 +1,6 @@
 import { RequestHandler } from "express";
-//import { posts } from "../data/dummy";
 import { validationResult } from "express-validator";
 import Post from "../models/post";
-import { ExtendedError } from "../types/types";
 import Utils from "../utils/utils";
 
 export namespace FeedController {
@@ -46,13 +44,15 @@ export namespace FeedController {
         errors: errors.array(),
       }); */
     }
+    if (!req.file) Utils.throwNewError("No image provided", 422);
     const title = req.body.title;
     const content = req.body.content;
+    const imageUrl = req.file.path.replaceAll("\\", "/");
     const post = new Post({
       title,
       content,
       creator: { name: "Luca" },
-      imageUrl: "images/Book.png",
+      imageUrl,
     });
     post
       .save()

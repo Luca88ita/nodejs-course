@@ -4,6 +4,7 @@ import bodyParser from "body-parser";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import feedRoutes from "./routes/feed";
+import { multerImageMilldeware } from "./utils/multer";
 
 dotenv.config();
 const mongoDbUri = process.env.MONGODB_URI;
@@ -11,6 +12,7 @@ const mongoDbUri = process.env.MONGODB_URI;
 const app = express();
 
 app.use(bodyParser.json());
+app.use(multerImageMilldeware);
 app.use("/images", express.static(path.join(__dirname, "images")));
 
 // middleware to avoid the CORS policy error

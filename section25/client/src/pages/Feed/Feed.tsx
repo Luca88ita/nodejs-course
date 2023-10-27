@@ -105,14 +105,19 @@ const Feed = ({ userId, token }: Props) => {
 
   const finishEditHandler = (postData: any) => {
     setEditLoading(true);
+    const formData = new FormData();
+    formData.append("title", postData.title);
+    formData.append("content", postData.content);
+    formData.append("image", postData.image);
 
     let url = "http://localhost:8080/feed/post";
     const method = "POST";
-    const headers = { "Content-Type": "application/json" };
-    const body = JSON.stringify({
+    //const headers = { "Content-Type": "application/json" };
+    /* const body = JSON.stringify({
       title: postData.title,
       content: postData.content,
-    });
+    }); */
+    const body = formData;
 
     if (editPost) {
       url = "URL";
@@ -120,7 +125,7 @@ const Feed = ({ userId, token }: Props) => {
 
     fetch(url, {
       method,
-      headers,
+      //headers,
       body,
     })
       .then((res) => {

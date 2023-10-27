@@ -27,7 +27,7 @@ const SinglePost = ({ userId, token }: Props) => {
         return res.json();
       })
       .then((resData) => {
-        console.log(`http://localhost:8080/${resData.post.image}`);
+        console.log(`http://localhost:8080/${resData.post.imageUrl}`);
         setPost({
           title: resData.post.title,
           author: resData.post.creator.name,

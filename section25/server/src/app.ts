@@ -1,11 +1,17 @@
+import path from "path";
 import express from "express";
 import bodyParser from "body-parser";
-
+import mongoose from "mongoose";
+import dotenv from "dotenv";
 import feedRoutes from "./routes/feed";
+
+dotenv.config();
+const mongoDbUri = process.env.MONGODB_URI;
 
 const app = express();
 
 app.use(bodyParser.json());
+app.use("/images", express.static(path.join(__dirname, "images")));
 
 // middleware to avoid the CORS policy error
 app.use((req, res, next) => {
@@ -20,4 +26,14 @@ app.use((req, res, next) => {
 
 app.use("/feed", feedRoutes);
 
-app.listen(8080);
+app.use((error, req, res, next) => {
+  console.log(error);
+  const status = error.statusCode || 500;
+  const message = error.message;
+  res.status(status).json({ message });
+});
+
+mongoose
+  .connect(mongoDbUri)
+  .then((result) => app.listen(8080))
+  .catch((err) => console.log(err));

@@ -12,9 +12,7 @@ interface Props {
   required?: boolean;
   value?: string | number;
   placeholder?: string;
-  onChange?: (
-    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => void;
+  onChange: (id: any, value: string, files?: FileList) => void;
   onBlur?: () => void;
   rows?: number;
 }
@@ -45,8 +43,8 @@ const input = ({
         required={required}
         value={value}
         placeholder={placeholder ? placeholder : ""}
-        onChange={
-          onChange /* (e) => onChange(id, e.target.value, e.target.files!) */
+        onChange={(e: ChangeEvent<HTMLInputElement>) =>
+          onChange(id!, e.target.value, e.target.files!)
         }
         onBlur={onBlur}
       />
@@ -60,7 +58,9 @@ const input = ({
         rows={rows}
         required={required}
         value={value}
-        onChange={onChange /* (e) => onChange(id, e.target.value) */}
+        onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
+          onChange!(id!, e.target.value)
+        }
         onBlur={onBlur}
       />
     )}

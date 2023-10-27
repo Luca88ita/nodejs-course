@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, ChangeEvent } from "react";
 
 import Backdrop from "../../Backdrop/Backdrop";
 import Modal from "../../Modal/Modal";
@@ -81,7 +81,7 @@ const FeedEdit = ({
       setPostForm(updatedPostForm);
       setFormIsValid(true);
     }
-  }, [editing, postForm, selectedPost]);
+  }, [editing, selectedPost]);
 
   const postInputChangeHandler = (
     input: FeedType,
@@ -123,13 +123,15 @@ const FeedEdit = ({
   };
 
   const inputBlurHandler = (input: FeedType) => {
-    setPostForm((prevPostForm) => ({
+    const updatedForm = {
       ...postForm,
       [input]: {
         ...postForm[input],
         touched: true,
       },
-    }));
+    };
+    console.log(updatedForm);
+    setPostForm(updatedForm);
   };
 
   const cancelPostChangeHandler = () => {
@@ -165,9 +167,7 @@ const FeedEdit = ({
             id={InputType.TITLE}
             label="Title"
             control="input"
-            onChange={(event) =>
-              postInputChangeHandler(FeedType.TITLE, event.target.value)
-            }
+            onChange={postInputChangeHandler}
             onBlur={() => inputBlurHandler(FeedType.TITLE)}
             valid={postForm["title"].valid}
             touched={postForm["title"].touched}
@@ -176,9 +176,7 @@ const FeedEdit = ({
           <FilePicker
             id={InputType.IMAGE}
             label="Image"
-            onChange={(id, value, files: FileList) =>
-              postInputChangeHandler(FeedType.IMAGE, value, files)
-            }
+            onChange={postInputChangeHandler}
             onBlur={() => inputBlurHandler(FeedType.IMAGE)}
             valid={postForm["image"].valid}
             touched={postForm["image"].touched}
@@ -192,9 +190,7 @@ const FeedEdit = ({
             label="Content"
             control="textarea"
             rows={5}
-            onChange={(event) =>
-              postInputChangeHandler(FeedType.CONTENT, event.target.value)
-            }
+            onChange={postInputChangeHandler}
             onBlur={() => inputBlurHandler(FeedType.CONTENT)}
             valid={postForm["content"].valid}
             touched={postForm["content"].touched}

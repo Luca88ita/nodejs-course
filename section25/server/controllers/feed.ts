@@ -4,6 +4,7 @@ import Post from "../models/post";
 import Utils from "../utils/utils";
 
 export namespace FeedController {
+  // getting a single post
   export const getPost: RequestHandler = (req, res, next) => {
     const postId = req.params.postId;
     Post.findById(postId)
@@ -17,6 +18,7 @@ export namespace FeedController {
       });
   };
 
+  // getting all the posts
   export const getPosts: RequestHandler = (req, res, next) => {
     Post.find()
       .then((posts) => {
@@ -32,6 +34,39 @@ export namespace FeedController {
       });
   };
 
+  // updating a single post
+  export const putPost: RequestHandler = (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty())
+      Utils.throwNewError("Validation failed, entered data is incorrect.", 422);
+    const postId = req.params.postId;
+    const title = req.body.title;
+    const content = req.body.content;
+    const imageUrl = req.file
+      ? req.file.path.replaceAll("\\", "/")
+      : req.body.image;
+    if (!imageUrl) Utils.throwNewError("No file picked", 422);
+    Post.findById(postId)
+      .then((post) => {
+        if (!post)
+          Utils.throwNewError("Unable to find the requested post", 404);
+        if (imageUrl !== post.imageUrl) Utils.clearImage(post.imageUrl);
+        post.title = title;
+        post.imageUrl = imageUrl;
+        post.content = content;
+        post.isNew = false;
+        return post.save();
+      })
+      .then((resp) => {
+        res.status(200).json({ message: "Post updated", post: resp });
+      })
+      .catch((err) => {
+        console.log(err);
+        Utils.errorHandler(next, err);
+      });
+  };
+
+  // creating a single post
   export const postPost: RequestHandler = (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {

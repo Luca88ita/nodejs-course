@@ -1,4 +1,4 @@
-import { useState, useEffect, Fragment, FormEvent } from "react";
+import { useState, useEffect, FormEvent } from "react";
 import Post from "../../components/Feed/Post/Post";
 import Button from "../../components/Button/Button";
 import FeedEdit from "../../components/Feed/FeedEdit/FeedEdit";
@@ -19,7 +19,7 @@ const Feed = ({ userId, token }: Props) => {
   const [posts, setPosts] = useState<any[]>([]);
   const [totalPosts, setTotalPosts] = useState<number>(0);
   const [editPost, setEditPost] = useState<PostType | null>(null);
-  const [status, setStatus] = useState<number>();
+  const [status, setStatus] = useState<string | number>();
   const [postPage, setPostPage] = useState<number>(1);
   const [postsLoading, setPostsLoading] = useState<boolean>(true);
   const [editLoading, setEditLoading] = useState<boolean>(false);
@@ -34,7 +34,7 @@ const Feed = ({ userId, token }: Props) => {
         return res.json();
       })
       .then((resData) => {
-        setStatus(+resData.status);
+        setStatus(resData.status);
       })
       .catch(catchError);
 
@@ -65,7 +65,14 @@ const Feed = ({ userId, token }: Props) => {
         return res.json();
       })
       .then((resData) => {
-        setPosts(resData.posts);
+        setPosts(
+          resData.posts.map((post: PostType) => {
+            return {
+              ...post,
+              imagePath: post.imageUrl,
+            };
+          })
+        );
         setTotalPosts(resData.totalItems);
         setPostsLoading(false);
       })
@@ -110,18 +117,16 @@ const Feed = ({ userId, token }: Props) => {
     formData.append("content", postData.content);
     formData.append("image", postData.image);
 
-    let url = "http://localhost:8080/feed/post";
-    const method = "POST";
+    const url = editPost
+      ? `http://localhost:8080/feed/post/${editPost._id}`
+      : "http://localhost:8080/feed/post";
+    const method = editPost ? "PUT" : "POST";
     //const headers = { "Content-Type": "application/json" };
     /* const body = JSON.stringify({
       title: postData.title,
       content: postData.content,
     }); */
     const body = formData;
-
-    if (editPost) {
-      url = "URL";
-    }
 
     fetch(url, {
       method,
@@ -166,7 +171,7 @@ const Feed = ({ userId, token }: Props) => {
       });
   };
 
-  const statusInputChangeHandler = (value: number) => {
+  const statusInputChangeHandler = (value: string | number) => {
     setStatus(value);
   };
 
@@ -200,7 +205,7 @@ const Feed = ({ userId, token }: Props) => {
   };
 
   return (
-    <Fragment>
+    <>
       <ErrorHandler error={error} onHandle={errorHandler} />
       <FeedEdit
         editing={isEditing}
@@ -215,7 +220,7 @@ const Feed = ({ userId, token }: Props) => {
             type="text"
             placeholder="Your status"
             control="input"
-            onChange={(e) => statusInputChangeHandler(+e.target.value)}
+            onChange={(e) => statusInputChangeHandler(e.target.value)}
             value={status}
           />
           <Button mode="flat" type="submit">
@@ -260,7 +265,7 @@ const Feed = ({ userId, token }: Props) => {
           </Paginator>
         )}
       </section>
-    </Fragment>
+    </>
   );
 };
 

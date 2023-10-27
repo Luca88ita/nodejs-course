@@ -12,7 +12,6 @@ const app = express();
 
 app.use(bodyParser.json());
 app.use("/images", express.static(path.join(__dirname, "images")));
-console.log(path.join(__dirname, "images"));
 
 // middleware to avoid the CORS policy error
 app.use((req, res, next) => {

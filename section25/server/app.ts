@@ -3,6 +3,7 @@ import express from "express";
 import bodyParser from "body-parser";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import authRoutes from "./routes/auth";
 import feedRoutes from "./routes/feed";
 import { multerImageMilldeware } from "./utils/multer";
 
@@ -26,13 +27,15 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use("/auth", authRoutes);
 app.use("/feed", feedRoutes);
 
 app.use((error, req, res, next) => {
   console.log(error);
   const status = error.statusCode || 500;
   const message = error.message;
-  res.status(status).json({ message });
+  const data = error.data;
+  res.status(status).json({ message, data });
 });
 
 mongoose

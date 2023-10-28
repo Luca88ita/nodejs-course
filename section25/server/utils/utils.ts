@@ -5,7 +5,7 @@ import { ExtendedError } from "../types/types";
 
 namespace Utils {
   export const errorHandler = (next: NextFunction, err: any) => {
-    err.statusCode = !err.statusCode && 500;
+    if (!err.statusCode) err.statusCode = 500;
     next(err);
   };
 

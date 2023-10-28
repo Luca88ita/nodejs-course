@@ -4,9 +4,7 @@ export interface IPost {
   title: string;
   imageUrl: string;
   content: string;
-  creator: {
-    name: string;
-  };
+  creator: {};
   _id: Types.ObjectId;
 }
 
@@ -20,16 +18,10 @@ const postSchema = new Schema<IPost, PostModel, IPostMethods>(
     imageUrl: { type: String, required: true },
     content: { type: String, required: true },
     creator: {
-      //_userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
-      name: { type: String, required: true },
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
     },
-
-    /* products: [
-    {
-      product: { type: Object, required: true },
-      quantity: { type: Number, required: true },
-    },
-  ], */
   },
   { timestamps: true }
 );

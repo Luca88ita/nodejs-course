@@ -2,6 +2,7 @@ import { RequestHandler } from "express";
 import { validationResult } from "express-validator";
 import Post from "../models/post";
 import Utils from "../utils/utils";
+import User from "../models/user";
 
 export namespace FeedController {
   // getting a single post
@@ -58,6 +59,9 @@ export namespace FeedController {
       .then((post) => {
         if (!post)
           Utils.throwNewError("Unable to find the requested post", 404);
+        //@ts-ignore
+        if (post.creator.toString() !== req.userId)
+          Utils.throwNewError("Unauthorized to edit the requested post", 403);
         if (imageUrl) {
           Utils.clearImage(post.imageUrl);
           post.imageUrl = imageUrl;
@@ -81,6 +85,9 @@ export namespace FeedController {
       .then((post) => {
         if (!post)
           Utils.throwNewError("Unable to find the requested post", 404);
+        //@ts-ignore
+        if (post.creator.toString() !== req.userId)
+          Utils.throwNewError("Unauthorized to edit the requested post", 403);
         const imageUrl = post.imageUrl;
         if (!imageUrl) Utils.throwNewError("No file picked", 422);
         Utils.clearImage(imageUrl);
@@ -111,18 +118,30 @@ export namespace FeedController {
     const title = req.body.title;
     const content = req.body.content;
     const imageUrl = req.file.path.replaceAll("\\", "/");
+    let creator;
     const post = new Post({
       title,
       content,
-      creator: { name: "Luca" },
+      //@ts-ignore
+      creator: req.userId,
       imageUrl,
     });
     post
       .save()
       .then((result) => {
+        //@ts-ignore
+        return User.findById(req.userId);
+      })
+      .then((user) => {
+        creator = { _id: user._id, name: user.name };
+        user.posts.push(post);
+        return user.save();
+      })
+      .then((result) => {
         res.status(201).json({
           message: "post successfully created",
-          post: result,
+          post,
+          creator,
         });
       })
       .catch((err) => {

@@ -136,6 +136,9 @@ const Feed = ({ userId, token }: Props) => {
       method,
       //headers,
       body,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     })
       .then((res) => {
         if (res.status !== 200 && res.status !== 201) {
@@ -184,6 +187,9 @@ const Feed = ({ userId, token }: Props) => {
 
     fetch(`http://localhost:8080/feed/post/${postId}`, {
       method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     })
       .then((res) => {
         if (res.status !== 200 && res.status !== 201) {

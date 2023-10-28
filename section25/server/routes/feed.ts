@@ -9,11 +9,12 @@ const router = express.Router();
 router.get("/posts", isAuth, FeedController.getPosts);
 
 // GET /feed/post/:postId
-router.get("/post/:postId", FeedController.getPost);
+router.get("/post/:postId", isAuth, FeedController.getPost);
 
 // PUT /feed/post/:postId
 router.put(
   "/post/:postId",
+  isAuth,
   [
     body("title").isString().trim().isLength({ min: 5, max: 60 }),
     body("content").isString().trim().isLength({ min: 5, max: 500 }),
@@ -22,11 +23,12 @@ router.put(
 );
 
 // DELETE /feed/post/:postId
-router.delete("/post/:postId", FeedController.deletePost);
+router.delete("/post/:postId", isAuth, FeedController.deletePost);
 
 // POST /feed/post
 router.post(
   "/post",
+  isAuth,
   [
     body("title").isString().trim().isLength({ min: 5, max: 60 }),
     body("content").isString().trim().isLength({ min: 5, max: 500 }),

@@ -20,10 +20,10 @@ const userSchema = new Schema<IUser, UserModel, IUserMethods>({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   name: { type: String, required: true },
-  status: { type: String, required: true },
+  status: { type: String, default: "I am new!" /* required: true */ },
   resetToken: String,
   resetTokenExpiration: Date,
-  posts: [{ type: Schema.Types.ObjectId, ref: "Post", required: true }],
+  posts: [{ type: Schema.Types.ObjectId, ref: "Post" /* , required: true */ }],
 });
 
 /* userSchema.method("addToCart", function addToCart(product: ProductType) {

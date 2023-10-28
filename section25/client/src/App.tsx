@@ -18,7 +18,7 @@ const App = () => {
 
   const [showBackdrop, setShowBackdrop] = useState<boolean>(false);
   const [showMobileNav, setShowMobileNav] = useState<boolean>(false);
-  const [isAuth, setIsAuth] = useState<boolean>(true);
+  const [isAuth, setIsAuth] = useState<boolean>(false);
   const [token, setToken] = useState<string>("");
   const [userId, setUserId] = useState<string>("");
   const [authLoading, setAuthLoading] = useState<boolean>(false);
@@ -84,7 +84,6 @@ const App = () => {
         return res.json();
       })
       .then((resData) => {
-        console.log(resData);
         setIsAuth(true);
         setToken(resData.token);
         setAuthLoading(false);
@@ -109,7 +108,15 @@ const App = () => {
   const signupHandler = (event: FormEvent<HTMLFormElement>, authData: any) => {
     event.preventDefault();
     setAuthLoading(true);
-    fetch("URL")
+    fetch("http://localhost:8080/auth/signup", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: authData.email.value,
+        password: authData.password.value,
+        name: authData.name.value,
+      }),
+    })
       .then((res) => {
         if (res.status === 422) {
           throw new Error(
@@ -123,7 +130,7 @@ const App = () => {
         return res.json();
       })
       .then((resData) => {
-        console.log(resData);
+        //console.log(resData);
         setIsAuth(false);
         setAuthLoading(false);
         navigate("/");

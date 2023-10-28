@@ -77,7 +77,7 @@ const Signup = ({ onSignup, loading }: Props) => {
           label="Your E-Mail"
           type="email"
           control="input"
-          onChange={(e) => inputChangeHandler(SignupType.EMAIL, e.target.value)}
+          onChange={inputChangeHandler}
           onBlur={() => inputBlurHandler(SignupType.EMAIL)}
           value={signupForm.email.value}
           valid={signupForm.email.valid}
@@ -88,7 +88,7 @@ const Signup = ({ onSignup, loading }: Props) => {
           label="Your Name"
           type="text"
           control="input"
-          onChange={(e) => inputChangeHandler(SignupType.NAME, e.target.value)}
+          onChange={inputChangeHandler}
           onBlur={() => inputBlurHandler(SignupType.NAME)}
           value={signupForm.name.value}
           valid={signupForm.name.valid}
@@ -99,9 +99,7 @@ const Signup = ({ onSignup, loading }: Props) => {
           label="Password"
           type="password"
           control="input"
-          onChange={(e) =>
-            inputChangeHandler(SignupType.PASSWORD, e.target.value)
-          }
+          onChange={inputChangeHandler}
           onBlur={() => inputBlurHandler(SignupType.PASSWORD)}
           value={signupForm.password.value}
           valid={signupForm.password.valid}

@@ -5,8 +5,24 @@ import User from "../models/user";
 
 const router = express.Router();
 
-// GET /auth/login
-router.get("/user/:userId", AuthController.getUser);
+// POST /auth/login
+router.post(
+  "/login",
+  [
+    body("email")
+      .isEmail()
+      .withMessage("Please enter a valid email address")
+      .normalizeEmail(),
+    body(
+      "password",
+      "Please enter a valid password (a password must have one uppercase, one lower case, one special char, one digit and be long between 8 and 20 characters)"
+    )
+      .trim()
+      .isLength({ min: 8, max: 20 })
+      .matches(/^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{8,20}$/),
+  ],
+  AuthController.postLogin
+);
 
 // PUT /auth/signup
 router.put(

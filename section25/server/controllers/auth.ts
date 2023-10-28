@@ -1,8 +1,12 @@
 import { RequestHandler } from "express";
 import { validationResult } from "express-validator";
+import dotenv from "dotenv";
 import bcrypt from "bcrypt";
-import User from "../models/user";
+import jwt from "jsonwebtoken";
+import User, { IUser } from "../models/user";
 import Utils from "../utils/utils";
+
+dotenv.config();
 
 export namespace AuthController {
   // creates and updates an existing user
@@ -30,5 +34,32 @@ export namespace AuthController {
       .catch((err) => Utils.errorHandler(next, err));
   };
 
-  export const getUser: RequestHandler = (req, res, next) => {};
+  export const postLogin: RequestHandler = (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty())
+      Utils.throwNewError(
+        "Validation failed, entered data is incorrect.",
+        422,
+        errors.array()
+      );
+    const email = req.body.email;
+    let loadedUser: IUser;
+    User.findOne({ email })
+      .then((user) => {
+        if (!user)
+          Utils.throwNewError("Unable to find the requested user", 401);
+        loadedUser = user;
+        return bcrypt.compare(req.body.password, user.password);
+      })
+      .then((areCredentialsValid) => {
+        if (!areCredentialsValid)
+          Utils.throwNewError("Unable to find the requested user", 401);
+        const userId = loadedUser._id.toString();
+        const token = jwt.sign({ email, userId }, process.env.JWT_KEY, {
+          expiresIn: "1h",
+        });
+        res.status(200).json({ token, userId });
+      })
+      .catch((err) => Utils.errorHandler(next, err));
+  };
 }

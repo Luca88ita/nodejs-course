@@ -42,26 +42,43 @@ export namespace FeedController {
     const postId = req.params.postId;
     const title = req.body.title;
     const content = req.body.content;
-    const imageUrl = req.file
-      ? req.file.path.replaceAll("\\", "/")
-      : req.body.image;
-    if (!imageUrl) Utils.throwNewError("No file picked", 422);
+    const imageUrl = req.file ? req.file.path.replaceAll("\\", "/") : null;
     Post.findById(postId)
       .then((post) => {
         if (!post)
           Utils.throwNewError("Unable to find the requested post", 404);
-        if (imageUrl !== post.imageUrl) Utils.clearImage(post.imageUrl);
+        if (imageUrl) {
+          Utils.clearImage(post.imageUrl);
+          post.imageUrl = imageUrl;
+        }
         post.title = title;
-        post.imageUrl = imageUrl;
         post.content = content;
-        post.isNew = false;
         return post.save();
       })
       .then((resp) => {
         res.status(200).json({ message: "Post updated", post: resp });
       })
       .catch((err) => {
-        console.log(err);
+        Utils.errorHandler(next, err);
+      });
+  };
+
+  // deleting a single post
+  export const deletePost: RequestHandler = (req, res, next) => {
+    const postId = req.params.postId;
+    Post.findById(postId)
+      .then((post) => {
+        if (!post)
+          Utils.throwNewError("Unable to find the requested post", 404);
+        const imageUrl = post.imageUrl;
+        if (!imageUrl) Utils.throwNewError("No file picked", 422);
+        Utils.clearImage(imageUrl);
+        return post.deleteOne();
+      })
+      .then(() => {
+        res.status(200).json({ message: "Post deleted" });
+      })
+      .catch((err) => {
         Utils.errorHandler(next, err);
       });
   };

@@ -20,6 +20,9 @@ router.put(
   FeedController.putPost
 );
 
+// DELETE /feed/post/:postId
+router.delete("/post/:postId", FeedController.deletePost);
+
 // POST /feed/post
 router.post(
   "/post",

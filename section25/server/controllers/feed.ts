@@ -20,13 +20,24 @@ export namespace FeedController {
 
   // getting all the posts
   export const getPosts: RequestHandler = (req, res, next) => {
+    const currentPage = +req.query.page || 1;
+    const postPerPage = 2;
+    let totalItems = 0;
     Post.find()
+      .countDocuments()
+      .then((count) => {
+        totalItems = count;
+        return Post.find()
+          .skip((currentPage - 1) * postPerPage)
+          .limit(postPerPage);
+      })
       .then((posts) => {
         if (posts.length === 0)
           Utils.throwNewError("Unable to fetch the posts", 404);
         res.status(200).json({
           message: "Posts fetched successfully",
           posts,
+          totalItems,
         });
       })
       .catch((err) => {

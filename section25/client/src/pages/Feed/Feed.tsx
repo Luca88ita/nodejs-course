@@ -1,4 +1,5 @@
 import { useState, useEffect, FormEvent } from "react";
+import openSocket from "socket.io-client";
 import Post from "../../components/Feed/Post/Post";
 import Button from "../../components/Button/Button";
 import FeedEdit from "../../components/Feed/FeedEdit/FeedEdit";
@@ -43,6 +44,7 @@ const Feed = ({ token }: Props) => {
       .catch(catchError);
 
     loadPosts();
+    openSocket("http://localhost:8080");
   }, []);
 
   const loadPosts = (direction?: "next" | "previous") => {
@@ -85,6 +87,19 @@ const Feed = ({ token }: Props) => {
         setPostsLoading(false);
       })
       .catch(catchError);
+  };
+
+  const addPost = (post: PostType) => {
+    setPosts((prevPosts) => {
+      if (postPage === 1) {
+        if (posts.length >= 2) {
+          prevPosts.pop();
+        }
+        prevPosts.unshift(post);
+      }
+      return prevPosts;
+    });
+    setTotalPosts((prevTotal) => prevTotal + 1);
   };
 
   const statusUpdateHandler = (event: FormEvent<HTMLFormElement>) => {

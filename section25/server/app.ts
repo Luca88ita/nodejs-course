@@ -2,6 +2,8 @@ import path from "path";
 import express from "express";
 import bodyParser from "body-parser";
 import mongoose from "mongoose";
+import { createServer } from "http";
+import { Server } from "socket.io";
 import dotenv from "dotenv";
 import authRoutes from "./routes/auth";
 import feedRoutes from "./routes/feed";
@@ -42,5 +44,11 @@ app.use((error, req, res, next) => {
 
 mongoose
   .connect(mongoDbUri)
-  .then((result) => app.listen(8080))
+  .then((result) => {
+    const server = app.listen(8080);
+    const io = new Server(server);
+    io.on("connection", (socket) => {
+      console.log("Client connected");
+    });
+  })
   .catch((err) => console.log(err));

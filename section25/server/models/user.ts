@@ -1,4 +1,4 @@
-import { Model, Schema, Types, model } from "mongoose";
+import { Model, Schema, Types, model, Document } from "mongoose";
 import { IPost } from "./post";
 
 export interface IUser {
@@ -14,7 +14,14 @@ export interface IUser {
 
 interface IUserMethods {}
 
-export type UserModel = Model<IUser, {}, IUserMethods>;
+//export type UserModel = Model<IUser, {}, IUserMethods>;
+export type UserModel = Model<
+  IUser & Document & PostModel & Omit<IUser, "posts">
+>;
+
+interface PostModel {
+  posts: Types.Array<PostModel>;
+}
 
 const userSchema = new Schema<IUser, UserModel, IUserMethods>({
   email: { type: String, required: true, unique: true },

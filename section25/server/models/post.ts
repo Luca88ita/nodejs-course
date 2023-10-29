@@ -10,7 +10,7 @@ export interface IPost {
 
 interface IPostMethods {}
 
-type PostModel = Model<IPost, {}, IPostMethods>;
+export type PostModel = Model<IPost, {}, IPostMethods>;
 
 const postSchema = new Schema<IPost, PostModel, IPostMethods>(
   {

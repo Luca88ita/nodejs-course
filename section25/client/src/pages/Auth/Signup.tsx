@@ -50,7 +50,8 @@ const Signup = ({ onSignup, loading }: Props) => {
       let formIsValid = true;
       for (const inputName in updatedForm) {
         const x = inputName as SignupType;
-        formIsValid = formIsValid && updatedForm[x].valid;
+        formIsValid =
+          formIsValid && updatedForm[x] !== undefined && updatedForm[x].valid;
       }
       return {
         ...updatedForm,

@@ -36,20 +36,4 @@ router.post(
   FeedController.postPost
 );
 
-router.get("/status", isAuth, FeedController.getStatus);
-
-router.post(
-  "/status",
-  [
-    body("status")
-      .isString()
-      .withMessage("Invalid status format")
-      .trim()
-      .not()
-      .isEmpty(),
-  ],
-  isAuth,
-  FeedController.postStatus
-);
-
 export default router;

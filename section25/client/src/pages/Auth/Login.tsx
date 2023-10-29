@@ -51,8 +51,10 @@ const Login = ({ onLogin, loading }: Props) => {
       };
       let formIsValid = true;
       for (const inputName in updatedForm) {
+        console.log(inputName);
         const x = inputName as LoginType;
-        formIsValid = formIsValid && updatedForm[x].valid;
+        formIsValid =
+          formIsValid && updatedForm[x] !== undefined && updatedForm[x].valid;
       }
       return {
         ...updatedForm,

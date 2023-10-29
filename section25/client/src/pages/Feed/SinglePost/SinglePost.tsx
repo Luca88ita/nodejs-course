@@ -30,7 +30,6 @@ const SinglePost = ({ token }: Props) => {
         return res.json();
       })
       .then((resData) => {
-        console.log(resData.post.creator);
         setPost({
           title: resData.post.title,
           author: resData.post.creator.name,

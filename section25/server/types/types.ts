@@ -4,6 +4,5 @@ export interface ExtendedError extends Error {
 }
 
 export interface ExtendedRequest extends Request {
-  //session: Session & Partial<SessionData>;
   userId?: string;
 }

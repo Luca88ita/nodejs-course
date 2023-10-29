@@ -36,14 +36,18 @@ router.put(
         return User.findOne({ email: value }).then((userDoc) => {
           if (userDoc) return Promise.reject("E-mail address already exists!");
         });
-      }),
+      })
+      .not()
+      .isEmpty(),
     body(
       "password",
       "Please enter a valid password (a password must have one uppercase, one lower case, one special char, one digit and be long between 8 and 20 characters)"
     )
       .trim()
       .isLength({ min: 8, max: 20 })
-      .matches(/^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{8,20}$/),
+      .matches(/^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{8,20}$/)
+      .not()
+      .isEmpty(),
     body("name").isString().trim().not().isEmpty(),
   ],
   AuthController.signup

@@ -3,6 +3,7 @@ import styles from "./Post.module.css";
 
 interface Props {
   author: string;
+  editable: boolean;
   date: string;
   title: string;
   id: string;
@@ -12,7 +13,15 @@ interface Props {
   onDelete: () => void;
 }
 
-const Post = ({ author, date, title, id, onStartEdit, onDelete }: Props) => {
+const Post = ({
+  author,
+  editable,
+  date,
+  title,
+  id,
+  onStartEdit,
+  onDelete,
+}: Props) => {
   return (
     <article className={styles.post}>
       <header className={styles["post__header"]}>
@@ -29,12 +38,16 @@ const Post = ({ author, date, title, id, onStartEdit, onDelete }: Props) => {
         <Button mode="flat" link={id}>
           View
         </Button>
-        <Button mode="flat" onClick={onStartEdit}>
-          Edit
-        </Button>
-        <Button mode="flat" design="danger" onClick={onDelete}>
-          Delete
-        </Button>
+        {editable && (
+          <>
+            <Button mode="flat" onClick={onStartEdit}>
+              Edit
+            </Button>
+            <Button mode="flat" design="danger" onClick={onDelete}>
+              Delete
+            </Button>
+          </>
+        )}
       </div>
     </article>
   );

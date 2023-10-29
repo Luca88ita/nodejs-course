@@ -28,7 +28,7 @@ export type PostType = {
   _id: string;
   title: string;
   content: string;
-  creator: { name: string };
+  creator: { _id: string; name: string };
   createdAt: string;
   imageUrl?: string;
 };

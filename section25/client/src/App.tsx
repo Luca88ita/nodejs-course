@@ -20,7 +20,7 @@ const App = () => {
   const [showMobileNav, setShowMobileNav] = useState<boolean>(false);
   const [isAuth, setIsAuth] = useState<boolean>(false);
   const [token, setToken] = useState<string>("");
-  const [userId, setUserId] = useState<string>("");
+  //const [userId, setUserId] = useState<string>("");
   const [authLoading, setAuthLoading] = useState<boolean>(false);
   const [error, setError] = useState<any>(null);
 
@@ -40,12 +40,12 @@ const App = () => {
       logoutHandler();
       return;
     }
-    const userId = localStorage.getItem("userId");
+    //const userId = localStorage.getItem("userId");
     const remainingMilliseconds =
       new Date(expiryDate).getTime() - new Date().getTime();
     setIsAuth(true);
     setToken(token);
-    setUserId(userId!);
+    //setUserId(userId!);
     setAutoLogout(remainingMilliseconds);
   }, []);
 
@@ -72,7 +72,6 @@ const App = () => {
   const loginHandler = (event: FormEvent<HTMLFormElement>, authData: any) => {
     event.preventDefault();
     setAuthLoading(true);
-    console.log(authData);
     fetch("http://localhost:8080/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -95,7 +94,7 @@ const App = () => {
         setIsAuth(true);
         setToken(resData.token);
         setAuthLoading(false);
-        setUserId(resData.userId);
+        //setUserId(resData.userId);
         localStorage.setItem("token", resData.token);
         localStorage.setItem("userId", resData.userId);
         const remainingMilliseconds = 60 * 60 * 1000;
@@ -181,7 +180,7 @@ const App = () => {
           index
           element={
             isAuth ? (
-              <FeedPage userId={userId} token={token} />
+              <FeedPage token={token} />
             ) : (
               <LoginPage onLogin={loginHandler} loading={authLoading} />
             )
@@ -193,10 +192,7 @@ const App = () => {
             <SignupPage onSignup={signupHandler} loading={authLoading} />
           }
         />
-        <Route
-          path="/:postId"
-          element={<SinglePostPage userId={userId} token={token} />}
-        />
+        <Route path="/:postId" element={<SinglePostPage token={token} />} />
       </Routes>
     </div>
   );

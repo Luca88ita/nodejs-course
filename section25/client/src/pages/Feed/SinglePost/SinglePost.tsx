@@ -4,11 +4,10 @@ import Image from "../../../components/Image/Image";
 import styles from "./SinglePost.module.css";
 
 interface Props {
-  userId: string;
   token: string;
 }
 
-const SinglePost = ({ userId, token }: Props) => {
+const SinglePost = ({ token }: Props) => {
   const [post, setPost] = useState({
     title: "",
     author: "",
@@ -31,7 +30,7 @@ const SinglePost = ({ userId, token }: Props) => {
         return res.json();
       })
       .then((resData) => {
-        console.log(`http://localhost:8080/${resData.post.imageUrl}`);
+        console.log(resData.post.creator);
         setPost({
           title: resData.post.title,
           author: resData.post.creator.name,

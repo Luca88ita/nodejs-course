@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import authRoutes from "./routes/auth";
 import feedRoutes from "./routes/feed";
+import userRoutes from "./routes/user";
 import { multerImageMilldeware } from "./utils/multer";
 
 dotenv.config();
@@ -29,6 +30,7 @@ app.use((req, res, next) => {
 
 app.use("/auth", authRoutes);
 app.use("/feed", feedRoutes);
+app.use("/user", userRoutes);
 
 app.use((error, req, res, next) => {
   console.log(error);

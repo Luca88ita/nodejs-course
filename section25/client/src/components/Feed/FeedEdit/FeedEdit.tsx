@@ -1,4 +1,4 @@
-import { useState, useEffect, ChangeEvent } from "react";
+import { useState, useEffect } from "react";
 
 import Backdrop from "../../Backdrop/Backdrop";
 import Modal from "../../Modal/Modal";
@@ -130,7 +130,6 @@ const FeedEdit = ({
         touched: true,
       },
     };
-    console.log(updatedForm);
     setPostForm(updatedForm);
   };
 

@@ -2,27 +2,9 @@ import express from "express";
 import { AuthController } from "../controllers/auth";
 import { body } from "express-validator";
 import User from "../models/user";
-import { isAuth } from "../middleware/is-auth";
 
 const router = express.Router();
 
-/* 
-router.get("status", isAuth, AuthController.getStatus);
-
-router.post(
-  "status",
-  [
-    body("status")
-      .isString()
-      .withMessage("Invalid status format")
-      .trim()
-      .not()
-      .isEmpty(),
-  ],
-  isAuth,
-  AuthController.postStatus
-);
- */
 // POST /auth/login
 router.post(
   "/login",

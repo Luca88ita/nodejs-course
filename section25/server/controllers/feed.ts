@@ -9,6 +9,7 @@ export namespace FeedController {
   export const getPost: RequestHandler = (req, res, next) => {
     const postId = req.params.postId;
     Post.findById(postId)
+      .populate("creator", "name")
       .then((post) => {
         if (!post)
           Utils.throwNewError("Unable to find the requested post", 404);
@@ -29,6 +30,7 @@ export namespace FeedController {
       .then((count) => {
         totalItems = count;
         return Post.find()
+          .populate("creator", "name")
           .skip((currentPage - 1) * postPerPage)
           .limit(postPerPage);
       })

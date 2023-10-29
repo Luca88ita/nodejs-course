@@ -10,13 +10,12 @@ import styles from "./Feed.module.css";
 import { PostType } from "../../util/types";
 
 interface Props {
-  userId: string;
   token: string;
 }
 
-const Feed = ({ userId, token }: Props) => {
+const Feed = ({ token }: Props) => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
-  const [posts, setPosts] = useState<any[]>([]);
+  const [posts, setPosts] = useState<PostType[]>([]);
   const [totalPosts, setTotalPosts] = useState<number>(0);
   const [editPost, setEditPost] = useState<PostType | null>(null);
   const [status, setStatus] = useState<string>();
@@ -26,7 +25,7 @@ const Feed = ({ userId, token }: Props) => {
   const [error, setError] = useState<any>(null);
 
   useEffect(() => {
-    fetch("http://localhost:8080/feed/status", {
+    fetch("http://localhost:8080/user/status", {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -90,10 +89,8 @@ const Feed = ({ userId, token }: Props) => {
 
   const statusUpdateHandler = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const updatedStatus = status;
-    console.log(updatedStatus);
-    fetch("http://localhost:8080/feed/status", {
-      method: "POST",
+    fetch("http://localhost:8080/user/status", {
+      method: "PATCH",
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
@@ -119,7 +116,7 @@ const Feed = ({ userId, token }: Props) => {
   const startEditPostHandler = (postId: string) => {
     const loadedPost = posts.find((p) => p._id === postId);
 
-    setEditPost(loadedPost);
+    if (loadedPost) setEditPost(loadedPost);
     setIsEditing(true);
   };
 
@@ -161,7 +158,6 @@ const Feed = ({ userId, token }: Props) => {
         return res.json();
       })
       .then((resData) => {
-        console.log(resData);
         const post: PostType = {
           _id: resData.post._id,
           title: resData.post.title,
@@ -193,7 +189,6 @@ const Feed = ({ userId, token }: Props) => {
   };
 
   const statusInputChangeHandler = (value: string) => {
-    console.log(value);
     setStatus(value);
   };
 
@@ -281,6 +276,7 @@ const Feed = ({ userId, token }: Props) => {
                 key={post._id}
                 id={post._id}
                 author={post.creator.name}
+                editable={post.creator._id === localStorage.getItem("userId")}
                 date={new Date(post.createdAt).toLocaleDateString("en-US")}
                 title={post.title}
                 image={post.imageUrl!}

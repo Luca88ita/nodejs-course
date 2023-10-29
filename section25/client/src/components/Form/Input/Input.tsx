@@ -59,7 +59,7 @@ const input = ({
         required={required}
         value={value}
         onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
-          onChange!(id!, e.target.value)
+          onChange!(e.target.value, id)
         }
         onBlur={onBlur}
       />

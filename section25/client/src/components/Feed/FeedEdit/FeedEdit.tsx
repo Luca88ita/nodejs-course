@@ -84,8 +84,8 @@ const FeedEdit = ({
   }, [editing, selectedPost]);
 
   const postInputChangeHandler = (
-    input: FeedType,
     value: string,
+    input?: FeedType,
     files?: FileList
   ) => {
     if (files) {
@@ -99,14 +99,14 @@ const FeedEdit = ({
     }
 
     let isValid = true;
-    for (const validator of postForm[input].validators) {
+    for (const validator of postForm[input!].validators) {
       isValid = isValid && validator(value);
     }
 
     const updatedForm = {
       ...postForm,
-      [input]: {
-        ...postForm[input],
+      [input!]: {
+        ...postForm[input!],
         valid: isValid,
         value: files ? files[0] : value,
       },

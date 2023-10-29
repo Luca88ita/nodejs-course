@@ -33,7 +33,7 @@ const Signup = ({ onSignup, loading }: Props) => {
     formIsValid: false,
   });
 
-  const inputChangeHandler = (input: SignupType, value: string) => {
+  const inputChangeHandler = (value: string, input: SignupType) => {
     setSignupForm((prevState) => {
       let isValid = true;
       for (const validator of prevState[input].validators) {

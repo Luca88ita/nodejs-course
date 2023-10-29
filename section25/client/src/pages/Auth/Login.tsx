@@ -35,7 +35,7 @@ const Login = ({ onLogin, loading }: Props) => {
     formIsValid: false,
   });
 
-  const inputChangeHandler = (input: LoginType, value: string) => {
+  const inputChangeHandler = (value: string, input: LoginType) => {
     setLoginForm((prevState) => {
       let isValid = true;
       for (const validator of prevState[input].validators) {

@@ -5,7 +5,7 @@ interface Props {
   label: string;
   valid: boolean;
   touched: boolean;
-  onChange: (input: any, value: string, files: FileList) => void;
+  onChange: (value: string, input: any, files: FileList) => void;
   onBlur: () => void;
 }
 
@@ -18,7 +18,7 @@ const FilePicker = ({ id, label, valid, touched, onChange, onBlur }: Props) => (
       }`}
       type="file"
       id={id}
-      onChange={(e) => onChange(id, e.target.value, e.target.files!)}
+      onChange={(e) => onChange(e.target.value, id, e.target.files!)}
       onBlur={onBlur}
     />
   </div>

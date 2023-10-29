@@ -19,14 +19,19 @@ const Feed = ({ userId, token }: Props) => {
   const [posts, setPosts] = useState<any[]>([]);
   const [totalPosts, setTotalPosts] = useState<number>(0);
   const [editPost, setEditPost] = useState<PostType | null>(null);
-  const [status, setStatus] = useState<string | number>();
+  const [status, setStatus] = useState<string>();
   const [postPage, setPostPage] = useState<number>(1);
   const [postsLoading, setPostsLoading] = useState<boolean>(true);
   const [editLoading, setEditLoading] = useState<boolean>(false);
   const [error, setError] = useState<any>(null);
 
   useEffect(() => {
-    fetch("URL")
+    fetch("http://localhost:8080/feed/status", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
       .then((res) => {
         if (res.status !== 200) {
           throw new Error("Failed to fetch user status.");
@@ -85,7 +90,16 @@ const Feed = ({ userId, token }: Props) => {
 
   const statusUpdateHandler = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    fetch("URL")
+    const updatedStatus = status;
+    console.log(updatedStatus);
+    fetch("http://localhost:8080/feed/status", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ status }),
+    })
       .then((res) => {
         if (res.status !== 200 && res.status !== 201) {
           throw new Error("Can't update status!");
@@ -178,7 +192,8 @@ const Feed = ({ userId, token }: Props) => {
       });
   };
 
-  const statusInputChangeHandler = (value: string | number) => {
+  const statusInputChangeHandler = (value: string) => {
+    console.log(value);
     setStatus(value);
   };
 
@@ -232,7 +247,7 @@ const Feed = ({ userId, token }: Props) => {
             type="text"
             placeholder="Your status"
             control="input"
-            onChange={(e) => statusInputChangeHandler(e.target.value)}
+            onChange={statusInputChangeHandler}
             value={status}
           />
           <Button mode="flat" type="submit">

@@ -1,7 +1,11 @@
 import { Model, Schema, Types, model, Document } from "mongoose";
 import { IPost } from "./post";
 
-export interface IUser {
+interface DocumentResult<T> {
+  _doc: T;
+}
+
+export interface IUser extends DocumentResult<IUser> {
   email: string;
   password: string;
   name: string;

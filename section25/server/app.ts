@@ -9,6 +9,7 @@ import authRoutes from "./routes/auth";
 import feedRoutes from "./routes/feed";
 import userRoutes from "./routes/user";
 import { multerImageMilldeware } from "./utils/multer";
+import { socketService } from "./socket";
 
 dotenv.config();
 const mongoDbUri = process.env.MONGODB_URI;
@@ -46,9 +47,11 @@ mongoose
   .connect(mongoDbUri)
   .then((result) => {
     const server = app.listen(8080);
-    const io = new Server(server);
+    const io = socketService.init(server);
+    /* const io = new Server(server);
     io.on("connection", (socket) => {
-      console.log("Client connected");
-    });
+      console.log("ws connection started");
+      socketService.init(server);
+    }); */
   })
   .catch((err) => console.log(err));

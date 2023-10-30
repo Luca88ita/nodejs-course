@@ -1,5 +1,5 @@
-import { useState, useEffect, FormEvent } from "react";
-import openSocket from "socket.io-client";
+import { useState, useEffect, FormEvent, useCallback } from "react";
+import { io, Socket } from "socket.io-client";
 import Post from "../../components/Feed/Post/Post";
 import Button from "../../components/Button/Button";
 import FeedEdit from "../../components/Feed/FeedEdit/FeedEdit";
@@ -24,6 +24,44 @@ const Feed = ({ token }: Props) => {
   const [postsLoading, setPostsLoading] = useState<boolean>(true);
   const [editLoading, setEditLoading] = useState<boolean>(false);
   const [error, setError] = useState<any>(null);
+  const [socket, setSocket] = useState<Socket | null>(null);
+
+  const addPost = useCallback(
+    (post: PostType) => {
+      setPosts((prevPosts) => {
+        if (postPage === 1) {
+          if (posts.length >= 2) {
+            prevPosts.pop();
+          }
+          prevPosts.unshift(post);
+        }
+        return prevPosts;
+      });
+      setTotalPosts((prevTotal) => prevTotal + 1);
+    },
+    [postPage, posts.length]
+  );
+
+  useEffect(() => {
+    const newSocket = io("http://localhost:8080");
+    setSocket(newSocket);
+
+    newSocket.on("posts", (data) => {
+      switch (data.action) {
+        case "create":
+          //console.log(data.post);
+          addPost(data.post);
+          break;
+
+        default:
+          break;
+      }
+    });
+
+    return () => {
+      newSocket.disconnect();
+    };
+  }, [addPost]);
 
   useEffect(() => {
     fetch("http://localhost:8080/user/status", {
@@ -44,8 +82,22 @@ const Feed = ({ token }: Props) => {
       .catch(catchError);
 
     loadPosts();
-    openSocket("http://localhost:8080");
   }, []);
+
+  /* useEffect(() => {
+    const socket = openSocket("http://localhost:8080");
+    socket.on("posts", (data) => {
+      switch (data.action) {
+        case "create":
+          console.log(data.post);
+          addPost(data.post);
+          break;
+
+        default:
+          break;
+      }
+    });
+  }, []); */
 
   const loadPosts = (direction?: "next" | "previous") => {
     if (direction) {
@@ -87,19 +139,6 @@ const Feed = ({ token }: Props) => {
         setPostsLoading(false);
       })
       .catch(catchError);
-  };
-
-  const addPost = (post: PostType) => {
-    setPosts((prevPosts) => {
-      if (postPage === 1) {
-        if (posts.length >= 2) {
-          prevPosts.pop();
-        }
-        prevPosts.unshift(post);
-      }
-      return prevPosts;
-    });
-    setTotalPosts((prevTotal) => prevTotal + 1);
   };
 
   const statusUpdateHandler = (event: FormEvent<HTMLFormElement>) => {
@@ -185,9 +224,9 @@ const Feed = ({ token }: Props) => {
         if (editPost) {
           const postIndex = posts.findIndex((p) => p._id === editPost._id);
           updatedPosts[postIndex] = post;
-        } else if (posts.length < 2) {
+        } /* else if (posts.length < 2) {
           updatedPosts = posts.concat(post);
-        }
+        } */
 
         setPosts(updatedPosts);
         setIsEditing(false);

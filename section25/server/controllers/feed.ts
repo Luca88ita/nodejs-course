@@ -3,6 +3,7 @@ import { validationResult } from "express-validator";
 import Post from "../models/post";
 import Utils from "../utils/utils";
 import User from "../models/user";
+import { socketService } from "../socket";
 
 export namespace FeedController {
   // getting a single post
@@ -27,6 +28,7 @@ export namespace FeedController {
         Utils.throwNewError("Unable to fetch the posts", 404);
       const posts = await Post.find()
         .populate("creator", "name")
+        .sort({ createdAt: -1 })
         .skip((currentPage - 1) * postPerPage)
         .limit(postPerPage);
       res.status(200).json({
@@ -119,6 +121,11 @@ export namespace FeedController {
       const creator = { _id: user._id, name: user.name };
       user.posts.push(post);
       await user.save();
+      console.log("sto emettendo inizio");
+      socketService
+        .getIO()
+        .emit("posts", { action: "create", post: { ...post._doc, creator } });
+      console.log("sto emettendo fine");
       res.status(201).json({
         message: "post successfully created",
         post,

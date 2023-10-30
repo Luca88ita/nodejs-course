@@ -1,6 +1,11 @@
 import { Model, Schema, Types, model } from "mongoose";
+import { UserModel } from "./user";
 
-export interface IPost {
+interface DocumentResult<T> {
+  _doc: T;
+}
+
+export interface IPost extends DocumentResult<IPost> {
   title: string;
   imageUrl: string;
   content: string;
@@ -10,7 +15,10 @@ export interface IPost {
 
 interface IPostMethods {}
 
-export type PostModel = Model<IPost, {}, IPostMethods>;
+//export type PostModel = Model<IPost, {}, IPostMethods>;
+export type PostModel = Model<
+  IPost & Document & UserModel & Omit<IPost, "users">
+>;
 
 const postSchema = new Schema<IPost, PostModel, IPostMethods>(
   {

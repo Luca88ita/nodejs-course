@@ -42,6 +42,59 @@ const Feed = ({ token }: Props) => {
     [postPage, posts.length]
   );
 
+  const updatePost = useCallback((post: PostType) => {
+    setPosts((prevPosts) => {
+      const postIndex = prevPosts.findIndex((p) => p._id === post._id);
+      if (postIndex >= 0) prevPosts[postIndex] = post;
+      return prevPosts;
+    });
+  }, []);
+
+  const loadPosts = useCallback(
+    (direction?: "next" | "previous") => {
+      if (direction) {
+        setPostsLoading(true);
+        setPosts([]);
+      }
+
+      let page = postPage;
+      if (direction === "next") {
+        page++;
+        setPostPage(page);
+      }
+      if (direction === "previous") {
+        page--;
+        setPostPage(page);
+      }
+
+      fetch(`http://localhost:8080/feed/posts?page=${page}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+        .then((res) => {
+          if (res.status !== 200) {
+            throw new Error("Failed to fetch posts.");
+          }
+          return res.json();
+        })
+        .then((resData) => {
+          setPosts(
+            resData.posts.map((post: PostType) => {
+              return {
+                ...post,
+                imagePath: post.imageUrl,
+              };
+            })
+          );
+          setTotalPosts(resData.totalItems);
+          setPostsLoading(false);
+        })
+        .catch(catchError);
+    },
+    [postPage, token]
+  );
+
   useEffect(() => {
     const newSocket = io("http://localhost:8080");
     setSocket(newSocket);
@@ -49,8 +102,10 @@ const Feed = ({ token }: Props) => {
     newSocket.on("posts", (data) => {
       switch (data.action) {
         case "create":
-          //console.log(data.post);
           addPost(data.post);
+          break;
+        case "update":
+          updatePost(data.post);
           break;
 
         default:
@@ -61,7 +116,7 @@ const Feed = ({ token }: Props) => {
     return () => {
       newSocket.disconnect();
     };
-  }, [addPost]);
+  }, [addPost, updatePost]);
 
   useEffect(() => {
     fetch("http://localhost:8080/user/status", {
@@ -82,64 +137,7 @@ const Feed = ({ token }: Props) => {
       .catch(catchError);
 
     loadPosts();
-  }, []);
-
-  /* useEffect(() => {
-    const socket = openSocket("http://localhost:8080");
-    socket.on("posts", (data) => {
-      switch (data.action) {
-        case "create":
-          console.log(data.post);
-          addPost(data.post);
-          break;
-
-        default:
-          break;
-      }
-    });
-  }, []); */
-
-  const loadPosts = (direction?: "next" | "previous") => {
-    if (direction) {
-      setPostsLoading(true);
-      setPosts([]);
-    }
-
-    let page = postPage;
-    if (direction === "next") {
-      page++;
-      setPostPage(page);
-    }
-    if (direction === "previous") {
-      page--;
-      setPostPage(page);
-    }
-
-    fetch(`http://localhost:8080/feed/posts?page=${page}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((res) => {
-        if (res.status !== 200) {
-          throw new Error("Failed to fetch posts.");
-        }
-        return res.json();
-      })
-      .then((resData) => {
-        setPosts(
-          resData.posts.map((post: PostType) => {
-            return {
-              ...post,
-              imagePath: post.imageUrl,
-            };
-          })
-        );
-        setTotalPosts(resData.totalItems);
-        setPostsLoading(false);
-      })
-      .catch(catchError);
-  };
+  }, [loadPosts, token, posts]);
 
   const statusUpdateHandler = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -190,16 +188,10 @@ const Feed = ({ token }: Props) => {
       ? `http://localhost:8080/feed/post/${editPost._id}`
       : "http://localhost:8080/feed/post";
     const method = editPost ? "PUT" : "POST";
-    //const headers = { "Content-Type": "application/json" };
-    /* const body = JSON.stringify({
-      title: postData.title,
-      content: postData.content,
-    }); */
     const body = formData;
 
     fetch(url, {
       method,
-      //headers,
       body,
       headers: {
         Authorization: `Bearer ${token}`,
@@ -212,23 +204,6 @@ const Feed = ({ token }: Props) => {
         return res.json();
       })
       .then((resData) => {
-        const post: PostType = {
-          _id: resData.post._id,
-          title: resData.post.title,
-          content: resData.post.content,
-          creator: resData.post.creator,
-          createdAt: resData.post.createdAt,
-        };
-
-        let updatedPosts = [...posts];
-        if (editPost) {
-          const postIndex = posts.findIndex((p) => p._id === editPost._id);
-          updatedPosts[postIndex] = post;
-        } /* else if (posts.length < 2) {
-          updatedPosts = posts.concat(post);
-        } */
-
-        setPosts(updatedPosts);
         setIsEditing(false);
         setEditPost(null);
         setEditLoading(false);

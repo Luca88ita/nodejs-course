@@ -54,10 +54,10 @@ export namespace FeedController {
       const title = req.body.title;
       const content = req.body.content;
       const imageUrl = req.file ? req.file.path.replaceAll("\\", "/") : null;
-      const post = await Post.findById(postId);
+      const post = await Post.findById(postId).populate("creator", "name");
       if (!post) Utils.throwNewError("Unable to find the requested post", 404);
       //@ts-ignore
-      if (post.creator.toString() !== req.userId)
+      if (post.creator._id.toString() !== req.userId)
         Utils.throwNewError("Unauthorized to edit the requested post", 403);
       if (imageUrl) {
         Utils.clearImage(post.imageUrl);
@@ -65,7 +65,9 @@ export namespace FeedController {
       }
       post.title = title;
       post.content = content;
-      await post.save();
+      const result = await post.save();
+      socketService.getIO().emit("posts", { action: "update", post: result });
+
       res.status(200).json({ message: "Post updated", post });
     } catch (error) {
       Utils.errorHandler(next, error);
@@ -121,11 +123,9 @@ export namespace FeedController {
       const creator = { _id: user._id, name: user.name };
       user.posts.push(post);
       await user.save();
-      console.log("sto emettendo inizio");
       socketService
         .getIO()
         .emit("posts", { action: "create", post: { ...post._doc, creator } });
-      console.log("sto emettendo fine");
       res.status(201).json({
         message: "post successfully created",
         post,

@@ -67,7 +67,6 @@ export namespace FeedController {
       post.content = content;
       const result = await post.save();
       socketService.getIO().emit("posts", { action: "update", post: result });
-
       res.status(200).json({ message: "Post updated", post });
     } catch (error) {
       Utils.errorHandler(next, error);
@@ -78,19 +77,22 @@ export namespace FeedController {
   export const deletePost: RequestHandler = async (req, res, next) => {
     try {
       const postId = req.params.postId;
-      const post = await Post.findById(postId);
+      const post = await Post.findById(postId).populate("creator", "name");
       if (!post) Utils.throwNewError("Unable to find the requested post", 404);
       //@ts-ignore
-      if (post.creator.toString() !== req.userId)
+      if (post.creator._id.toString() !== req.userId)
         Utils.throwNewError("Unauthorized to edit the requested post", 403);
       const imageUrl = post.imageUrl;
       if (!imageUrl) Utils.throwNewError("No file picked", 422);
       Utils.clearImage(imageUrl);
-      await post.deleteOne();
+      const deletedPost = await post.deleteOne();
       //@ts-ignore
       const user = await User.findById(req.userId);
       user.posts.pull(postId);
       await user.save();
+      socketService
+        .getIO()
+        .emit("posts", { action: "delete", post: deletedPost });
       res.status(200).json({ message: "Post deleted" });
     } catch (error) {
       Utils.errorHandler(next, error);

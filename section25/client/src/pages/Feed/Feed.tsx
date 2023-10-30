@@ -26,30 +26,6 @@ const Feed = ({ token }: Props) => {
   const [error, setError] = useState<any>(null);
   const [socket, setSocket] = useState<Socket | null>(null);
 
-  const addPost = useCallback(
-    (post: PostType) => {
-      setPosts((prevPosts) => {
-        if (postPage === 1) {
-          if (posts.length >= 2) {
-            prevPosts.pop();
-          }
-          prevPosts.unshift(post);
-        }
-        return prevPosts;
-      });
-      setTotalPosts((prevTotal) => prevTotal + 1);
-    },
-    [postPage, posts.length]
-  );
-
-  const updatePost = useCallback((post: PostType) => {
-    setPosts((prevPosts) => {
-      const postIndex = prevPosts.findIndex((p) => p._id === post._id);
-      if (postIndex >= 0) prevPosts[postIndex] = post;
-      return prevPosts;
-    });
-  }, []);
-
   const loadPosts = useCallback(
     (direction?: "next" | "previous") => {
       if (direction) {
@@ -95,6 +71,45 @@ const Feed = ({ token }: Props) => {
     [postPage, token]
   );
 
+  const addPost = useCallback(
+    (post: PostType) => {
+      setPosts((prevPosts) => {
+        if (postPage === 1) {
+          if (posts.length >= 2) {
+            prevPosts.pop();
+          }
+          prevPosts.unshift(post);
+        }
+        return prevPosts;
+      });
+      setTotalPosts((prevTotal) => prevTotal + 1);
+    },
+    [postPage, posts.length]
+  );
+
+  const updatePost = useCallback((post: PostType) => {
+    setPosts((prevPosts) => {
+      const postIndex = prevPosts.findIndex((p) => p._id === post._id);
+      if (postIndex >= 0) prevPosts[postIndex] = post;
+      return prevPosts;
+    });
+  }, []);
+
+  const deletePost = useCallback(
+    /* (post: PostType) => {
+      setPosts((prevPosts) => {
+      const postIndex = prevPosts.findIndex((p) => p._id === post._id);
+      if (postIndex >= 0) prevPosts.splice(postIndex, 1);
+      return prevPosts;
+    });
+    setTotalPosts((prevTotal) => prevTotal - 1);
+    }, */
+    () => {
+      loadPosts();
+    },
+    [loadPosts]
+  );
+
   useEffect(() => {
     const newSocket = io("http://localhost:8080");
     setSocket(newSocket);
@@ -107,7 +122,10 @@ const Feed = ({ token }: Props) => {
         case "update":
           updatePost(data.post);
           break;
-
+        case "delete":
+          // deletePost(data.post);
+          deletePost();
+          break;
         default:
           break;
       }
@@ -116,7 +134,7 @@ const Feed = ({ token }: Props) => {
     return () => {
       newSocket.disconnect();
     };
-  }, [addPost, updatePost]);
+  }, [addPost, updatePost, deletePost]);
 
   useEffect(() => {
     fetch("http://localhost:8080/user/status", {

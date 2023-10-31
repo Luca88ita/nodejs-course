@@ -7,11 +7,11 @@ import FilePicker from "../../Form/Input/FilePicker";
 import Image from "../../Image/Image";
 import { required, length } from "../../../util/validators";
 import { generateBase64FromImage } from "../../../util/image";
-import { FeedType, InputType } from "../../../util/types";
+import { FeedType, InputType, PostForm } from "../../../util/types";
 
 import styles from "./FeedEdit.module.css";
 
-const POST_FORM = {
+const POST_FORM: PostForm = {
   title: {
     value: "",
     valid: false,
@@ -35,7 +35,6 @@ const POST_FORM = {
 type Post = {
   title: string;
   image?: string;
-  //imagePath?: string;
   content: string;
 };
 
@@ -54,7 +53,7 @@ const FeedEdit = ({
   onFinishEdit,
   onCancelEdit,
 }: Props) => {
-  const [postForm, setPostForm] = useState<typeof POST_FORM>(POST_FORM);
+  const [postForm, setPostForm] = useState<PostForm>(POST_FORM);
   const [formIsValid, setFormIsValid] = useState<boolean>(false);
   const [imagePreview, setImagePreview] = useState<string>("");
 
@@ -81,6 +80,7 @@ const FeedEdit = ({
       setPostForm(updatedPostForm);
       setFormIsValid(true);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editing, selectedPost]);
 
   const postInputChangeHandler = (

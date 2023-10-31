@@ -1,5 +1,5 @@
 import { useState, useEffect, FormEvent, useCallback } from "react";
-import { io, Socket } from "socket.io-client";
+import { io /* , Socket */ } from "socket.io-client";
 import Post from "../../components/Feed/Post/Post";
 import Button from "../../components/Button/Button";
 import FeedEdit from "../../components/Feed/FeedEdit/FeedEdit";
@@ -19,12 +19,12 @@ const Feed = ({ token }: Props) => {
   const [posts, setPosts] = useState<PostType[]>([]);
   const [totalPosts, setTotalPosts] = useState<number>(0);
   const [editPost, setEditPost] = useState<PostType | null>(null);
-  const [status, setStatus] = useState<string>();
+  const [status, setStatus] = useState<string>("");
   const [postPage, setPostPage] = useState<number>(1);
   const [postsLoading, setPostsLoading] = useState<boolean>(true);
   const [editLoading, setEditLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
-  const [socket, setSocket] = useState<Socket | null>(null);
+  //const [socket, setSocket] = useState<Socket | null>(null);
 
   const loadPosts = useCallback(
     (direction?: "next" | "previous") => {
@@ -112,7 +112,7 @@ const Feed = ({ token }: Props) => {
 
   useEffect(() => {
     const newSocket = io("http://localhost:8080");
-    setSocket(newSocket);
+    //setSocket(newSocket);
 
     newSocket.on("posts", (data) => {
       switch (data.action) {
@@ -150,12 +150,14 @@ const Feed = ({ token }: Props) => {
         return res.json();
       })
       .then((resData) => {
-        setStatus(resData.status);
+        console.log(resData, status);
+        resData.status !== status && setStatus(resData.status);
       })
       .catch(catchError);
 
     loadPosts();
-  }, [loadPosts, token, posts]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loadPosts, token]);
 
   const statusUpdateHandler = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();

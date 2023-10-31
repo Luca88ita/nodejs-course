@@ -12,7 +12,7 @@ interface Props {
   required?: boolean;
   value?: string | number;
   placeholder?: string;
-  onChange: (value: string, id?: any, files?: FileList) => void;
+  onChange?: (value: string, id?: any, files?: FileList) => void;
   onBlur?: () => void;
   rows?: number;
 }
@@ -44,7 +44,7 @@ const input = ({
         value={value}
         placeholder={placeholder ? placeholder : ""}
         onChange={(e: ChangeEvent<HTMLInputElement>) =>
-          onChange(e.target.value, id, e.target.files!)
+          onChange!(e.target.value, id, e.target.files!)
         }
         onBlur={onBlur}
       />

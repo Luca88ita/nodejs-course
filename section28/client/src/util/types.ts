@@ -43,6 +43,33 @@ export type Credentials = {
   password: string;
 };
 
+export type PostForm = {
+  title: {
+    value: string;
+    valid: boolean;
+    touched: boolean;
+    validators: [
+      required: (value: string) => boolean,
+      email: (value: string) => boolean
+    ];
+  };
+  image: {
+    value: string;
+    valid: boolean;
+    touched: boolean;
+    validators: [required: (value: string) => boolean];
+  };
+  content: {
+    value: string;
+    valid: boolean;
+    touched: boolean;
+    validators: [
+      required: (value: string) => boolean,
+      length: (value: string) => boolean
+    ];
+  };
+};
+
 export type SignupForm = {
   email: {
     value: string;

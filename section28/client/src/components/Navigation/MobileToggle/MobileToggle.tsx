@@ -6,11 +6,13 @@ interface Props {
 
 const mobileToggle = ({ onOpen }: Props) => {
   return (
-    <button className={styles["mobile-toggle"]} onClick={onOpen}>
-      <span className={styles["mobile-toggle__bar"]} />
-      <span className={styles["mobile-toggle__bar"]} />
-      <span className={styles["mobile-toggle__bar"]} />
-    </button>
+    <>
+      <button className={styles["mobile-toggle"]} onClick={onOpen}>
+        <span className={styles["mobile-toggle__bar"]} />
+        <span className={styles["mobile-toggle__bar"]} />
+        <span className={styles["mobile-toggle__bar"]} />
+      </button>
+    </>
   );
 };
 

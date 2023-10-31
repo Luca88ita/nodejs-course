@@ -19,18 +19,22 @@ const mobileNavigation = ({
   onLogout,
 }: Props) => {
   return (
-    <nav className={`${styles["mobile-nav"]} ${open && styles.open}`}>
-      <ul
-        className={`${styles["mobile-nav__items"]} ${mobile && styles.mobile}`}
-      >
-        <NavigationItems
-          mobile
-          onChoose={onChooseItem}
-          isAuth={isAuth}
-          onLogout={onLogout}
-        />
-      </ul>
-    </nav>
+    <>
+      <nav className={`${styles["mobile-nav"]} ${open && styles.open}`}>
+        <ul
+          className={`${styles["mobile-nav__items"]} ${
+            mobile && styles.mobile
+          }`}
+        >
+          <NavigationItems
+            mobile
+            onChoose={onChooseItem}
+            isAuth={isAuth}
+            onLogout={onLogout}
+          />
+        </ul>
+      </nav>
+    </>
   );
 };
 

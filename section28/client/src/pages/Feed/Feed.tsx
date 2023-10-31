@@ -23,7 +23,7 @@ const Feed = ({ token }: Props) => {
   const [postPage, setPostPage] = useState<number>(1);
   const [postsLoading, setPostsLoading] = useState<boolean>(true);
   const [editLoading, setEditLoading] = useState<boolean>(false);
-  const [error, setError] = useState<any>(null);
+  const [error, setError] = useState<Error | null>(null);
   const [socket, setSocket] = useState<Socket | null>(null);
 
   const loadPosts = useCallback(
@@ -265,7 +265,7 @@ const Feed = ({ token }: Props) => {
       });
   };
 
-  const catchError = (error: any) => {
+  const catchError = (error: Error) => {
     setError(error);
   };
 
@@ -320,16 +320,16 @@ const Feed = ({ token }: Props) => {
           >
             {posts.map((post: PostType) => (
               <Post
-                key={post._id}
-                id={post._id}
+                key={post._id!}
+                id={post._id!}
                 author={post.creator.name}
                 editable={post.creator._id === localStorage.getItem("userId")}
-                date={new Date(post.createdAt).toLocaleDateString("en-US")}
+                date={new Date(post.createdAt!).toLocaleDateString("en-US")}
                 title={post.title}
                 image={post.imageUrl!}
                 content={post.content}
-                onStartEdit={() => startEditPostHandler(post._id)}
-                onDelete={() => deletePostHandler(post._id)}
+                onStartEdit={() => startEditPostHandler(post._id!)}
+                onDelete={() => deletePostHandler(post._id!)}
               />
             ))}
           </Paginator>

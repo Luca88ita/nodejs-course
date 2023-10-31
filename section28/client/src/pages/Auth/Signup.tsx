@@ -3,15 +3,15 @@ import Input from "../../components/Form/Input/Input";
 import Button from "../../components/Button/Button";
 import { required, length, email } from "../../util/validators";
 import Auth from "./Auth";
-import { InputType, SignupType } from "../../util/types";
+import { InputType, SignupForm, SignupType } from "../../util/types";
 
 interface Props {
-  onSignup: (event: FormEvent<HTMLFormElement>, form: any) => void;
+  onSignup: (event: FormEvent<HTMLFormElement>, form: SignupForm) => void;
   loading: boolean;
 }
 
 const Signup = ({ onSignup, loading }: Props) => {
-  const [signupForm, setSignupForm] = useState({
+  const [signupForm, setSignupForm] = useState<SignupForm>({
     email: {
       value: "",
       valid: false,

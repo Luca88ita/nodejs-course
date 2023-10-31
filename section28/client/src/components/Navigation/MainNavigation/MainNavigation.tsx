@@ -13,18 +13,20 @@ interface Props {
 
 const mainNavigation = ({ onOpenMobileNav, isAuth, onLogout }: Props) => {
   return (
-    <nav className={styles["main-nav"]}>
-      <MobileToggle onOpen={onOpenMobileNav} />
-      <div className={styles["main-nav__logo"]}>
-        <NavLink to="/">
-          <Logo />
-        </NavLink>
-      </div>
-      <div className={styles.spacer} />
-      <ul className={styles["main-nav__items"]}>
-        <NavigationItems isAuth={isAuth} onLogout={onLogout} />
-      </ul>
-    </nav>
+    <>
+      <nav className={styles["main-nav"]}>
+        <MobileToggle onOpen={onOpenMobileNav} />
+        <div className={styles["main-nav__logo"]}>
+          <NavLink to="/">
+            <Logo />
+          </NavLink>
+        </div>
+        <div className={styles.spacer} />
+        <ul className={styles["main-nav__items"]}>
+          <NavigationItems isAuth={isAuth} onLogout={onLogout} />
+        </ul>
+      </nav>
+    </>
   );
 };
 

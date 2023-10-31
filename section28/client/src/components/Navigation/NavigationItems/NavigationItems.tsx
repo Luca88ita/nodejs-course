@@ -8,7 +8,14 @@ interface Props {
   onLogout: () => void;
 }
 
-const navItems = [
+type NavItems = {
+  id: string;
+  text: string;
+  link: string;
+  auth: boolean;
+};
+
+const navItems: NavItems[] = [
   { id: "feed", text: "Feed", link: "/", auth: true },
   { id: "login", text: "Login", link: "/", auth: false },
   { id: "signup", text: "Signup", link: "/signup", auth: false },

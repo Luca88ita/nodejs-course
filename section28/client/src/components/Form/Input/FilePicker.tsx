@@ -5,7 +5,7 @@ interface Props {
   label: string;
   valid: boolean;
   touched: boolean;
-  onChange: (value: string, input: any, files: FileList) => void;
+  onChange: (value: string, id: any, files: FileList) => void;
   onBlur: () => void;
 }
 

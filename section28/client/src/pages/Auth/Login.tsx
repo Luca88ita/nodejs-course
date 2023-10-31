@@ -3,12 +3,7 @@ import Input from "../../components/Form/Input/Input";
 import Button from "../../components/Button/Button";
 import { required, length, email } from "../../util/validators";
 import Auth from "./Auth";
-import { InputType, LoginType } from "../../util/types";
-
-type Credentials = {
-  email: string;
-  password: string;
-};
+import { Credentials, InputType, LoginType } from "../../util/types";
 
 interface Props {
   onLogin: (

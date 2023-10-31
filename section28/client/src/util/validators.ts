@@ -1,9 +1,6 @@
-export const required = (value: string) => value.trim() !== "";
+import { Config } from "./types";
 
-type Config = {
-  min?: number;
-  max?: number;
-};
+export const required = (value: string) => value.trim() !== "";
 
 export const length = (config: Config) => (value: string) => {
   let isValid = true;

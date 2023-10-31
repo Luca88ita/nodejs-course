@@ -34,8 +34,8 @@ const POST_FORM = {
 
 type Post = {
   title: string;
-  image?: any;
-  imagePath?: string;
+  image?: string;
+  //imagePath?: string;
   content: string;
 };
 
@@ -69,7 +69,7 @@ const FeedEdit = ({
         },
         image: {
           ...postForm.image,
-          value: selectedPost.imagePath!,
+          value: selectedPost.image!,
           valid: true,
         },
         content: {

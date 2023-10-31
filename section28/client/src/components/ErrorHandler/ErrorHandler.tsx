@@ -2,7 +2,7 @@ import Backdrop from "../Backdrop/Backdrop";
 import Modal from "../Modal/Modal";
 
 interface Props {
-  error: any;
+  error: Error | null;
   onHandle: () => void;
 }
 

@@ -41,7 +41,7 @@ const SinglePost = ({ token }: Props) => {
       .catch((err) => {
         console.log(err);
       });
-  }, [postId]);
+  }, [postId, token]);
 
   return (
     <section className={styles["single-post"]}>

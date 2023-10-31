@@ -1,5 +1,5 @@
 import { useState, useEffect, FormEvent, useCallback } from "react";
-import { io, Socket } from "socket.io-client";
+import { io /* , Socket */ } from "socket.io-client";
 import Post from "../../components/Feed/Post/Post";
 import Button from "../../components/Button/Button";
 import FeedEdit from "../../components/Feed/FeedEdit/FeedEdit";
@@ -19,12 +19,12 @@ const Feed = ({ token }: Props) => {
   const [posts, setPosts] = useState<PostType[]>([]);
   const [totalPosts, setTotalPosts] = useState<number>(0);
   const [editPost, setEditPost] = useState<PostType | null>(null);
-  const [status, setStatus] = useState<string>();
+  const [status, setStatus] = useState<string>("");
   const [postPage, setPostPage] = useState<number>(1);
   const [postsLoading, setPostsLoading] = useState<boolean>(true);
   const [editLoading, setEditLoading] = useState<boolean>(false);
-  const [error, setError] = useState<any>(null);
-  const [socket, setSocket] = useState<Socket | null>(null);
+  const [error, setError] = useState<Error | null>(null);
+  //const [socket, setSocket] = useState<Socket | null>(null);
 
   const loadPosts = useCallback(
     (direction?: "next" | "previous") => {
@@ -112,7 +112,7 @@ const Feed = ({ token }: Props) => {
 
   useEffect(() => {
     const newSocket = io("http://localhost:8080");
-    setSocket(newSocket);
+    //setSocket(newSocket);
 
     newSocket.on("posts", (data) => {
       switch (data.action) {
@@ -155,7 +155,7 @@ const Feed = ({ token }: Props) => {
       .catch(catchError);
 
     loadPosts();
-  }, [loadPosts, token, posts]);
+  }, [loadPosts, token]);
 
   const statusUpdateHandler = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -265,7 +265,7 @@ const Feed = ({ token }: Props) => {
       });
   };
 
-  const catchError = (error: any) => {
+  const catchError = (error: Error) => {
     setError(error);
   };
 
@@ -320,16 +320,16 @@ const Feed = ({ token }: Props) => {
           >
             {posts.map((post: PostType) => (
               <Post
-                key={post._id}
-                id={post._id}
+                key={post._id!}
+                id={post._id!}
                 author={post.creator.name}
                 editable={post.creator._id === localStorage.getItem("userId")}
-                date={new Date(post.createdAt).toLocaleDateString("en-US")}
+                date={new Date(post.createdAt!).toLocaleDateString("en-US")}
                 title={post.title}
                 image={post.imageUrl!}
                 content={post.content}
-                onStartEdit={() => startEditPostHandler(post._id)}
-                onDelete={() => deletePostHandler(post._id)}
+                onStartEdit={() => startEditPostHandler(post._id!)}
+                onDelete={() => deletePostHandler(post._id!)}
               />
             ))}
           </Paginator>

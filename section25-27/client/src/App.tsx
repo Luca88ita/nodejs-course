@@ -1,4 +1,4 @@
-import { useState, useEffect, FormEvent } from "react";
+import { useState, useEffect, FormEvent, useCallback } from "react";
 import { Outlet, useNavigate, Route, Routes } from "react-router-dom";
 
 import Layout from "./components/Layout/Layout";
@@ -12,6 +12,7 @@ import SinglePostPage from "./pages/Feed/SinglePost/SinglePost";
 import LoginPage from "./pages/Auth/Login";
 import SignupPage from "./pages/Auth/Signup";
 import "./App.css";
+import { Credentials, SignupForm } from "./util/types";
 
 const App = () => {
   const navigate = useNavigate();
@@ -22,13 +23,25 @@ const App = () => {
   const [token, setToken] = useState<string>("");
   //const [userId, setUserId] = useState<string>("");
   const [authLoading, setAuthLoading] = useState<boolean>(false);
-  const [error, setError] = useState<any>(null);
+  const [error, setError] = useState<Error | null>(null);
 
-  const setAutoLogout = (milliseconds: number) => {
-    setTimeout(() => {
-      logoutHandler();
-    }, milliseconds);
-  };
+  const logoutHandler = useCallback(() => {
+    setIsAuth(false);
+    setToken("");
+    localStorage.removeItem("token");
+    localStorage.removeItem("expiryDate");
+    localStorage.removeItem("userId");
+    navigate("/");
+  }, [navigate]);
+
+  const setAutoLogout = useCallback(
+    (milliseconds: number) => {
+      setTimeout(() => {
+        logoutHandler();
+      }, milliseconds);
+    },
+    [logoutHandler]
+  );
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -47,7 +60,7 @@ const App = () => {
     setToken(token);
     //setUserId(userId!);
     setAutoLogout(remainingMilliseconds);
-  }, []);
+  }, [logoutHandler, setAutoLogout]);
 
   const mobileNavHandler = (isOpen: boolean) => {
     setShowMobileNav(isOpen);
@@ -60,16 +73,10 @@ const App = () => {
     setError(null);
   };
 
-  const logoutHandler = () => {
-    setIsAuth(false);
-    setToken("");
-    localStorage.removeItem("token");
-    localStorage.removeItem("expiryDate");
-    localStorage.removeItem("userId");
-    navigate("/");
-  };
-
-  const loginHandler = (event: FormEvent<HTMLFormElement>, authData: any) => {
+  const loginHandler = (
+    event: FormEvent<HTMLFormElement>,
+    authData: Credentials
+  ) => {
     event.preventDefault();
     setAuthLoading(true);
     fetch("http://localhost:8080/auth/login", {
@@ -112,7 +119,10 @@ const App = () => {
       });
   };
 
-  const signupHandler = (event: FormEvent<HTMLFormElement>, authData: any) => {
+  const signupHandler = (
+    event: FormEvent<HTMLFormElement>,
+    authData: SignupForm
+  ) => {
     event.preventDefault();
     setAuthLoading(true);
     fetch("http://localhost:8080/auth/signup", {

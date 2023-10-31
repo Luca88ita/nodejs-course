@@ -1,17 +1,36 @@
 import path from "path";
+import http from "http";
 import express from "express";
 import bodyParser from "body-parser";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import { multerImageMilldeware } from "./utils/multer";
-import { createHandler } from "graphql-http";
-import { schema } from "./graphql/schema";
-import { Resolver } from "./graphql/resolvers";
+
+import { ApolloServer } from "@apollo/server";
+import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
+import { expressMiddleware } from "@apollo/server/express4";
+import cors from "cors";
+import { typeDefs } from "./graphql/schema";
+import { resolvers } from "./graphql/resolvers";
+
+interface MyContext {
+  token?: string;
+}
 
 dotenv.config();
 const mongoDbUri = process.env.MONGODB_URI;
-
 const app = express();
+const httpServer = http.createServer(app);
+
+const apolloServer = new ApolloServer<MyContext>({
+  typeDefs,
+  resolvers,
+  plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+});
+
+const startServer = async () => {
+  await apolloServer.start();
+};
 
 app.use(bodyParser.json());
 app.use(multerImageMilldeware);
@@ -28,7 +47,18 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use("/graphql", createHandler({ schema, rootValue: Resolver.hello }));
+startServer().then(() =>
+  app.use(
+    "/",
+    cors<cors.CorsRequest>(),
+    express.json(),
+    // expressMiddleware accepts the same arguments:
+    // an Apollo Server instance and optional configuration options
+    expressMiddleware(apolloServer, {
+      context: async ({ req }) => ({ token: req.headers.token }),
+    })
+  )
+);
 
 app.use((error, req, res, next) => {
   console.log(error);

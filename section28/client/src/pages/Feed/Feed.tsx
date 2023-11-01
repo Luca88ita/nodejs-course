@@ -110,7 +110,7 @@ const Feed = ({ token }: Props) => {
     [loadPosts]
   );
 
-  useEffect(() => {
+  /* useEffect(() => {
     const newSocket = io("http://localhost:8080");
     //setSocket(newSocket);
 
@@ -134,7 +134,7 @@ const Feed = ({ token }: Props) => {
     return () => {
       newSocket.disconnect();
     };
-  }, [addPost, updatePost, deletePost]);
+  }, [addPost, updatePost, deletePost]); */
 
   useEffect(() => {
     fetch("http://localhost:8080/user/status", {

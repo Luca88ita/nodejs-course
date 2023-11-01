@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 import validator from "validator";
 import User from "../models/user";
 import Utils from "../utils/utils";
-import { ExtendedError } from "../types/types";
+import { GraphQLError } from "graphql";
 
 type UserInputData = {
   email: string;
@@ -39,11 +39,16 @@ export const resolvers = {
         errors.push({ message: "Password is too short" });
       if (validator.isEmpty(userInput.name))
         errors.push({ message: "Invalid name" });
-      if (errors.length > 0) throw new Error("Invalid Input");
+      if (errors.length > 0)
+        throw new GraphQLError("Invalid input", {
+          extensions: { code: 422, errors },
+        });
       const email = userInput.email;
       const existingUser = await User.findOne({ email });
       if (existingUser)
-        Utils.throwNewError("An user with that email already exists", 422);
+        throw new GraphQLError("An user with that email already exists", {
+          extensions: { code: 422, errors },
+        });
       const password = await bcrypt.hash(userInput.password, 12);
       const name = userInput.name;
       const user = new User({ email, name, password });

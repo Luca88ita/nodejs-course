@@ -6,43 +6,19 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import { multerImageMilldeware } from "./utils/multer";
 
-import { ApolloServer } from "@apollo/server";
-import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
 import { expressMiddleware } from "@apollo/server/express4";
-import {
-  ApolloServerPluginLandingPageLocalDefault,
-  ApolloServerPluginLandingPageProductionDefault,
-} from "@apollo/server/plugin/landingPage/default";
-
 import cors from "cors";
-import { typeDefs } from "./graphql/schema";
-import { resolvers } from "./graphql/resolvers";
-
-interface MyContext {
-  token?: string;
-}
+import { apolloServer } from "./graphql/apolloServer";
 
 dotenv.config();
 const mongoDbUri = process.env.MONGODB_URI;
 const app = express();
 const httpServer = http.createServer(app);
 
-const apolloServer = new ApolloServer<MyContext>({
-  typeDefs,
-  resolvers,
-  plugins: [
-    ApolloServerPluginDrainHttpServer({ httpServer }),
-    process.env.NODE_ENV === "production"
-      ? ApolloServerPluginLandingPageProductionDefault({
-          graphRef: "my-graph-id@my-graph-variant",
-          footer: false,
-        })
-      : ApolloServerPluginLandingPageLocalDefault({ footer: false }),
-  ],
-});
+const server = apolloServer(httpServer);
 
 const startServer = async () => {
-  await apolloServer.start();
+  await server.start();
 };
 
 app.use(bodyParser.json());
@@ -65,9 +41,7 @@ startServer().then(() =>
     "/",
     cors<cors.CorsRequest>(),
     express.json(),
-    // expressMiddleware accepts the same arguments:
-    // an Apollo Server instance and optional configuration options
-    expressMiddleware(apolloServer, {
+    expressMiddleware(server, {
       context: async ({ req }) => ({ token: req.headers.token }),
     })
   )

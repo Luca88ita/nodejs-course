@@ -1,5 +1,6 @@
 import { useState, useEffect, FormEvent, useCallback } from "react";
 import { Outlet, useNavigate, Route, Routes } from "react-router-dom";
+import { useQuery, useMutation } from "@apollo/client";
 
 import Layout from "./components/Layout/Layout";
 import Backdrop from "./components/Backdrop/Backdrop";
@@ -13,6 +14,8 @@ import LoginPage from "./pages/Auth/Login";
 import SignupPage from "./pages/Auth/Signup";
 import "./App.css";
 import { Credentials, SignupForm } from "./util/types";
+import Queries from "./gql/queries";
+import { InputMaybe, UserInputData } from "./__generated__/graphql";
 
 const App = () => {
   const navigate = useNavigate();
@@ -23,7 +26,23 @@ const App = () => {
   const [token, setToken] = useState<string>("");
   //const [userId, setUserId] = useState<string>("");
   const [authLoading, setAuthLoading] = useState<boolean>(false);
-  const [error, setError] = useState<Error | null>(null);
+  const [err, setErr] = useState<Error | null>(null);
+  /* const [userInput, setUserInput] = useState<InputMaybe<UserInputData>>({
+    email: "",
+    password: "",
+    name: "",
+  }); */
+  const userInput: InputMaybe<UserInputData> | undefined = {
+    email: "",
+    password: "",
+    name: "",
+  };
+
+  const [createUser, { error, data }] = useMutation(Queries.signupQuery, {
+    variables: {
+      userInput,
+    },
+  });
 
   const logoutHandler = useCallback(() => {
     setIsAuth(false);
@@ -70,7 +89,7 @@ const App = () => {
   const backdropClickHandler = () => {
     setShowBackdrop(false);
     setShowMobileNav(false);
-    setError(null);
+    setErr(null);
   };
 
   const loginHandler = (
@@ -115,7 +134,7 @@ const App = () => {
         console.log(err);
         setIsAuth(false);
         setAuthLoading(false);
-        setError(err);
+        setErr(err);
       });
   };
 
@@ -125,27 +144,11 @@ const App = () => {
   ) => {
     event.preventDefault();
     setAuthLoading(true);
-    fetch("http://localhost:8080/auth/signup", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email: authData.email.value,
-        password: authData.password.value,
-        name: authData.name.value,
-      }),
-    })
-      .then((res) => {
-        if (res.status === 422) {
-          throw new Error(
-            "Validation failed. Make sure the email address isn't used yet!"
-          );
-        }
-        if (res.status !== 200 && res.status !== 201) {
-          console.log("Error!");
-          throw Error("Creating a user failed!");
-        }
-        return res.json();
-      })
+    userInput.email = authData.email.value;
+    userInput.name = authData.name.value;
+    userInput.password = authData.password.value;
+
+    createUser()
       .then((resData) => {
         //console.log(resData);
         setIsAuth(false);
@@ -153,17 +156,17 @@ const App = () => {
         navigate("/");
       })
       .catch((err: Error) => {
-        console.log(err);
+        //console.log(err);
         setIsAuth(false);
         setAuthLoading(false);
-        setError(err);
+        setErr(err);
       });
   };
 
   return (
     <div>
       {showBackdrop && <Backdrop onClick={backdropClickHandler} />}
-      <ErrorHandler error={error} onHandle={() => setError(null)} />
+      <ErrorHandler error={err} onHandle={() => setErr(null)} />
       <Layout
         header={
           <Toolbar>

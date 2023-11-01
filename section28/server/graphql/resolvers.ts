@@ -36,11 +36,11 @@ export const resolvers = {
         //validator.trim(userInput.password) ||
         !validator.isLength(userInput.password, { min: 8, max: 20 })
       )
-        errors.push({ message: "Password is too short" });
+        errors.push({ message: "Password is too short (8-20)" });
       if (validator.isEmpty(userInput.name))
         errors.push({ message: "Invalid name" });
       if (errors.length > 0)
-        throw new GraphQLError("Invalid input", {
+        throw new GraphQLError(errors[0].message, {
           extensions: { code: 422, errors },
         });
       const email = userInput.email;

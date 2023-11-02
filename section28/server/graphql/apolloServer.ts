@@ -11,6 +11,7 @@ import {
 import { typeDefs } from "../graphql/schema";
 import { resolvers } from "../graphql/resolvers";
 import mongoose from "mongoose";
+import { IUser } from "../models/user";
 
 interface MyContext {
   token?: string;

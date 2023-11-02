@@ -29,6 +29,12 @@ export const typeDefs = `#graphql
     userId: String!
   }
 
+  input PostInputData {
+    title: String!
+    content: String!
+    imageUrl: String!
+  }
+
   input UserInputData {
     email: String!
     name: String!
@@ -37,6 +43,7 @@ export const typeDefs = `#graphql
 
   type Mutation {
     createUser(userInput: UserInputData): User!
+    createPost(postInput: PostInputData): Post!
   }
 
   # The "Query" type is special: it lists all of the available queries that

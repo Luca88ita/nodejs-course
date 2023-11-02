@@ -3,12 +3,15 @@ import http from "http";
 import express from "express";
 import bodyParser from "body-parser";
 import mongoose from "mongoose";
+import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import { multerImageMilldeware } from "./utils/multer";
 
 import { expressMiddleware } from "@apollo/server/express4";
 import cors from "cors";
 import { apolloServer } from "./graphql/apolloServer";
+import User from "./models/user";
+import { isAuth } from "./middleware/auth";
 
 dotenv.config();
 const mongoDbUri = process.env.MONGODB_URI;
@@ -41,8 +44,15 @@ startServer().then(() =>
     "/",
     cors<cors.CorsRequest>(),
     express.json(),
+    isAuth,
     expressMiddleware(server, {
-      context: async ({ req }) => ({ token: req.headers.token }),
+      context: async ({ req }) => ({
+        token: req.headers.token,
+        dataSources: {
+          userId: req.userId,
+          isAuth: req.isAuth,
+        },
+      }),
     })
   )
 );

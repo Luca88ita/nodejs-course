@@ -5,29 +5,13 @@ import validator from "validator";
 import User from "../models/user";
 import Utils from "../utils/utils";
 import { GraphQLError } from "graphql";
-import { email } from "../../client/src/util/validators";
-
-type UserInputData = {
-  email: string;
-  name?: string;
-  password: string;
-};
-
-type AuthData = {
-  token: string;
-  userId: string;
-};
-
-type Arguments = {
-  userInput?: UserInputData;
-  authData?: AuthData;
-  email?: string;
-  password?: string;
-};
+import { UserArguments, PostArguments } from "./types";
+import Post from "../models/post";
+import { isAuth } from "../middleware/auth";
 
 export const resolvers = {
   Query: {
-    login: async (_, { email, password }: Arguments) => {
+    login: async (_, { email, password }: UserArguments) => {
       const errors = [];
       if (!validator.isEmail(email)) errors.push({ message: "Invalid e-mail" });
       if (
@@ -60,7 +44,7 @@ export const resolvers = {
   },
 
   Mutation: {
-    createUser: async (_, { userInput }: Arguments) => {
+    createUser: async (_, { userInput }: UserArguments) => {
       const errors = [];
       if (!validator.isEmail(userInput.email))
         errors.push({ message: "Invalid e-mail" });
@@ -87,6 +71,50 @@ export const resolvers = {
       const user = new User({ email, name, password });
       const createdUser = await user.save();
       return { ...createdUser._doc, _id: createdUser._id.toString() };
+    },
+
+    createPost: async (_, { postInput }: PostArguments, { dataSources }) => {
+      const errors = [];
+      if (!dataSources.isAuth)
+        throw new GraphQLError("Not authenticated", {
+          extensions: { code: 403, errors },
+        });
+      if (
+        validator.isEmpty(postInput.title) ||
+        !validator.isLength(postInput.title, { min: 5, max: 80 })
+      )
+        errors.push({ message: "The title is too short or too long (5-80)" });
+      if (
+        validator.isEmpty(postInput.content) ||
+        !validator.isLength(postInput.content, { min: 5, max: 200 })
+      )
+        errors.push({
+          message: "The content is too short or too long (5-200)",
+        });
+      /*if (
+        validator.isEmpty(postInput.imageUrl) ||
+        !validator.isURL(postInput.imageUrl)
+      )
+        errors.push({ message: "Invalid image url" });*/
+      if (errors.length > 0)
+        throw new GraphQLError(errors[0].message, {
+          extensions: { code: 422, errors },
+        });
+      const userId = dataSources.userId;
+      const user = await User.findById(userId);
+      if (!user)
+        throw new GraphQLError("Impossible to fetch the user", {
+          extensions: { code: 422, errors },
+        });
+      const title = postInput.title;
+      const content = postInput.content;
+      const imageUrl =
+        /* postInput.imageUrl */ "images/cf2beaf2-1d48-42df-a09e-74ddb30fc51e - Book.png";
+      const post = new Post({ title, content, imageUrl, creator: user._id });
+      const createdPost = await post.save();
+      user.posts.push(createdPost);
+      await user.save();
+      return { ...createdPost._doc, _id: createdPost._id.toString() };
     },
   },
 };

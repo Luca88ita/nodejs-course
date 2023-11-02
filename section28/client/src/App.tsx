@@ -1,6 +1,6 @@
 import { useState, useEffect, FormEvent, useCallback } from "react";
 import { Outlet, useNavigate, Route, Routes } from "react-router-dom";
-import { useQuery, useMutation } from "@apollo/client";
+import { useLazyQuery, useMutation } from "@apollo/client";
 
 import Layout from "./components/Layout/Layout";
 import Backdrop from "./components/Backdrop/Backdrop";
@@ -27,22 +27,9 @@ const App = () => {
   //const [userId, setUserId] = useState<string>("");
   const [authLoading, setAuthLoading] = useState<boolean>(false);
   const [err, setErr] = useState<Error | null>(null);
-  /* const [userInput, setUserInput] = useState<InputMaybe<UserInputData>>({
-    email: "",
-    password: "",
-    name: "",
-  }); */
-  const userInput: InputMaybe<UserInputData> | undefined = {
-    email: "",
-    password: "",
-    name: "",
-  };
 
-  const [createUser, { error, data }] = useMutation(Queries.signupQuery, {
-    variables: {
-      userInput,
-    },
-  });
+  const [createUser /* , { error, data } */] = useMutation(Queries.signupQuery);
+  const [login, { loading, error, data }] = useLazyQuery(Queries.loginQuery);
 
   const logoutHandler = useCallback(() => {
     setIsAuth(false);
@@ -98,31 +85,19 @@ const App = () => {
   ) => {
     event.preventDefault();
     setAuthLoading(true);
-    fetch("http://localhost:8080/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email: authData.email,
-        password: authData.password,
-      }),
-    })
-      .then((res) => {
-        if (res.status === 422) {
-          throw new Error("Validation failed.");
-        }
-        if (res.status !== 200 && res.status !== 201) {
-          console.log("Error!");
-          throw new Error("Could not authenticate you!");
-        }
-        return res.json();
-      })
+    const email = authData.email;
+    const password = authData.password;
+
+    login({ variables: { email, password } })
       .then((resData) => {
+        if (error) throw new Error(error.message);
+        if (!data) throw new Error("Username or password not valid");
         setIsAuth(true);
-        setToken(resData.token);
+        setToken(data.login.token);
         setAuthLoading(false);
         //setUserId(resData.userId);
-        localStorage.setItem("token", resData.token);
-        localStorage.setItem("userId", resData.userId);
+        localStorage.setItem("token", data.login.token);
+        localStorage.setItem("userId", data.login.userId);
         const remainingMilliseconds = 60 * 60 * 1000;
         const expiryDate = new Date(
           new Date().getTime() + remainingMilliseconds
@@ -144,11 +119,16 @@ const App = () => {
   ) => {
     event.preventDefault();
     setAuthLoading(true);
-    userInput.email = authData.email.value;
-    userInput.name = authData.name.value;
-    userInput.password = authData.password.value;
-
-    createUser()
+    const userInput: InputMaybe<UserInputData> | undefined = {
+      email: authData.email.value,
+      password: authData.password.value,
+      name: authData.name.value,
+    };
+    createUser({
+      variables: {
+        userInput,
+      },
+    })
       .then((resData) => {
         //console.log(resData);
         setIsAuth(false);

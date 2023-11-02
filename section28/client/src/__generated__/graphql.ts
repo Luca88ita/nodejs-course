@@ -29,6 +29,12 @@ export type Scalars = {
   Float: { input: number; output: number };
 };
 
+export type AuthData = {
+  __typename?: "AuthData";
+  token: Scalars["String"]["output"];
+  userId: Scalars["String"]["output"];
+};
+
 export type Mutation = {
   __typename?: "Mutation";
   createUser: User;
@@ -51,7 +57,12 @@ export type Post = {
 
 export type Query = {
   __typename?: "Query";
-  users?: Maybe<Array<Maybe<User>>>;
+  login: AuthData;
+};
+
+export type QueryLoginArgs = {
+  email: Scalars["String"]["input"];
+  password: Scalars["String"]["input"];
 };
 
 export type User = {
@@ -77,6 +88,16 @@ export type MutationMutationVariables = Exact<{
 export type MutationMutation = {
   __typename?: "Mutation";
   createUser: { __typename?: "User"; email: string; name: string };
+};
+
+export type QueryQueryVariables = Exact<{
+  password: Scalars["String"]["input"];
+  email: Scalars["String"]["input"];
+}>;
+
+export type QueryQuery = {
+  __typename?: "Query";
+  login: { __typename?: "AuthData"; token: string; userId: string };
 };
 
 export const MutationDocument = {
@@ -128,4 +149,77 @@ export const MutationDocument = {
     },
   ],
 } as unknown as DocumentNode<MutationMutation, MutationMutationVariables>;
-/** All built-in and custom scalars, mapped to their actual values */
+export const QueryDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "Query" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "password" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "String" },
+            },
+          },
+        },
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "email" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "String" },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "login" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "password" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "password" },
+                },
+              },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "email" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "email" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "token" } },
+                { kind: "Field", name: { kind: "Name", value: "userId" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<QueryQuery, QueryQueryVariables>;

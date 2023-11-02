@@ -9,6 +9,14 @@ namespace Queries {
     }
   } 
 `);
+  export const loginQuery = gql(`
+  query Query($password: String!, $email: String!) {
+    login(password: $password, email: $email) {
+      token
+      userId
+    }
+  }
+`);
 }
 
 export default Queries;

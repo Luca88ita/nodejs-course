@@ -24,6 +24,11 @@ export const typeDefs = `#graphql
     posts: [Post!]!
   }
 
+  type AuthData {
+    token: String!
+    userId: String!
+  }
+
   input UserInputData {
     email: String!
     name: String!
@@ -38,6 +43,6 @@ export const typeDefs = `#graphql
   # clients can execute, along with the return type for each. In this
   # case, the "books" query returns an array of zero or more Books (defined above).
   type Query {
-    users: [User]
+    login(email: String!, password: String!): AuthData!
   }
 `;

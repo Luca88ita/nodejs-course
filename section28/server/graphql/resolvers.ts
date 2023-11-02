@@ -5,24 +5,57 @@ import validator from "validator";
 import User from "../models/user";
 import Utils from "../utils/utils";
 import { GraphQLError } from "graphql";
+import { email } from "../../client/src/util/validators";
 
 type UserInputData = {
   email: string;
-  name: string;
+  name?: string;
   password: string;
 };
 
+type AuthData = {
+  token: string;
+  userId: string;
+};
+
 type Arguments = {
-  userInput: UserInputData;
+  userInput?: UserInputData;
+  authData?: AuthData;
+  email?: string;
+  password?: string;
 };
 
 export const resolvers = {
   Query: {
-    users: async () => {
-      const users = await User.find();
-      if (users.length < 0)
-        Utils.throwNewError("No users in the database", 422);
-      return users;
+    login: async (_, { email, password }: Arguments) => {
+      const errors = [];
+      if (!validator.isEmail(email)) errors.push({ message: "Invalid e-mail" });
+      if (
+        validator.isEmpty(password) ||
+        //validator.trim(userInput.password) ||
+        !validator.isLength(password, { min: 8, max: 20 })
+      )
+        errors.push({ message: "Password is too short (8-20)" });
+      if (errors.length > 0)
+        throw new GraphQLError(errors[0].message, {
+          extensions: { code: 422, errors },
+        });
+
+      const user = await User.findOne({ email });
+      if (!user)
+        throw new GraphQLError("An user with that email doesn't exists", {
+          extensions: { code: 401, errors },
+        });
+      const isEqual = await bcrypt.compare(password, user.password);
+      if (!isEqual)
+        throw new GraphQLError("Invalid username/password combination", {
+          extensions: { code: 401, errors },
+        });
+      const userId = user._id.toString();
+      const token = jwt.sign({ email, userId }, process.env.JWT_KEY, {
+        expiresIn: "1h",
+      });
+      return { token, userId };
     },
   },
 

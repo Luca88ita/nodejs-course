@@ -37,8 +37,6 @@ const Feed = ({ token }: Props) => {
 
   const [createPost, createPostResponse] = useMutation(Queries.createPostQuery);
 
-  //const { createPost, postCreatedData, postCreateError } = useCreatePost();
-
   const loadPosts = useCallback(
     (direction?: "next" | "previous") => {
       if (direction) {

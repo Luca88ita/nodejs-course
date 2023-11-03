@@ -28,8 +28,8 @@ const App = () => {
   const [authLoading, setAuthLoading] = useState<boolean>(false);
   const [err, setErr] = useState<Error | null>(null);
 
-  const [createUser /* , { error, data } */] = useMutation(Queries.signupQuery);
-  const [login, { loading, error, data }] = useLazyQuery(Queries.loginQuery);
+  const [createUser, createUserResponse] = useMutation(Queries.signupQuery);
+  const [login, loginResponse] = useLazyQuery(Queries.loginQuery);
 
   const logoutHandler = useCallback(() => {
     setIsAuth(false);
@@ -90,14 +90,14 @@ const App = () => {
 
     login({ variables: { email, password } })
       .then((resData) => {
-        if (error) throw new Error(error.message);
-        if (!data) throw new Error("Username or password not valid");
+        if (resData.error) throw new Error(resData.error.message);
+        if (!resData.data) throw new Error("Username or password not valid");
         setIsAuth(true);
-        setToken(data.login.token);
+        setToken(resData.data.login.token);
         setAuthLoading(false);
         //setUserId(resData.userId);
-        localStorage.setItem("token", data.login.token);
-        localStorage.setItem("userId", data.login.userId);
+        localStorage.setItem("token", resData.data.login.token);
+        localStorage.setItem("userId", resData.data.login.userId);
         const remainingMilliseconds = 60 * 60 * 1000;
         const expiryDate = new Date(
           new Date().getTime() + remainingMilliseconds

@@ -3,11 +3,13 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import validator from "validator";
 import User from "../models/user";
-import Utils from "../utils/utils";
+import Utils from "../utils/utils"; // if removed ts error... why????
 import { GraphQLError } from "graphql";
 import { UserArguments, PostArguments } from "./types";
 import Post from "../models/post";
-import { isAuth } from "../middleware/auth";
+import { isAuth } from "../../../section15-19/middleware/is-auth";
+
+dotenv.config();
 
 export const resolvers = {
   Query: {
@@ -39,6 +41,7 @@ export const resolvers = {
       const token = jwt.sign({ email, userId }, process.env.JWT_KEY, {
         expiresIn: "1h",
       });
+      console.log(token);
       return { token, userId };
     },
   },
@@ -75,6 +78,7 @@ export const resolvers = {
 
     createPost: async (_, { postInput }: PostArguments, { dataSources }) => {
       const errors = [];
+      console.log(dataSources.isAuth);
       if (!dataSources.isAuth)
         throw new GraphQLError("Not authenticated", {
           extensions: { code: 403, errors },

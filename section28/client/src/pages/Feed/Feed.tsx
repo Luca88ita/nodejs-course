@@ -9,6 +9,9 @@ import Loader from "../../components/Loader/Loader";
 import ErrorHandler from "../../components/ErrorHandler/ErrorHandler";
 import styles from "./Feed.module.css";
 import { PostType } from "../../util/types";
+import { useLazyQuery, useQuery, useMutation } from "@apollo/client";
+import Queries from "../../gql/queries";
+import { InputMaybe, PostInputData } from "../../__generated__/graphql";
 
 interface Props {
   token: string;
@@ -25,6 +28,10 @@ const Feed = ({ token }: Props) => {
   const [editLoading, setEditLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
   //const [socket, setSocket] = useState<Socket | null>(null);
+
+  const [createPost /* { error, data } */] = useMutation(
+    Queries.createPostQuery
+  );
 
   const loadPosts = useCallback(
     (direction?: "next" | "previous") => {
@@ -204,25 +211,32 @@ const Feed = ({ token }: Props) => {
     formData.append("content", postData.content);
     formData.append("image", postData.image);
 
-    const url = editPost
+    /* const url = editPost
       ? `http://localhost:8080/feed/post/${editPost._id}`
       : "http://localhost:8080/feed/post";
     const method = editPost ? "PUT" : "POST";
-    const body = formData;
+    const body = formData; */
 
-    fetch(url, {
+    const postInput: InputMaybe<PostInputData> | undefined = {
+      title: postData.title,
+      content: postData.content,
+      imageUrl:
+        "https://clipart-library.com/images/kc8ndjMzi.png" /* postData.image */,
+    };
+    createPost({ variables: { postInput } })
+      /* fetch(url, {
       method,
       body,
       headers: {
         Authorization: `Bearer ${token}`,
       },
-    })
-      .then((res) => {
+    }) */
+      /* .then((res) => {
         if (res.status !== 200 && res.status !== 201) {
           throw new Error("Creating or editing a post failed!");
         }
         return res.json();
-      })
+      }) */
       .then((resData) => {
         setIsEditing(false);
         setEditPost(null);

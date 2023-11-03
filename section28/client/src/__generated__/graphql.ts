@@ -37,7 +37,12 @@ export type AuthData = {
 
 export type Mutation = {
   __typename?: "Mutation";
+  createPost: Post;
   createUser: User;
+};
+
+export type MutationCreatePostArgs = {
+  postInput?: InputMaybe<PostInputData>;
 };
 
 export type MutationCreateUserArgs = {
@@ -53,6 +58,12 @@ export type Post = {
   imageUrl: Scalars["String"]["output"];
   title: Scalars["String"]["output"];
   updatedAt: Scalars["String"]["output"];
+};
+
+export type PostInputData = {
+  content: Scalars["String"]["input"];
+  imageUrl: Scalars["String"]["input"];
+  title: Scalars["String"]["input"];
 };
 
 export type Query = {
@@ -81,32 +92,47 @@ export type UserInputData = {
   password: Scalars["String"]["input"];
 };
 
-export type MutationMutationVariables = Exact<{
+export type CreateUserMutationVariables = Exact<{
   userInput?: InputMaybe<UserInputData>;
 }>;
 
-export type MutationMutation = {
+export type CreateUserMutation = {
   __typename?: "Mutation";
   createUser: { __typename?: "User"; email: string; name: string };
 };
 
-export type QueryQueryVariables = Exact<{
+export type LoginQueryVariables = Exact<{
   password: Scalars["String"]["input"];
   email: Scalars["String"]["input"];
 }>;
 
-export type QueryQuery = {
+export type LoginQuery = {
   __typename?: "Query";
   login: { __typename?: "AuthData"; token: string; userId: string };
 };
 
-export const MutationDocument = {
+export type CreatePostMutationVariables = Exact<{
+  postInput?: InputMaybe<PostInputData>;
+}>;
+
+export type CreatePostMutation = {
+  __typename?: "Mutation";
+  createPost: {
+    __typename?: "Post";
+    _id: string;
+    title: string;
+    content: string;
+    imageUrl: string;
+  };
+};
+
+export const CreateUserDocument = {
   kind: "Document",
   definitions: [
     {
       kind: "OperationDefinition",
       operation: "mutation",
-      name: { kind: "Name", value: "Mutation" },
+      name: { kind: "Name", value: "CreateUser" },
       variableDefinitions: [
         {
           kind: "VariableDefinition",
@@ -148,14 +174,14 @@ export const MutationDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<MutationMutation, MutationMutationVariables>;
-export const QueryDocument = {
+} as unknown as DocumentNode<CreateUserMutation, CreateUserMutationVariables>;
+export const LoginDocument = {
   kind: "Document",
   definitions: [
     {
       kind: "OperationDefinition",
       operation: "query",
-      name: { kind: "Name", value: "Query" },
+      name: { kind: "Name", value: "Login" },
       variableDefinitions: [
         {
           kind: "VariableDefinition",
@@ -222,4 +248,55 @@ export const QueryDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<QueryQuery, QueryQueryVariables>;
+} as unknown as DocumentNode<LoginQuery, LoginQueryVariables>;
+export const CreatePostDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "CreatePost" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "postInput" },
+          },
+          type: {
+            kind: "NamedType",
+            name: { kind: "Name", value: "PostInputData" },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "createPost" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "postInput" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "postInput" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "_id" } },
+                { kind: "Field", name: { kind: "Name", value: "title" } },
+                { kind: "Field", name: { kind: "Name", value: "content" } },
+                { kind: "Field", name: { kind: "Name", value: "imageUrl" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreatePostMutation, CreatePostMutationVariables>;

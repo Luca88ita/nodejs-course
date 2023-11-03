@@ -1,22 +1,37 @@
+import {
+  DocumentNode,
+  OperationVariables,
+  TypedDocumentNode,
+} from "@apollo/client";
 import { gql } from "../__generated__";
 
 namespace Queries {
   export const signupQuery = gql(`
-  mutation Mutation($userInput: UserInputData) {
+  mutation CreateUser($userInput: UserInputData) {
     createUser(userInput: $userInput) {
       email
       name
     }
   } 
-`);
+`) as DocumentNode | TypedDocumentNode<any, OperationVariables>;
   export const loginQuery = gql(`
-  query Query($password: String!, $email: String!) {
+  query Login($password: String!, $email: String!) {
     login(password: $password, email: $email) {
       token
       userId
     }
   }
-`);
+`) as DocumentNode | TypedDocumentNode<any, OperationVariables>;
+  export const createPostQuery = gql(`
+  mutation CreatePost($postInput: PostInputData) {
+    createPost(postInput: $postInput) {
+      _id
+      title
+      content
+      imageUrl
+    }
+  }
+`) as DocumentNode | TypedDocumentNode<any, OperationVariables>;
 }
 
 export default Queries;

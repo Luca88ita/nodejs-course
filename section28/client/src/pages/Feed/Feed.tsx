@@ -9,7 +9,13 @@ import Loader from "../../components/Loader/Loader";
 import ErrorHandler from "../../components/ErrorHandler/ErrorHandler";
 import styles from "./Feed.module.css";
 import { PostType } from "../../util/types";
-import { useLazyQuery, useQuery, useMutation } from "@apollo/client";
+import {
+  useLazyQuery,
+  useQuery,
+  useMutation,
+  MutationResult,
+  SingleExecutionResult,
+} from "@apollo/client";
 import Queries from "../../gql/queries";
 import { InputMaybe, PostInputData } from "../../__generated__/graphql";
 
@@ -29,9 +35,9 @@ const Feed = ({ token }: Props) => {
   const [error, setError] = useState<Error | null>(null);
   //const [socket, setSocket] = useState<Socket | null>(null);
 
-  const [createPost /* { error, data } */] = useMutation(
-    Queries.createPostQuery
-  );
+  const [createPost, createPostResponse] = useMutation(Queries.createPostQuery);
+
+  //const { createPost, postCreatedData, postCreateError } = useCreatePost();
 
   const loadPosts = useCallback(
     (direction?: "next" | "previous") => {
@@ -224,20 +230,10 @@ const Feed = ({ token }: Props) => {
         "https://clipart-library.com/images/kc8ndjMzi.png" /* postData.image */,
     };
     createPost({ variables: { postInput } })
-      /* fetch(url, {
-      method,
-      body,
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }) */
-      /* .then((res) => {
-        if (res.status !== 200 && res.status !== 201) {
-          throw new Error("Creating or editing a post failed!");
-        }
-        return res.json();
-      }) */
       .then((resData) => {
+        if (resData.errors && resData.errors?.length > 0)
+          throw new Error(resData.errors[0].message);
+        if (!resData.data) throw new Error("Post not created");
         setIsEditing(false);
         setEditPost(null);
         setEditLoading(false);

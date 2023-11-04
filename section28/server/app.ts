@@ -12,6 +12,7 @@ import cors from "cors";
 import { apolloServer } from "./graphql/apolloServer";
 import User from "./models/user";
 import { isAuth } from "./middleware/auth";
+import Utils from "./utils/utils";
 
 dotenv.config();
 
@@ -39,6 +40,19 @@ app.use((req, res, next) => {
   );
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
   next();
+});
+
+app.put("/post-image", isAuth, (req, res, next) => {
+  if (!req.isAuth) return res.status(401).json({ message: "Not authorized" });
+  if (!req.file) {
+    return res.status(200).json({ message: "No file provided" });
+  }
+  if (req.body.odlPath) {
+    Utils.clearImage(req.body.oldPath);
+  }
+  return res
+    .status(201)
+    .json({ message: "File stored", filePath: req.file.path });
 });
 
 startServer().then(() =>

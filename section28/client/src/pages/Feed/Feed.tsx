@@ -251,24 +251,30 @@ const Feed = ({ token }: Props) => {
     setEditPost(null);
   };
 
-  const finishEditHandler = (postData: any) => {
+  const finishEditHandler = async (postData: any) => {
     setEditLoading(true);
-    /* const formData = new FormData();
-    formData.append("title", postData.title);
-    formData.append("content", postData.content);
-    formData.append("image", postData.image); */
+    const formData = new FormData();
+    formData.append("image", postData.image);
+    if (editPost) formData.append("oldPath", editPost.imageUrl!);
 
+    const fetchImageData = await fetch("http://localhost:8080/post-image", {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+    const fileResData = await fetchImageData.json();
     /* const url = editPost
       ? `http://localhost:8080/feed/post/${editPost._id}`
       : "http://localhost:8080/feed/post";
     const method = editPost ? "PUT" : "POST";
     const body = formData; */
-
+    console.log(fileResData);
     const postInput: InputMaybe<PostInputData> | undefined = {
       title: postData.title,
       content: postData.content,
-      imageUrl:
-        "https://clipart-library.com/images/kc8ndjMzi.png" /* postData.image */,
+      imageUrl: fileResData.filePath,
     };
     createPost({ variables: { postInput } })
       .then((resData) => {

@@ -50,7 +50,6 @@ app.put("/post-image", isAuth, (req, res, next) => {
   if (req.body.odlPath) {
     Utils.clearImage(req.body.oldPath);
   }
-  //console.log(req.file.path.replaceAll("\\", "/"));
   return res.status(201).json({
     message: "File stored",
     filePath: req.file.path.replaceAll("\\", "/"),

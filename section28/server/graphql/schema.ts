@@ -31,7 +31,7 @@ export const typeDefs = `#graphql
   input PostInputData {
     title: String!
     content: String!
-    imageUrl: String!
+    imageUrl: String
   }
 
   input UserInputData {
@@ -43,6 +43,7 @@ export const typeDefs = `#graphql
   type Mutation {
     createUser(userInput: UserInputData): User!
     createPost(postInput: PostInputData): Post!
+    editPost(postId: ID!, postInput: PostInputData!): Post!
   }
 
   type Query {

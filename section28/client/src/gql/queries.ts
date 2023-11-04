@@ -69,6 +69,17 @@ namespace Queries {
     }
   }
 `) as DocumentNode | TypedDocumentNode<any, OperationVariables>;
+
+  export const editPostQuery = gql(`
+  mutation EditPost($postId: ID!, $postInput: PostInputData!) {
+    editPost(postId: $postId, postInput: $postInput) {
+      title
+      imageUrl
+      content
+      _id
+    }
+  }
+`) as DocumentNode | TypedDocumentNode<any, OperationVariables>;
 }
 
 export default Queries;

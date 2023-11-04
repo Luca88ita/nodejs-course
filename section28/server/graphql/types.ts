@@ -23,5 +23,6 @@ export type UserArguments = {
 };
 
 export type PostArguments = {
+  postId?: string;
   postInput?: PostInputData;
 };

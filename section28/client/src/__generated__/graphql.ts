@@ -39,6 +39,7 @@ export type Mutation = {
   __typename?: "Mutation";
   createPost: Post;
   createUser: User;
+  editPost: Post;
 };
 
 export type MutationCreatePostArgs = {
@@ -47,6 +48,11 @@ export type MutationCreatePostArgs = {
 
 export type MutationCreateUserArgs = {
   userInput?: InputMaybe<UserInputData>;
+};
+
+export type MutationEditPostArgs = {
+  postId: Scalars["ID"]["input"];
+  postInput: PostInputData;
 };
 
 export type Post = {
@@ -62,7 +68,7 @@ export type Post = {
 
 export type PostInputData = {
   content: Scalars["String"]["input"];
-  imageUrl: Scalars["String"]["input"];
+  imageUrl?: InputMaybe<Scalars["String"]["input"]>;
   title: Scalars["String"]["input"];
 };
 
@@ -179,6 +185,22 @@ export type CreatePostMutation = {
     title: string;
     content: string;
     imageUrl: string;
+  };
+};
+
+export type EditPostMutationVariables = Exact<{
+  postId: Scalars["ID"]["input"];
+  postInput: PostInputData;
+}>;
+
+export type EditPostMutation = {
+  __typename?: "Mutation";
+  editPost: {
+    __typename?: "Post";
+    title: string;
+    imageUrl: string;
+    content: string;
+    _id: string;
   };
 };
 
@@ -529,4 +551,77 @@ export const CreatePostDocument = {
     },
   ],
 } as unknown as DocumentNode<CreatePostMutation, CreatePostMutationVariables>;
+export const EditPostDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "EditPost" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "postId" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "postInput" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "PostInputData" },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "editPost" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "postId" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "postId" },
+                },
+              },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "postInput" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "postInput" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "title" } },
+                { kind: "Field", name: { kind: "Name", value: "imageUrl" } },
+                { kind: "Field", name: { kind: "Name", value: "content" } },
+                { kind: "Field", name: { kind: "Name", value: "_id" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<EditPostMutation, EditPostMutationVariables>;
 /** All built-in and custom scalars, mapped to their actual values */

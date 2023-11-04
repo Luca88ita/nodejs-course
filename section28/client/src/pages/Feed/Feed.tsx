@@ -31,6 +31,7 @@ const Feed = ({ token }: Props) => {
   const postPerPage = 2;
 
   const [createPost, createPostResponse] = useMutation(Queries.createPostQuery);
+  const [changePost, changePostResponse] = useMutation(Queries.editPostQuery);
   const fetchPosts = useQuery(Queries.fetchPostsQuery, {
     variables: {
       currentPage: postPage,
@@ -72,7 +73,7 @@ const Feed = ({ token }: Props) => {
       setPostsLoading(false);
     } */
     loadPosts();
-  }, [fetchPosts.data, loadPosts, postPage]);
+  }, [fetchPosts.data, loadPosts, postPage, editPost]);
 
   /*const loadPosts = useCallback(
     (direction?: "next" | "previous") => {
@@ -251,47 +252,45 @@ const Feed = ({ token }: Props) => {
   };
 
   const finishEditHandler = async (postData: any) => {
-    setEditLoading(true);
-    const formData = new FormData();
-    formData.append("image", postData.image);
-    if (editPost) formData.append("oldPath", editPost.imageUrl!);
+    try {
+      setEditLoading(true);
+      const formData = new FormData();
+      formData.append("image", postData.image);
+      if (editPost) formData.append("oldPath", editPost.imageUrl!);
 
-    const fetchImageData = await fetch("http://localhost:8080/post-image", {
-      method: "PUT",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      body: formData,
-    });
-    const fileResData = await fetchImageData.json();
-    /* const url = editPost
-      ? `http://localhost:8080/feed/post/${editPost._id}`
-      : "http://localhost:8080/feed/post";
-    const method = editPost ? "PUT" : "POST";
-    const body = formData; */
-    //console.log(fileResData.filePath);
-    const postInput: InputMaybe<PostInputData> | undefined = {
-      title: postData.title,
-      content: postData.content,
-      imageUrl: fileResData.filePath,
-    };
-    createPost({ variables: { postInput } })
-      .then((resData) => {
-        if (resData.errors && resData.errors?.length > 0)
-          throw new Error(resData.errors[0].message);
-        if (!resData.data) throw new Error("Post not created");
-        fetchPosts.refetch();
-        setIsEditing(false);
-        setEditPost(null);
-        setEditLoading(false);
-      })
-      .catch((err) => {
-        console.log(err);
-        setIsEditing(false);
-        setEditPost(null);
-        setEditLoading(false);
-        setError(err);
+      const fetchImageData = await fetch("http://localhost:8080/post-image", {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
       });
+      const fileResData = await fetchImageData.json();
+      const postInput: InputMaybe<PostInputData> | undefined = {
+        title: postData.title,
+        content: postData.content,
+        imageUrl: fileResData.filePath ? fileResData.filePath : null,
+      };
+      const resData = editPost
+        ? await changePost({ variables: { postInput, postId: editPost._id } })
+        : await createPost({ variables: { postInput } });
+      if (resData.errors && resData.errors?.length > 0)
+        throw new Error(resData.errors[0].message);
+      if (!resData.data)
+        throw editPost
+          ? new Error("Post not edited")
+          : new Error("Post not created");
+      fetchPosts.refetch();
+      setIsEditing(false);
+      setEditPost(null);
+      setEditLoading(false);
+    } catch (error) {
+      console.log(error);
+      setIsEditing(false);
+      setEditPost(null);
+      setEditLoading(false);
+      setError(error as Error);
+    }
   };
 
   const statusInputChangeHandler = (value: string) => {

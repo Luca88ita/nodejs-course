@@ -23,18 +23,8 @@ const SinglePost = ({ token }: Props) => {
   );
 
   useEffect(() => {
+    viewPostResponse.refetch();
     viewPost({ variables: { postId } })
-      /* fetch(`http://localhost:8080/feed/post/${postId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((res) => {
-        if (res.status !== 200) {
-          throw new Error("Failed to fetch status");
-        }
-        return res.json();
-      }) */
       .then((resData) => {
         if (resData.error) throw new Error(resData.error.message);
         if (!resData.data) throw new Error("Post not found");
@@ -51,7 +41,7 @@ const SinglePost = ({ token }: Props) => {
       .catch((err) => {
         console.log(err);
       });
-  }, [postId, token]);
+  }, [postId, token, viewPost]);
 
   return (
     <section className={styles["single-post"]}>

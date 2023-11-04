@@ -7,6 +7,8 @@ import User from "../models/user";
 import { GraphQLError } from "graphql";
 import { UserArguments, PostArguments } from "./types";
 import Post from "../models/post";
+import { userId } from "../../../section15-19/app";
+import Utils from "../utils/utils";
 
 /* dotenv.config(); */
 
@@ -108,7 +110,6 @@ export const resolvers = {
 
     createPost: async (_, { postInput }: PostArguments, { dataSources }) => {
       const errors = [];
-      //console.log(dataSources.isAuth);
       if (!dataSources.isAuth)
         throw new GraphQLError("Not authenticated", {
           extensions: { code: 403, errors },
@@ -125,11 +126,6 @@ export const resolvers = {
         errors.push({
           message: "The content is too short or too long (5-200)",
         });
-      /*if (
-        validator.isEmpty(postInput.imageUrl) ||
-        !validator.isURL(postInput.imageUrl)
-      )
-        errors.push({ message: "Invalid image url" });*/
       if (errors.length > 0)
         throw new GraphQLError(errors[0].message, {
           extensions: { code: 422, errors },
@@ -149,6 +145,53 @@ export const resolvers = {
       user.posts.push(createdPost);
       await user.save();
       return { ...createdPost._doc, _id: createdPost._id.toString() };
+    },
+
+    editPost: async (
+      _,
+      { postId, postInput }: PostArguments,
+      { dataSources }
+    ) => {
+      const errors = [];
+      if (!dataSources.isAuth)
+        throw new GraphQLError("Not authenticated", {
+          extensions: { code: 401, errors },
+        });
+      if (
+        validator.isEmpty(postInput.title) ||
+        !validator.isLength(postInput.title, { min: 5, max: 80 })
+      )
+        errors.push({ message: "The title is too short or too long (5-80)" });
+      if (
+        validator.isEmpty(postInput.content) ||
+        !validator.isLength(postInput.content, { min: 5, max: 200 })
+      )
+        errors.push({
+          message: "The content is too short or too long (5-200)",
+        });
+      if (errors.length > 0)
+        throw new GraphQLError(errors[0].message, {
+          extensions: { code: 422, errors },
+        });
+      const post = await Post.findById(postId);
+      if (!post)
+        throw new GraphQLError("Post not found", {
+          extensions: { code: 422, errors },
+        });
+      if (post.creator._id.toString() !== dataSources.userId)
+        throw new GraphQLError("Not authorized to edit this post", {
+          extensions: { code: 403, errors },
+        });
+      post.title = postInput.title;
+      post.content = postInput.content;
+      const imageUrl = postInput.imageUrl ? postInput.imageUrl : null;
+      if (imageUrl) {
+        Utils.clearImage(post.imageUrl);
+        post.imageUrl = imageUrl;
+      }
+      const editedPost = await post.save();
+      console.log(editedPost);
+      return { ...editedPost._doc, _id: editedPost._id.toString() };
     },
   },
 };

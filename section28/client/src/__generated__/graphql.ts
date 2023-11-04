@@ -76,6 +76,7 @@ export type Query = {
   __typename?: "Query";
   fetchPosts: PostsData;
   login: AuthData;
+  viewPost: Post;
 };
 
 export type QueryFetchPostsArgs = {
@@ -86,6 +87,10 @@ export type QueryFetchPostsArgs = {
 export type QueryLoginArgs = {
   email: Scalars["String"]["input"];
   password: Scalars["String"]["input"];
+};
+
+export type QueryViewPostArgs = {
+  postId: Scalars["ID"]["input"];
 };
 
 export type User = {
@@ -143,6 +148,22 @@ export type GetPostsQuery = {
       updatedAt: string;
       creator: { __typename?: "User"; name: string; _id: string };
     } | null>;
+  };
+};
+
+export type ViewPostQueryVariables = Exact<{
+  postId: Scalars["ID"]["input"];
+}>;
+
+export type ViewPostQuery = {
+  __typename?: "Query";
+  viewPost: {
+    __typename?: "Post";
+    title: string;
+    imageUrl: string;
+    createdAt: string;
+    content: string;
+    creator: { __typename?: "User"; name: string; _id: string };
   };
 };
 
@@ -395,6 +416,68 @@ export const GetPostsDocument = {
     },
   ],
 } as unknown as DocumentNode<GetPostsQuery, GetPostsQueryVariables>;
+export const ViewPostDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "ViewPost" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "postId" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "viewPost" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "postId" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "postId" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "title" } },
+                { kind: "Field", name: { kind: "Name", value: "imageUrl" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "creator" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      { kind: "Field", name: { kind: "Name", value: "name" } },
+                      { kind: "Field", name: { kind: "Name", value: "_id" } },
+                    ],
+                  },
+                },
+                { kind: "Field", name: { kind: "Name", value: "createdAt" } },
+                { kind: "Field", name: { kind: "Name", value: "content" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ViewPostQuery, ViewPostQueryVariables>;
 export const CreatePostDocument = {
   kind: "Document",
   definitions: [
@@ -446,3 +529,4 @@ export const CreatePostDocument = {
     },
   ],
 } as unknown as DocumentNode<CreatePostMutation, CreatePostMutationVariables>;
+/** All built-in and custom scalars, mapped to their actual values */

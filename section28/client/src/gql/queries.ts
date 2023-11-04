@@ -44,6 +44,21 @@ namespace Queries {
   }
 `) as DocumentNode | TypedDocumentNode<any, OperationVariables>;
 
+  export const fetchSinglePostQuery = gql(`
+  query ViewPost($postId: ID!) {
+    viewPost(postId: $postId) {
+      title
+      imageUrl
+      creator {
+        name
+        _id
+      }
+      createdAt
+      content
+    }
+  }
+`) as DocumentNode | TypedDocumentNode<any, OperationVariables>;
+
   export const createPostQuery = gql(`
   mutation CreatePost($postInput: PostInputData) {
     createPost(postInput: $postInput) {

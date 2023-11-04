@@ -29,7 +29,7 @@ const startServer = async () => {
 
 app.use(bodyParser.json());
 app.use(multerImageMilldeware);
-app.use("/images", express.static(path.join(__dirname, "images")));
+app.use("/images", isAuth, express.static(path.join(__dirname, "images")));
 
 // middleware to avoid the CORS policy error
 app.use((req, res, next) => {
@@ -50,9 +50,11 @@ app.put("/post-image", isAuth, (req, res, next) => {
   if (req.body.odlPath) {
     Utils.clearImage(req.body.oldPath);
   }
-  return res
-    .status(201)
-    .json({ message: "File stored", filePath: req.file.path });
+  //console.log(req.file.path.replaceAll("\\", "/"));
+  return res.status(201).json({
+    message: "File stored",
+    filePath: req.file.path.replaceAll("\\", "/"),
+  });
 });
 
 startServer().then(() =>

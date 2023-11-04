@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import validator from "validator";
 import User from "../models/user";
-import Utils from "../utils/utils"; // if removed ts error... why????
+//import Utils from "../utils/utils"; // if removed ts error... why????
 import { GraphQLError } from "graphql";
 import { UserArguments, PostArguments } from "./types";
 import Post from "../models/post";
@@ -40,7 +40,7 @@ export const resolvers = {
       const token = jwt.sign({ email, userId }, process.env.JWT_KEY, {
         expiresIn: "1h",
       });
-      console.log(token);
+      //console.log(token);
       return { token, userId };
     },
 
@@ -56,8 +56,23 @@ export const resolvers = {
         .sort({ createdAt: -1 })
         .skip((currentPage - 1) * postPerPage)
         .limit(postPerPage);
-      console.log(posts);
+      //console.log(posts);
       return { posts, totalItems };
+    },
+
+    viewPost: async (_, { postId }, { dataSources }) => {
+      const errors = [];
+      if (!dataSources.isAuth)
+        throw new GraphQLError("Not authenticated", {
+          extensions: { code: 403, errors },
+        });
+      const post = await Post.findById(postId).populate("creator", "name");
+      if (!post)
+        throw new GraphQLError("Post not found", {
+          extensions: { code: 404, errors },
+        });
+      console.log(post);
+      return post;
     },
   },
 
@@ -93,7 +108,7 @@ export const resolvers = {
 
     createPost: async (_, { postInput }: PostArguments, { dataSources }) => {
       const errors = [];
-      console.log(dataSources.isAuth);
+      //console.log(dataSources.isAuth);
       if (!dataSources.isAuth)
         throw new GraphQLError("Not authenticated", {
           extensions: { code: 403, errors },
@@ -127,8 +142,7 @@ export const resolvers = {
         });
       const title = postInput.title;
       const content = postInput.content;
-      const imageUrl =
-        /* postInput.imageUrl */ "images/cf2beaf2-1d48-42df-a09e-74ddb30fc51e - Book.png";
+      const imageUrl = postInput.imageUrl;
       const post = new Post({ title, content, imageUrl, creator: user._id });
       const createdPost = await post.save();
       createdPost.populate("creator", "name");

@@ -48,5 +48,6 @@ export const typeDefs = `#graphql
   type Query {
     login(email: String!, password: String!): AuthData!
     fetchPosts(currentPage: Int!, postPerPage: Int!): PostsData!
+    viewPost(postId: ID!): Post!
   }
 `;

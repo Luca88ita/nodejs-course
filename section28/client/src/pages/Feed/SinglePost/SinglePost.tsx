@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import { useLazyQuery } from "@apollo/client";
 import Image from "../../../components/Image/Image";
 import styles from "./SinglePost.module.css";
+import Queries from "../../../gql/queries";
 
 interface Props {
   token: string;
@@ -16,9 +18,13 @@ const SinglePost = ({ token }: Props) => {
     content: "",
   });
   const { postId } = useParams();
+  const [viewPost, viewPostResponse] = useLazyQuery(
+    Queries.fetchSinglePostQuery
+  );
 
   useEffect(() => {
-    fetch(`http://localhost:8080/feed/post/${postId}`, {
+    viewPost({ variables: { postId } })
+      /* fetch(`http://localhost:8080/feed/post/${postId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -28,14 +34,18 @@ const SinglePost = ({ token }: Props) => {
           throw new Error("Failed to fetch status");
         }
         return res.json();
-      })
+      }) */
       .then((resData) => {
+        if (resData.error) throw new Error(resData.error.message);
+        if (!resData.data) throw new Error("Post not found");
+        console.log(resData);
+        const data = resData.data.viewPost;
         setPost({
-          title: resData.post.title,
-          author: resData.post.creator.name,
-          date: new Date(resData.post.createdAt).toLocaleDateString("en-US"),
-          image: `http://localhost:8080/${resData.post.imageUrl}`, // Assuming the response contains an 'image' property
-          content: resData.post.content,
+          title: data.title,
+          author: data.creator.name,
+          date: new Date(+data.createdAt).toLocaleDateString("it-IT"),
+          image: `http://localhost:8080/${data.imageUrl}`, // Assuming the response contains an 'image' property
+          content: data.content,
         });
       })
       .catch((err) => {

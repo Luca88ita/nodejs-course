@@ -16,6 +16,7 @@ const documents = {
     "\n  mutation CreateUser($userInput: UserInputData) {\n    createUser(userInput: $userInput) {\n      email\n      name\n    }\n  } \n": types.CreateUserDocument,
     "\n  query Login($password: String!, $email: String!) {\n    login(password: $password, email: $email) {\n      token\n      userId\n    }\n  }\n": types.LoginDocument,
     "\n  query GetPosts($currentPage: Int!, $postPerPage: Int!) {\n    fetchPosts(currentPage: $currentPage, postPerPage: $postPerPage) {\n      totalItems\n      posts {\n        _id\n        title\n        content\n        imageUrl\n        createdAt\n        updatedAt\n        creator {\n          name\n          _id\n        }\n      }\n    }\n  }\n": types.GetPostsDocument,
+    "\n  query ViewPost($postId: ID!) {\n    viewPost(postId: $postId) {\n      title\n      imageUrl\n      creator {\n        name\n        _id\n      }\n      createdAt\n      content\n    }\n  }\n": types.ViewPostDocument,
     "\n  mutation CreatePost($postInput: PostInputData) {\n    createPost(postInput: $postInput) {\n      _id\n      title\n      content\n      imageUrl\n    }\n  }\n": types.CreatePostDocument,
 };
 
@@ -45,6 +46,10 @@ export function gql(source: "\n  query Login($password: String!, $email: String!
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query GetPosts($currentPage: Int!, $postPerPage: Int!) {\n    fetchPosts(currentPage: $currentPage, postPerPage: $postPerPage) {\n      totalItems\n      posts {\n        _id\n        title\n        content\n        imageUrl\n        createdAt\n        updatedAt\n        creator {\n          name\n          _id\n        }\n      }\n    }\n  }\n"): (typeof documents)["\n  query GetPosts($currentPage: Int!, $postPerPage: Int!) {\n    fetchPosts(currentPage: $currentPage, postPerPage: $postPerPage) {\n      totalItems\n      posts {\n        _id\n        title\n        content\n        imageUrl\n        createdAt\n        updatedAt\n        creator {\n          name\n          _id\n        }\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query ViewPost($postId: ID!) {\n    viewPost(postId: $postId) {\n      title\n      imageUrl\n      creator {\n        name\n        _id\n      }\n      createdAt\n      content\n    }\n  }\n"): (typeof documents)["\n  query ViewPost($postId: ID!) {\n    viewPost(postId: $postId) {\n      title\n      imageUrl\n      creator {\n        name\n        _id\n      }\n      createdAt\n      content\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

@@ -1,5 +1,4 @@
 import { useState, useEffect, FormEvent, useCallback } from "react";
-import { io /* , Socket */ } from "socket.io-client";
 import Post from "../../components/Feed/Post/Post";
 import Button from "../../components/Button/Button";
 import FeedEdit from "../../components/Feed/FeedEdit/FeedEdit";
@@ -270,7 +269,7 @@ const Feed = ({ token }: Props) => {
       : "http://localhost:8080/feed/post";
     const method = editPost ? "PUT" : "POST";
     const body = formData; */
-    console.log(fileResData);
+    //console.log(fileResData.filePath);
     const postInput: InputMaybe<PostInputData> | undefined = {
       title: postData.title,
       content: postData.content,

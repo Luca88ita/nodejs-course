@@ -14,6 +14,7 @@ namespace Queries {
     }
   } 
 `) as DocumentNode | TypedDocumentNode<any, OperationVariables>;
+
   export const loginQuery = gql(`
   query Login($password: String!, $email: String!) {
     login(password: $password, email: $email) {
@@ -22,6 +23,27 @@ namespace Queries {
     }
   }
 `) as DocumentNode | TypedDocumentNode<any, OperationVariables>;
+
+  export const fetchPostsQuery = gql(`
+  query GetPosts($currentPage: Int!, $postPerPage: Int!) {
+    fetchPosts(currentPage: $currentPage, postPerPage: $postPerPage) {
+      totalItems
+      posts {
+        _id
+        title
+        content
+        imageUrl
+        createdAt
+        updatedAt
+        creator {
+          name
+          _id
+        }
+      }
+    }
+  }
+`) as DocumentNode | TypedDocumentNode<any, OperationVariables>;
+
   export const createPostQuery = gql(`
   mutation CreatePost($postInput: PostInputData) {
     createPost(postInput: $postInput) {

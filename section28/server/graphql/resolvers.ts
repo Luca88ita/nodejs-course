@@ -7,9 +7,8 @@ import Utils from "../utils/utils"; // if removed ts error... why????
 import { GraphQLError } from "graphql";
 import { UserArguments, PostArguments } from "./types";
 import Post from "../models/post";
-import { isAuth } from "../../../section15-19/middleware/is-auth";
 
-dotenv.config();
+/* dotenv.config(); */
 
 export const resolvers = {
   Query: {
@@ -43,6 +42,22 @@ export const resolvers = {
       });
       console.log(token);
       return { token, userId };
+    },
+
+    fetchPosts: async (_, { currentPage, postPerPage }) => {
+      const errors = [];
+      const totalItems = await Post.find().countDocuments();
+      if (totalItems === 0)
+        throw new GraphQLError("There are no posts", {
+          extensions: { code: 404, errors },
+        });
+      const posts = await Post.find()
+        .populate("creator", "name")
+        .sort({ createdAt: -1 })
+        .skip((currentPage - 1) * postPerPage)
+        .limit(postPerPage);
+      console.log(posts);
+      return { posts, totalItems };
     },
   },
 
@@ -116,6 +131,7 @@ export const resolvers = {
         /* postInput.imageUrl */ "images/cf2beaf2-1d48-42df-a09e-74ddb30fc51e - Book.png";
       const post = new Post({ title, content, imageUrl, creator: user._id });
       const createdPost = await post.save();
+      createdPost.populate("creator", "name");
       user.posts.push(createdPost);
       await user.save();
       return { ...createdPost._doc, _id: createdPost._id.toString() };

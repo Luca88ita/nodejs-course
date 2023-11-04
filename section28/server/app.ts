@@ -14,6 +14,8 @@ import User from "./models/user";
 import { isAuth } from "./middleware/auth";
 
 dotenv.config();
+
+const corsOptions = { origin: "*", optionsSuccessStatus: 200 };
 const mongoDbUri = process.env.MONGODB_URI;
 const app = express();
 const httpServer = http.createServer(app);
@@ -42,7 +44,7 @@ app.use((req, res, next) => {
 startServer().then(() =>
   app.use(
     "/",
-    cors<cors.CorsRequest>(),
+    cors<cors.CorsRequest>(corsOptions),
     express.json(),
     isAuth,
     expressMiddleware(server, {

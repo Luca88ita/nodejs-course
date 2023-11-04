@@ -66,9 +66,21 @@ export type PostInputData = {
   title: Scalars["String"]["input"];
 };
 
+export type PostsData = {
+  __typename?: "PostsData";
+  posts: Array<Maybe<Post>>;
+  totalItems: Scalars["Int"]["output"];
+};
+
 export type Query = {
   __typename?: "Query";
+  fetchPosts: PostsData;
   login: AuthData;
+};
+
+export type QueryFetchPostsArgs = {
+  currentPage: Scalars["Int"]["input"];
+  postPerPage: Scalars["Int"]["input"];
 };
 
 export type QueryLoginArgs = {
@@ -109,6 +121,29 @@ export type LoginQueryVariables = Exact<{
 export type LoginQuery = {
   __typename?: "Query";
   login: { __typename?: "AuthData"; token: string; userId: string };
+};
+
+export type GetPostsQueryVariables = Exact<{
+  currentPage: Scalars["Int"]["input"];
+  postPerPage: Scalars["Int"]["input"];
+}>;
+
+export type GetPostsQuery = {
+  __typename?: "Query";
+  fetchPosts: {
+    __typename?: "PostsData";
+    totalItems: number;
+    posts: Array<{
+      __typename?: "Post";
+      _id: string;
+      title: string;
+      content: string;
+      imageUrl: string;
+      createdAt: string;
+      updatedAt: string;
+      creator: { __typename?: "User"; name: string; _id: string };
+    } | null>;
+  };
 };
 
 export type CreatePostMutationVariables = Exact<{
@@ -249,6 +284,117 @@ export const LoginDocument = {
     },
   ],
 } as unknown as DocumentNode<LoginQuery, LoginQueryVariables>;
+export const GetPostsDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "GetPosts" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "currentPage" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "Int" } },
+          },
+        },
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "postPerPage" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "Int" } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "fetchPosts" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "currentPage" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "currentPage" },
+                },
+              },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "postPerPage" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "postPerPage" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "totalItems" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "posts" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      { kind: "Field", name: { kind: "Name", value: "_id" } },
+                      { kind: "Field", name: { kind: "Name", value: "title" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "content" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "imageUrl" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "createdAt" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "updatedAt" },
+                      },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "creator" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "name" },
+                            },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "_id" },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetPostsQuery, GetPostsQueryVariables>;
 export const CreatePostDocument = {
   kind: "Document",
   definitions: [

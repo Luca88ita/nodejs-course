@@ -9,13 +9,7 @@ import Loader from "../../components/Loader/Loader";
 import ErrorHandler from "../../components/ErrorHandler/ErrorHandler";
 import styles from "./Feed.module.css";
 import { PostType } from "../../util/types";
-import {
-  useLazyQuery,
-  useQuery,
-  useMutation,
-  MutationResult,
-  SingleExecutionResult,
-} from "@apollo/client";
+import { useLazyQuery, useQuery, useMutation } from "@apollo/client";
 import Queries from "../../gql/queries";
 import { InputMaybe, PostInputData } from "../../__generated__/graphql";
 
@@ -35,7 +29,16 @@ const Feed = ({ token }: Props) => {
   const [error, setError] = useState<Error | null>(null);
   //const [socket, setSocket] = useState<Socket | null>(null);
 
+  const postPerPage = 2;
+
   const [createPost, createPostResponse] = useMutation(Queries.createPostQuery);
+  const fetchPosts = useQuery(Queries.fetchPostsQuery, {
+    variables: {
+      currentPage: postPage,
+      postPerPage,
+    },
+    pollInterval: 60000,
+  });
 
   const loadPosts = useCallback(
     (direction?: "next" | "previous") => {
@@ -53,8 +56,48 @@ const Feed = ({ token }: Props) => {
         page--;
         setPostPage(page);
       }
+      if (!fetchPosts.loading && !fetchPosts.error) {
+        setPosts(fetchPosts.data.fetchPosts.posts);
+        setTotalPosts(fetchPosts.data.fetchPosts.totalItems);
+        setPostsLoading(false);
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [fetchPosts.data, fetchPosts.error, fetchPosts.loading]
+  );
 
-      fetch(`http://localhost:8080/feed/posts?page=${page}`, {
+  useEffect(() => {
+    /* if (!fetchPosts.loading && !fetchPosts.error) {
+      console.log(fetchPosts.data.fetchPosts);
+      setPosts(fetchPosts.data.fetchPosts);
+      setPostsLoading(false);
+    } */
+    loadPosts();
+  }, [fetchPosts.data, loadPosts, postPage]);
+
+  /*const loadPosts = useCallback(
+    (direction?: "next" | "previous") => {
+      if (direction) {
+        setPostsLoading(true);
+        setPosts([]);
+      }
+
+      let page = postPage;
+      if (direction === "next") {
+        page++;
+        setPostPage(page);
+      }
+      if (direction === "previous") {
+        page--;
+        setPostPage(page);
+      }
+
+       if (fetchPosts.loading) return null;
+      if (fetchPosts.error) return `Error! ${error}`;
+      console.log(fetchPosts.data.fetchPosts);
+      setPosts(fetchPosts.data.fetchPosts); */
+
+  /* fetch(`http://localhost:8080/feed/posts?page=${page}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -77,16 +120,16 @@ const Feed = ({ token }: Props) => {
           setTotalPosts(resData.totalItems);
           setPostsLoading(false);
         })
-        .catch(catchError);
+        .catch(catchError); 
     },
-    [postPage, token]
-  );
+    []
+  );*/
 
   const addPost = useCallback(
     (post: PostType) => {
       setPosts((prevPosts) => {
         if (postPage === 1) {
-          if (posts.length >= 2) {
+          if (posts.length >= postPerPage) {
             prevPosts.pop();
           }
           prevPosts.unshift(post);
@@ -147,8 +190,8 @@ const Feed = ({ token }: Props) => {
     };
   }, [addPost, updatePost, deletePost]); */
 
-  useEffect(() => {
-    fetch("http://localhost:8080/user/status", {
+  //useEffect(() => {
+  /* fetch("http://localhost:8080/user/status", {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -165,14 +208,14 @@ const Feed = ({ token }: Props) => {
         resData.status !== status && setStatus(resData.status);
       })
       .catch(catchError);
-
-    loadPosts();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loadPosts, token]);
+ */
+  //loadPosts();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  //}, [loadPosts, token]);
 
   const statusUpdateHandler = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    fetch("http://localhost:8080/user/status", {
+    /*fetch("http://localhost:8080/user/status", {
       method: "PATCH",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -189,7 +232,7 @@ const Feed = ({ token }: Props) => {
       .then((resData) => {
         console.log(resData);
       })
-      .catch(catchError);
+      .catch(catchError);*/
   };
 
   const newPostHandler = () => {
@@ -210,10 +253,10 @@ const Feed = ({ token }: Props) => {
 
   const finishEditHandler = (postData: any) => {
     setEditLoading(true);
-    const formData = new FormData();
+    /* const formData = new FormData();
     formData.append("title", postData.title);
     formData.append("content", postData.content);
-    formData.append("image", postData.image);
+    formData.append("image", postData.image); */
 
     /* const url = editPost
       ? `http://localhost:8080/feed/post/${editPost._id}`
@@ -232,6 +275,7 @@ const Feed = ({ token }: Props) => {
         if (resData.errors && resData.errors?.length > 0)
           throw new Error(resData.errors[0].message);
         if (!resData.data) throw new Error("Post not created");
+        fetchPosts.refetch();
         setIsEditing(false);
         setEditPost(null);
         setEditLoading(false);
@@ -325,7 +369,7 @@ const Feed = ({ token }: Props) => {
           <Paginator
             onPrevious={() => loadPosts("previous")}
             onNext={() => loadPosts("next")}
-            lastPage={Math.ceil(totalPosts / 2)}
+            lastPage={Math.ceil(totalPosts / postPerPage)}
             currentPage={postPage}
           >
             {posts.map((post: PostType) => (
@@ -334,7 +378,7 @@ const Feed = ({ token }: Props) => {
                 id={post._id!}
                 author={post.creator.name}
                 editable={post.creator._id === localStorage.getItem("userId")}
-                date={new Date(post.createdAt!).toLocaleDateString("en-US")}
+                date={new Date(+post.createdAt!).toLocaleDateString("it-IT")}
                 title={post.title}
                 image={post.imageUrl!}
                 content={post.content}

@@ -19,6 +19,7 @@ const documents = {
     "\n  query ViewPost($postId: ID!) {\n    viewPost(postId: $postId) {\n      title\n      imageUrl\n      creator {\n        name\n        _id\n      }\n      createdAt\n      content\n    }\n  }\n": types.ViewPostDocument,
     "\n  mutation CreatePost($postInput: PostInputData) {\n    createPost(postInput: $postInput) {\n      _id\n      title\n      content\n      imageUrl\n    }\n  }\n": types.CreatePostDocument,
     "\n  mutation EditPost($postId: ID!, $postInput: PostInputData!) {\n    editPost(postId: $postId, postInput: $postInput) {\n      title\n      imageUrl\n      content\n      _id\n    }\n  }\n": types.EditPostDocument,
+    "\n  mutation DeletePost($postId: ID!) {\n    deletePost(postId: $postId)\n  }\n": types.DeletePostDocument,
 };
 
 /**
@@ -59,6 +60,10 @@ export function gql(source: "\n  mutation CreatePost($postInput: PostInputData) 
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  mutation EditPost($postId: ID!, $postInput: PostInputData!) {\n    editPost(postId: $postId, postInput: $postInput) {\n      title\n      imageUrl\n      content\n      _id\n    }\n  }\n"): (typeof documents)["\n  mutation EditPost($postId: ID!, $postInput: PostInputData!) {\n    editPost(postId: $postId, postInput: $postInput) {\n      title\n      imageUrl\n      content\n      _id\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation DeletePost($postId: ID!) {\n    deletePost(postId: $postId)\n  }\n"): (typeof documents)["\n  mutation DeletePost($postId: ID!) {\n    deletePost(postId: $postId)\n  }\n"];
 
 export function gql(source: string) {
   return (documents as any)[source] ?? {};

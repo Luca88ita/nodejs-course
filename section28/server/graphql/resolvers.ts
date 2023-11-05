@@ -193,5 +193,29 @@ export const resolvers = {
       console.log(editedPost);
       return { ...editedPost._doc, _id: editedPost._id.toString() };
     },
+
+    deletePost: async (_, { postId }, { dataSources }) => {
+      const errors = [];
+      if (!dataSources.isAuth)
+        throw new GraphQLError("Not authenticated", {
+          extensions: { code: 401, errors },
+        });
+      const post = await Post.findById(postId).populate("creator", "name");
+      if (!post)
+        throw new GraphQLError("Post not found", {
+          extensions: { code: 404, errors },
+        });
+      if (post.creator._id.toString() !== dataSources.userId)
+        throw new GraphQLError("Not authorized", {
+          extensions: { code: 403, errors },
+        });
+      const user = await User.findById(dataSources.userId);
+      user.posts.pull(postId);
+      await user.save();
+      const imageUrl = post.imageUrl;
+      if (imageUrl) Utils.clearImage(imageUrl);
+      await post.deleteOne();
+      return postId;
+    },
   },
 };

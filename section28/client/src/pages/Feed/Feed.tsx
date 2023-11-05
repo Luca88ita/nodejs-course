@@ -32,6 +32,7 @@ const Feed = ({ token }: Props) => {
 
   const [createPost, createPostResponse] = useMutation(Queries.createPostQuery);
   const [changePost, changePostResponse] = useMutation(Queries.editPostQuery);
+  const [deletePost, deletePostResponse] = useMutation(Queries.deletePostQuery);
   const fetchPosts = useQuery(Queries.fetchPostsQuery, {
     variables: {
       currentPage: postPage,
@@ -67,151 +68,8 @@ const Feed = ({ token }: Props) => {
   );
 
   useEffect(() => {
-    /* if (!fetchPosts.loading && !fetchPosts.error) {
-      console.log(fetchPosts.data.fetchPosts);
-      setPosts(fetchPosts.data.fetchPosts);
-      setPostsLoading(false);
-    } */
     loadPosts();
   }, [fetchPosts.data, loadPosts, postPage, editPost]);
-
-  /*const loadPosts = useCallback(
-    (direction?: "next" | "previous") => {
-      if (direction) {
-        setPostsLoading(true);
-        setPosts([]);
-      }
-
-      let page = postPage;
-      if (direction === "next") {
-        page++;
-        setPostPage(page);
-      }
-      if (direction === "previous") {
-        page--;
-        setPostPage(page);
-      }
-
-       if (fetchPosts.loading) return null;
-      if (fetchPosts.error) return `Error! ${error}`;
-      console.log(fetchPosts.data.fetchPosts);
-      setPosts(fetchPosts.data.fetchPosts); */
-
-  /* fetch(`http://localhost:8080/feed/posts?page=${page}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-        .then((res) => {
-          if (res.status !== 200) {
-            throw new Error("Failed to fetch posts.");
-          }
-          return res.json();
-        })
-        .then((resData) => {
-          setPosts(
-            resData.posts.map((post: PostType) => {
-              return {
-                ...post,
-                imagePath: post.imageUrl,
-              };
-            })
-          );
-          setTotalPosts(resData.totalItems);
-          setPostsLoading(false);
-        })
-        .catch(catchError); 
-    },
-    []
-  );*/
-
-  const addPost = useCallback(
-    (post: PostType) => {
-      setPosts((prevPosts) => {
-        if (postPage === 1) {
-          if (posts.length >= postPerPage) {
-            prevPosts.pop();
-          }
-          prevPosts.unshift(post);
-        }
-        return prevPosts;
-      });
-      setTotalPosts((prevTotal) => prevTotal + 1);
-    },
-    [postPage, posts.length]
-  );
-
-  const updatePost = useCallback((post: PostType) => {
-    setPosts((prevPosts) => {
-      const postIndex = prevPosts.findIndex((p) => p._id === post._id);
-      if (postIndex >= 0) prevPosts[postIndex] = post;
-      return prevPosts;
-    });
-  }, []);
-
-  const deletePost = useCallback(
-    /* (post: PostType) => {
-      setPosts((prevPosts) => {
-      const postIndex = prevPosts.findIndex((p) => p._id === post._id);
-      if (postIndex >= 0) prevPosts.splice(postIndex, 1);
-      return prevPosts;
-    });
-    setTotalPosts((prevTotal) => prevTotal - 1);
-    }, */
-    () => {
-      loadPosts();
-    },
-    [loadPosts]
-  );
-
-  /* useEffect(() => {
-    const newSocket = io("http://localhost:8080");
-    //setSocket(newSocket);
-
-    newSocket.on("posts", (data) => {
-      switch (data.action) {
-        case "create":
-          addPost(data.post);
-          break;
-        case "update":
-          updatePost(data.post);
-          break;
-        case "delete":
-          // deletePost(data.post);
-          deletePost();
-          break;
-        default:
-          break;
-      }
-    });
-
-    return () => {
-      newSocket.disconnect();
-    };
-  }, [addPost, updatePost, deletePost]); */
-
-  //useEffect(() => {
-  /* fetch("http://localhost:8080/user/status", {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((res) => {
-        if (res.status !== 200) {
-          throw new Error("Failed to fetch user status.");
-        }
-        return res.json();
-      })
-      .then((resData) => {
-        console.log(resData, status);
-        resData.status !== status && setStatus(resData.status);
-      })
-      .catch(catchError);
- */
-  //loadPosts();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  //}, [loadPosts, token]);
 
   const statusUpdateHandler = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -300,21 +158,12 @@ const Feed = ({ token }: Props) => {
   const deletePostHandler = (postId: string) => {
     setPostsLoading(true);
 
-    fetch(`http://localhost:8080/feed/post/${postId}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((res) => {
-        if (res.status !== 200 && res.status !== 201) {
-          throw new Error("Deleting a post failed!");
-        }
-        return res.json();
-      })
+    deletePost({ variables: { postId } })
       .then((resData) => {
-        const updatedPosts = posts.filter((p) => p._id !== postId);
-        setPosts(updatedPosts);
+        if (resData.errors) throw new Error("Deleting a post failed!");
+        /* const updatedPosts = posts.filter((p) => p._id !== postId);
+        setPosts(updatedPosts); */
+        fetchPosts.refetch();
         setPostsLoading(false);
       })
       .catch((err) => {

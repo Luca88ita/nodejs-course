@@ -44,6 +44,7 @@ export const typeDefs = `#graphql
     createUser(userInput: UserInputData): User!
     createPost(postInput: PostInputData): Post!
     editPost(postId: ID!, postInput: PostInputData!): Post!
+    deletePost(postId: ID!): ID!
   }
 
   type Query {

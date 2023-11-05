@@ -39,6 +39,7 @@ export type Mutation = {
   __typename?: "Mutation";
   createPost: Post;
   createUser: User;
+  deletePost: Scalars["ID"]["output"];
   editPost: Post;
 };
 
@@ -48,6 +49,10 @@ export type MutationCreatePostArgs = {
 
 export type MutationCreateUserArgs = {
   userInput?: InputMaybe<UserInputData>;
+};
+
+export type MutationDeletePostArgs = {
+  postId: Scalars["ID"]["input"];
 };
 
 export type MutationEditPostArgs = {
@@ -202,6 +207,15 @@ export type EditPostMutation = {
     content: string;
     _id: string;
   };
+};
+
+export type DeletePostMutationVariables = Exact<{
+  postId: Scalars["ID"]["input"];
+}>;
+
+export type DeletePostMutation = {
+  __typename?: "Mutation";
+  deletePost: string;
 };
 
 export const CreateUserDocument = {
@@ -624,4 +638,46 @@ export const EditPostDocument = {
     },
   ],
 } as unknown as DocumentNode<EditPostMutation, EditPostMutationVariables>;
+export const DeletePostDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "DeletePost" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "postId" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "deletePost" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "postId" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "postId" },
+                },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<DeletePostMutation, DeletePostMutationVariables>;
 /** All built-in and custom scalars, mapped to their actual values */

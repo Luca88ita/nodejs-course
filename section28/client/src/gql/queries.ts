@@ -80,6 +80,12 @@ namespace Queries {
     }
   }
 `) as DocumentNode | TypedDocumentNode<any, OperationVariables>;
+
+  export const deletePostQuery = gql(`
+  mutation DeletePost($postId: ID!) {
+    deletePost(postId: $postId)
+  }
+`) as DocumentNode | TypedDocumentNode<any, OperationVariables>;
 }
 
 export default Queries;

@@ -18,6 +18,7 @@ import MongoStore from "connect-mongo";
 // Security
 import { doubleCsrf } from "csrf-csrf";
 import cookieParser from "cookie-parser";
+import helmet from "helmet";
 // flash messages for MPAs
 import flash from "connect-flash";
 
@@ -28,8 +29,10 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+const MONGODB_URI = `mongodb+srv://${process.env.MONGODB_USER}:${process.env.MONGODB_PASSWORD}@cluster0.1h7avzh.mongodb.net/${process.env.MONGODB_DATABASE}?retryWrites=true&w=majority`;
+
 const { doubleCsrfProtection } = doubleCsrf({
-  getSecret: () => process.env.CSRF_TOKEN,
+  getSecret: () => process.env.CSRF_TOKEN!,
   cookieName: "csrfToken",
   cookieOptions: { sameSite: "lax", secure: false, signed: true },
   size: 64,
@@ -70,8 +73,6 @@ const fileFilter = (req, file, cb) => {
 
 const app = express();
 export const userId = "6532fa6cffbc4d98938721d3";
-const MONGODB_URI =
-  "mongodb+srv://nodejs:chmIiGq8tLlXsnHd@cluster0.1h7avzh.mongodb.net/shop?retryWrites=true&w=majority";
 
 app.set("view engine", "ejs"); // here we tell to express that we want to compile dinamic templates with ejs engine
 
@@ -86,7 +87,7 @@ app.use(
 );
 app.use(
   session({
-    secret: process.env.SESSION_TOKEN, // to save the password for hashing
+    secret: process.env.SESSION_TOKEN!, // to save the password for hashing
     resave: false, // the session will be saved only if there will be chnages
     saveUninitialized: true,
     store: MongoStore.create({
@@ -109,6 +110,16 @@ app.use(cookieParser(process.env.CSRF_TOKEN));
 app.use(doubleCsrfProtection);
 // middleware for managinf flash messages in MPAs
 app.use(flash());
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        "default-src": ["'self'", "https://js.stripe.com/"],
+        "script-src": ["'self'", "https://js.stripe.com/"],
+      },
+    },
+  })
+);
 
 // middleware for adding the user instance to every request
 app.use((req: RequestData, res, next) => {
@@ -146,6 +157,6 @@ app.use((error, req, res, next) => {
 mongoose
   .connect(MONGODB_URI)
   .then(() => {
-    app.listen(3000);
+    app.listen(process.env.DOMAIN_PORT || 3000);
   })
   .catch(console.dir);

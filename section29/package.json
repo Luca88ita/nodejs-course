@@ -26,6 +26,7 @@
     "express-session": "^1.17.3",
     "express-validator": "^7.0.1",
     "handlebars": "^4.7.8",
+    "helmet": "^7.0.0",
     "mailtrap": "^3.2.0",
     "mongodb": "^6.1.0",
     "mongoose": "^7.6.3",

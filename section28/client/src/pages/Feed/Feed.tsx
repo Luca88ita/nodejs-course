@@ -30,9 +30,10 @@ const Feed = ({ token }: Props) => {
 
   const postPerPage = 2;
 
-  const [createPost, createPostResponse] = useMutation(Queries.createPostQuery);
-  const [changePost, changePostResponse] = useMutation(Queries.editPostQuery);
-  const [deletePost, deletePostResponse] = useMutation(Queries.deletePostQuery);
+  const createPost = useMutation(Queries.createPostQuery)[0];
+  const changePost = useMutation(Queries.editPostQuery)[0];
+  const editStatus = useMutation(Queries.editUserStatusQuery)[0];
+  const deletePost = useMutation(Queries.deletePostQuery)[0];
   const fetchPosts = useQuery(Queries.fetchPostsQuery, {
     variables: {
       currentPage: postPage,
@@ -40,6 +41,14 @@ const Feed = ({ token }: Props) => {
     },
     pollInterval: 60000,
   });
+  const fetchUserStatus = useLazyQuery(Queries.fetchUserStatusQuery)[0];
+
+  useEffect(() => {
+    fetchUserStatus()
+      .then((res) => setStatus(res.data.fetchUserStatus))
+      .catch((err) => console.log(err));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const loadPosts = useCallback(
     (direction?: "next" | "previous") => {
@@ -73,24 +82,11 @@ const Feed = ({ token }: Props) => {
 
   const statusUpdateHandler = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    /*fetch("http://localhost:8080/user/status", {
-      method: "PATCH",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ status }),
-    })
-      .then((res) => {
-        if (res.status !== 200 && res.status !== 201) {
-          throw new Error("Can't update status!");
-        }
-        return res.json();
-      })
+    editStatus({ variables: { newStatus: status } })
       .then((resData) => {
         console.log(resData);
       })
-      .catch(catchError);*/
+      .catch(catchError);
   };
 
   const newPostHandler = () => {

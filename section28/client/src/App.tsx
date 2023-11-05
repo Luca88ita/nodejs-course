@@ -28,8 +28,8 @@ const App = () => {
   const [authLoading, setAuthLoading] = useState<boolean>(false);
   const [err, setErr] = useState<Error | null>(null);
 
-  const [createUser, createUserResponse] = useMutation(Queries.signupQuery);
-  const [login, loginResponse] = useLazyQuery(Queries.loginQuery);
+  const createUser = useMutation(Queries.signupQuery)[0];
+  const login = useLazyQuery(Queries.loginQuery)[0];
 
   const logoutHandler = useCallback(() => {
     setIsAuth(false);

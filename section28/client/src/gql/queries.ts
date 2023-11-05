@@ -86,6 +86,22 @@ namespace Queries {
     deletePost(postId: $postId)
   }
 `) as DocumentNode | TypedDocumentNode<any, OperationVariables>;
+
+  export const fetchUserStatusQuery = gql(`
+  query FetchUserStatus {
+    fetchUserStatus
+  }
+`) as DocumentNode | TypedDocumentNode<any, OperationVariables>;
+
+  export const editUserStatusQuery = gql(`
+  mutation EditUserStatus($newStatus: String!) {
+    editUserStatus(newStatus: $newStatus) {
+      _id
+      name
+      status
+    }
+  }
+`) as DocumentNode | TypedDocumentNode<any, OperationVariables>;
 }
 
 export default Queries;

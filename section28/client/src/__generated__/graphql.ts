@@ -41,6 +41,7 @@ export type Mutation = {
   createUser: User;
   deletePost: Scalars["ID"]["output"];
   editPost: Post;
+  editUserStatus: User;
 };
 
 export type MutationCreatePostArgs = {
@@ -58,6 +59,10 @@ export type MutationDeletePostArgs = {
 export type MutationEditPostArgs = {
   postId: Scalars["ID"]["input"];
   postInput: PostInputData;
+};
+
+export type MutationEditUserStatusArgs = {
+  newStatus: Scalars["String"]["input"];
 };
 
 export type Post = {
@@ -86,6 +91,7 @@ export type PostsData = {
 export type Query = {
   __typename?: "Query";
   fetchPosts: PostsData;
+  fetchUserStatus: Scalars["String"]["output"];
   login: AuthData;
   viewPost: Post;
 };
@@ -216,6 +222,27 @@ export type DeletePostMutationVariables = Exact<{
 export type DeletePostMutation = {
   __typename?: "Mutation";
   deletePost: string;
+};
+
+export type FetchUserStatusQueryVariables = Exact<{ [key: string]: never }>;
+
+export type FetchUserStatusQuery = {
+  __typename?: "Query";
+  fetchUserStatus: string;
+};
+
+export type EditUserStatusMutationVariables = Exact<{
+  newStatus: Scalars["String"]["input"];
+}>;
+
+export type EditUserStatusMutation = {
+  __typename?: "Mutation";
+  editUserStatus: {
+    __typename?: "User";
+    _id: string;
+    name: string;
+    status?: string | null;
+  };
 };
 
 export const CreateUserDocument = {
@@ -680,4 +707,79 @@ export const DeletePostDocument = {
     },
   ],
 } as unknown as DocumentNode<DeletePostMutation, DeletePostMutationVariables>;
+export const FetchUserStatusDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "query",
+      name: { kind: "Name", value: "FetchUserStatus" },
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          { kind: "Field", name: { kind: "Name", value: "fetchUserStatus" } },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  FetchUserStatusQuery,
+  FetchUserStatusQueryVariables
+>;
+export const EditUserStatusDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "EditUserStatus" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "newStatus" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "String" },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "editUserStatus" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "newStatus" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "newStatus" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "_id" } },
+                { kind: "Field", name: { kind: "Name", value: "name" } },
+                { kind: "Field", name: { kind: "Name", value: "status" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  EditUserStatusMutation,
+  EditUserStatusMutationVariables
+>;
 /** All built-in and custom scalars, mapped to their actual values */

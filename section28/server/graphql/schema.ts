@@ -45,11 +45,13 @@ export const typeDefs = `#graphql
     createPost(postInput: PostInputData): Post!
     editPost(postId: ID!, postInput: PostInputData!): Post!
     deletePost(postId: ID!): ID!
+    editUserStatus(newStatus: String!): User!
   }
 
   type Query {
     login(email: String!, password: String!): AuthData!
     fetchPosts(currentPage: Int!, postPerPage: Int!): PostsData!
     viewPost(postId: ID!): Post!
+    fetchUserStatus: String!
   }
 `;

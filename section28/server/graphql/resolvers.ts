@@ -76,6 +76,20 @@ export const resolvers = {
       console.log(post);
       return post;
     },
+
+    fetchUserStatus: async (_, {}, { dataSources }) => {
+      const errors = [];
+      if (!dataSources.isAuth)
+        throw new GraphQLError("Not authenticated", {
+          extensions: { code: 401, errors },
+        });
+      const user = await User.findById(dataSources.userId);
+      if (!user)
+        throw new GraphQLError("User not found", {
+          extensions: { code: 422, errors },
+        });
+      return user.status;
+    },
   },
 
   Mutation: {
@@ -216,6 +230,31 @@ export const resolvers = {
       if (imageUrl) Utils.clearImage(imageUrl);
       await post.deleteOne();
       return postId;
+    },
+
+    editUserStatus: async (_, { newStatus }, { dataSources }) => {
+      const errors = [];
+      if (!dataSources.isAuth)
+        throw new GraphQLError("Not authenticated", {
+          extensions: { code: 401, errors },
+        });
+      if (
+        validator.isEmpty(newStatus) ||
+        !validator.isLength(newStatus, { min: 5, max: 80 })
+      )
+        errors.push({ message: "The status is too short or too long (5-80)" });
+      if (errors.length > 0)
+        throw new GraphQLError(errors[0].message, {
+          extensions: { code: 422, errors },
+        });
+      const user = await User.findById(dataSources.userId);
+      if (!user)
+        throw new GraphQLError("User not found", {
+          extensions: { code: 422, errors },
+        });
+      user.status = newStatus;
+      const updatedUser = await user.save();
+      return updatedUser;
     },
   },
 };

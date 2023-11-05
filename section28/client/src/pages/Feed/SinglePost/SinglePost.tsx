@@ -41,6 +41,7 @@ const SinglePost = ({ token }: Props) => {
       .catch((err) => {
         console.log(err);
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [postId, token, viewPost]);
 
   return (

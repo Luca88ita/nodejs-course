@@ -21,6 +21,11 @@ import cookieParser from "cookie-parser";
 import helmet from "helmet";
 // flash messages for MPAs
 import flash from "connect-flash";
+// compression manager
+import compression from "compression";
+// logger for production
+import winston from "winston";
+import { logger } from "./util/winston";
 
 import User from "./models/user";
 import { RequestData } from "./util/types";
@@ -71,6 +76,14 @@ const fileFilter = (req, file, cb) => {
   cb(null,false) */
 };
 
+if (process.env.NODE_ENV !== "production") {
+  logger.add(
+    new winston.transports.Console({
+      format: winston.format.simple(),
+    })
+  );
+}
+
 const app = express();
 export const userId = "6532fa6cffbc4d98938721d3";
 
@@ -120,6 +133,7 @@ app.use(
     },
   })
 );
+app.use(compression());
 
 // middleware for adding the user instance to every request
 app.use((req: RequestData, res, next) => {

@@ -1,5 +1,7 @@
 // Core imports from external libraries
 import path from "path";
+import fs from "fs";
+import https from "https";
 import express from "express";
 import bodyParser from "body-parser";
 // Routes
@@ -48,6 +50,10 @@ const { doubleCsrfProtection } = doubleCsrf({
       : req.body.csrfToken;
   },
 });
+
+const privateKey = fs.readFileSync("server.key");
+const certificate = fs.readFileSync("server.cert");
+
 const fileStorage = multer.diskStorage({
   /* destination: (req, file, cb) => {
     cb(null, path.join(mainPath as string, "images").toString());
@@ -171,6 +177,10 @@ app.use((error, req, res, next) => {
 mongoose
   .connect(MONGODB_URI)
   .then(() => {
+    // manual ssl encription
+    /* https
+      .createServer({ key: privateKey, cert: certificate }, app)
+      .listen(process.env.DOMAIN_PORT || 3000); */
     app.listen(process.env.DOMAIN_PORT || 3000);
   })
   .catch(console.dir);

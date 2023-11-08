@@ -5,6 +5,9 @@ import bcrypt from "bcrypt";
 import User, { IUser } from "../models/user";
 import { ExtendedError, RequestData } from "../util/types";
 import { sendEmail } from "../util/mailTransporter";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 namespace AuthController {
   export const getLogin: RequestHandler = (req, res, next) => {
@@ -177,7 +180,7 @@ namespace AuthController {
               '"noreply-password-reset@yourdomain.com" <noreply-password-reset@yourdomain.com>',
               "Password reset",
               "password-reset",
-              `http://localhost:3000/reset/${token}`
+              `/reset/${token}`
             );
           });
         })
@@ -253,7 +256,7 @@ namespace AuthController {
               '"noreply-password-reset@yourdomain.com" <noreply-password-reset@yourdomain.com>',
               "Password successfully changed",
               "reset-success",
-              `http://localhost:3000/login`
+              `/login`
             );
           })
           .catch((err) => {

@@ -6,7 +6,8 @@ namespace FileHelper {
   export const deleteFile = (filePath) => {
     const fPath = path.join(mainPath as string, filePath).toString();
     fs.unlink(fPath, (err) => {
-      if (err) throw err;
+      if (err) return false;
+      return true;
     });
   };
 }

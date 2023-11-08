@@ -27,7 +27,6 @@ namespace AdminController {
     res,
     next
   ) => {
-    console.log("1");
     const title = req.body.title;
     /*const imageUrl = req.body.imageUrl
       ? req.body.imageUrl
@@ -38,7 +37,7 @@ namespace AdminController {
       : "No description available";
     const price = +req.body.price;
     const errors = validationResult(req);
-    console.log("2");
+
     if (!image)
       return res.status(422).render("admin/edit-product", {
         pageTitle: "Add Product",
@@ -53,7 +52,7 @@ namespace AdminController {
           price,
         },
       });
-    console.log("3");
+
     const imageUrl = image.path.toString().slice(4);
     if (!errors.isEmpty())
       return res.status(422).render("admin/edit-product", {
@@ -70,7 +69,6 @@ namespace AdminController {
           price,
         },
       });
-    console.log("4");
     const product = new Product({
       title,
       price,
@@ -78,11 +76,10 @@ namespace AdminController {
       imageUrl,
       _userId: req.user,
     });
-    console.log("5", product);
     product
       .save()
       .then(() => {
-        console.log("Product added successfully");
+        //console.log("Product added successfully");
         return res.redirect("/admin/products");
       })
       .catch((err) => {
@@ -103,7 +100,6 @@ namespace AdminController {
         //res.redirect("/500");
         const error: ExtendedError = new Error(err);
         error.httpStatusCode = 500;
-        console.log(error);
         return next(error);
       });
   };
@@ -177,7 +173,7 @@ namespace AdminController {
           product.imageUrl = imageUrl;
         }
         return product.save().then((result) => {
-          console.log("Product info updated succesfully!");
+          //console.log("Product info updated succesfully!");
           return res.redirect("/messages/edit-success");
         });
       })
@@ -201,7 +197,7 @@ namespace AdminController {
         return product.deleteOne();
       })
       .then(() => {
-        console.log("Product deleted succesfully!");
+        //console.log("Product deleted succesfully!");
         res.status(200).json({ message: "Success!" });
       })
       .catch((err) => {

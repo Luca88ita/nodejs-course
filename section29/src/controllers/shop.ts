@@ -51,8 +51,7 @@ namespace ShopController {
       .then((product) => {
         if (!product) return res.redirect("/400");
         console.log(product);
-        const updateImageUrl =
-          process.env.DOMAIN_ADDRESS + "/" + product.imageUrl;
+        const updateImageUrl = "/" + product.imageUrl;
         product.imageUrl = updateImageUrl;
         res.render("shop/product-detail", {
           product,
@@ -99,32 +98,45 @@ namespace ShopController {
       });
   };
 
-  export const getCart: RequestHandler = (req: RequestData, res, next) => {
-    const user = new User(req.user);
-    user.isNew = false;
-    user
-      .populate("cart.items._productId")
-      .then((user) => {
-        const products: CartItem[] = user.cart.items;
-        let totalPrice = 0;
-        if (products)
-          products.forEach((product) => {
-            const productDetails: ProductType =
-              product._productId as ProductType;
-            totalPrice = totalPrice + productDetails.price * product.quantity!;
-          });
-        res.render("shop/cart", {
-          pageTitle: "Your Cart",
-          path: "/cart",
-          products,
-          totalPrice: totalPrice.toFixed(2),
-        });
-      })
-      .catch((err) => {
-        const error: ExtendedError = new Error(err);
-        error.httpStatusCode = 500;
-        return next(error);
+  export const getCart: RequestHandler = async (
+    req: RequestData,
+    res,
+    next
+  ) => {
+    try {
+      const user = new User(req.user);
+      user.isNew = false;
+      let totalPrice = 0;
+      const availableProducts: CartItem[] = [];
+      const populatedUser = await user.populate("cart.items._productId");
+      const products: CartItem[] = populatedUser.cart.items;
+      if (products.length > 0) {
+        await Promise.all(
+          products.map(async (product) => {
+            const p = await Product.findById(product._productId);
+            if (p) {
+              const productDetails: ProductType =
+                product._productId as ProductType;
+              totalPrice =
+                totalPrice + productDetails.price * product.quantity!;
+              availableProducts.push(product);
+            }
+          })
+        );
+      }
+      populatedUser.cart.items = availableProducts;
+      await populatedUser.save();
+      res.render("shop/cart", {
+        pageTitle: "Your Cart",
+        path: "/cart",
+        products: availableProducts,
+        totalPrice: totalPrice.toFixed(2),
       });
+    } catch (err) {
+      const error: ExtendedError = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    }
   };
 
   export const postCart: RequestHandler = (req: RequestData, res, next) => {
@@ -133,7 +145,6 @@ namespace ShopController {
     user.isNew = false;
     Product.findById(productId)
       .then((product) => {
-        //console.log(user);
         return user.addToCart(product as ProductType);
       })
       .then(() => res.redirect("/cart"))
@@ -180,31 +191,41 @@ namespace ShopController {
       });
   };
 
-  export const postOrder: RequestHandler = (req: RequestData, res, next) => {
-    const user = new User(req.user);
-    user.isNew = false;
-    user
-      .populate("cart.items._productId")
-      .then((user) => {
-        const products = user.cart.items.map((item) => {
-          const prod = item as CartItem;
-          return { quantity: prod.quantity, product: { ...prod._productId } };
-        });
-        const order = new Order({
-          products,
-          user: { _userId: user, email: user.email },
-        });
-        order.save();
-      })
-      .then(() => user.clearCart())
-      .then(() => {
-        res.redirect("/orders");
-      })
-      .catch((err) => {
-        const error: ExtendedError = new Error(err);
-        error.httpStatusCode = 500;
-        return next(error);
+  export const postOrder: RequestHandler = async (
+    req: RequestData,
+    res,
+    next
+  ) => {
+    try {
+      const user = new User(req.user);
+      user.isNew = false;
+      const populatedUser = await user.populate("cart.items._productId");
+      const orderProducts: any[] = [];
+
+      await Promise.all(
+        populatedUser.cart.items.map(async (item) => {
+          const p = await Product.findById(item._productId);
+          if (p) {
+            const prod = item as CartItem;
+            orderProducts.push({
+              quantity: prod.quantity,
+              product: { ...prod._productId },
+            });
+          }
+        })
+      );
+      const order = new Order({
+        products: orderProducts,
+        user: { _userId: user, email: user.email },
       });
+      await order.save();
+      await populatedUser.clearCart();
+      res.redirect("/orders");
+    } catch (err) {
+      const error: ExtendedError = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    }
   };
 
   export const getInvoice: RequestHandler = (req: RequestData, res, next) => {
@@ -320,6 +341,10 @@ namespace ShopController {
       pageTitle: "Checkout canceled",
       path: "/checkout/cancel",
     });
+  };
+
+  export const getHealt: RequestHandler = (req: RequestData, res, next) => {
+    res.redirect("/");
   };
 }
 

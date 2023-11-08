@@ -1,7 +1,7 @@
 // Core imports from external libraries
 import path from "path";
-import fs from "fs";
-import https from "https";
+//import fs from "fs";
+//import https from "https";
 import express from "express";
 import bodyParser from "body-parser";
 // Routes
@@ -51,8 +51,8 @@ const { doubleCsrfProtection } = doubleCsrf({
   },
 });
 
-const privateKey = fs.readFileSync("server.key");
-const certificate = fs.readFileSync("server.cert");
+//const privateKey = fs.readFileSync("server.key");
+//const certificate = fs.readFileSync("server.cert");
 
 const fileStorage = multer.diskStorage({
   /* destination: (req, file, cb) => {
@@ -91,7 +91,6 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 const app = express();
-export const userId = "6532fa6cffbc4d98938721d3";
 
 app.set("view engine", "ejs"); // here we tell to express that we want to compile dinamic templates with ejs engine
 
@@ -134,7 +133,8 @@ app.use(
     contentSecurityPolicy: {
       directives: {
         "default-src": ["'self'", "https://js.stripe.com/"],
-        "script-src": ["'self'", "https://js.stripe.com/"],
+        "script-src": ["'self'", "https://js.stripe.com/", "'unsafe-inline'"],
+        "script-src-attr": ["'unsafe-inline'", "https://js.stripe.com/"],
       },
     },
   })
@@ -180,7 +180,7 @@ mongoose
     // manual ssl encription
     /* https
       .createServer({ key: privateKey, cert: certificate }, app)
-      .listen(process.env.DOMAIN_PORT || 3000); */
-    app.listen(process.env.DOMAIN_PORT || 3000);
+      .listen(process.env.PORT || 10000); */
+    app.listen(process.env.PORT || 10000);
   })
   .catch(console.dir);

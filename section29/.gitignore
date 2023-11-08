@@ -145,3 +145,8 @@ dist
 # cert and keys
 *.cert
 *.key
+*.pub
+id_ed25519
+
+# build
+/build

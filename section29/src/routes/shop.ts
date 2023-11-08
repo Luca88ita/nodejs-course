@@ -6,6 +6,8 @@ const router = express.Router();
 
 router.get("/", ShopController.getIndex);
 
+router.get("/healtz", ShopController.getHealt);
+
 router.get("/products", ShopController.getProducts);
 
 router.get("/products/:productId", ShopController.getProduct);

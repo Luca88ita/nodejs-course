@@ -1,0 +1,41 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "author": "Pennini Luca",
+  "licence": "MIT",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start30": "nodemon ./app.ts"
+  },
+  "keywords": [],
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.1",
+    "@types/express": "^4.17.20",
+    "@types/jsonwebtoken": "^9.0.4",
+    "@types/mongoose": "^5.11.97",
+    "@types/multer": "^1.4.9",
+    "@types/node": "^20.8.9",
+    "@types/passport": "^1.0.14",
+    "@types/uuid": "^9.0.6",
+    "@types/validator": "^13.11.2",
+    "eslint": "^8.51.0",
+    "nodemon": "^3.0.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "connect-mongo": "^5.1.0",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-validator": "^7.0.1",
+    "jsonwebtoken": "^9.0.2",
+    "mongodb": "^6.1.0",
+    "mongoose": "^7.6.3",
+    "multer": "^1.4.5-lts.1",
+    "socket.io": "^4.7.2",
+    "uuid": "^9.0.1"
+  }
+}

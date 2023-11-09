@@ -13,6 +13,7 @@ export namespace UserController {
     } catch (error) {
       Utils.errorHandler(next, error);
     }
+    return res;
   };
 
   export const postStatus: RequestHandler = async (req, res, next) => {

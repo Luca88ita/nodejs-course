@@ -1,7 +1,7 @@
 import { NextFunction } from "express";
 import { AuthController } from "../controllers/auth";
-import User from "../models/user";
 import mongoose, { ConnectOptions } from "mongoose";
+import { UserController } from "../controllers/user";
 
 afterEach(() => {
   // restore the spy created with spyOn
@@ -15,7 +15,7 @@ describe("Auth Controller - Login", () => {
   let nextFunction: NextFunction = jest.fn();
 
   beforeAll(async () => {
-    connection = await mongoose.connect(process.env.MONGODB_URI, {
+    connection = await mongoose.connect(process.env.MONGODB_URI_TEST, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     } as ConnectOptions);
@@ -24,16 +24,23 @@ describe("Auth Controller - Login", () => {
   beforeEach(() => {
     mockRequest = {};
     mockResponse = {
-      json: jest.fn(),
       //@ts-ignore
-      status: jest.fn().mockReturnThis(),
+      json: jest.fn(function (data) {
+        this.userStatus = data.status;
+      }),
+      //@ts-ignore
+      status: jest.fn(function (code) {
+        this.statusCode = code;
+        return this;
+      }),
     };
   });
+
   afterAll(async () => {
     await connection.connection.close();
   });
 
-  test("throw an error if db access fails", async () => {
+  test("throw 401 statusCode if db access fails", async () => {
     mockRequest = {
       body: {
         //@ts-ignore
@@ -55,13 +62,13 @@ describe("Auth Controller - Login", () => {
     ).resolves.toHaveProperty("statusCode", 401);
   });
 
-  test("throw 200 if db access succeeds", async () => {
+  test("throw undefined if db access succeeds", async () => {
     mockRequest = {
       body: {
         //@ts-ignore
-        email: "test@test.com",
+        email: "test3@test3.com",
         //@ts-ignore
-        password: "P4s$word",
+        password: "TestP4s$word",
       },
     };
 
@@ -75,5 +82,24 @@ describe("Auth Controller - Login", () => {
         )
       )
     ).resolves.toBeUndefined();
+  });
+
+  test("read statusCode 200 if user is present", async () => {
+    const userId = "654cdfac29047952506bfa39";
+    mockRequest = {
+      //@ts-ignore
+      userId,
+    };
+
+    await expect(
+      Promise.resolve(
+        UserController.getStatus(
+          //@ts-ignore
+          mockRequest as Request,
+          mockResponse as Response,
+          nextFunction
+        )
+      )
+    ).resolves.toHaveProperty("statusCode", 200);
   });
 });

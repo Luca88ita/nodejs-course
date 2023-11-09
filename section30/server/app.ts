@@ -1,5 +1,5 @@
 import path from "path";
-import express from "express";
+import express, { NextFunction, Response, Request } from "express";
 import bodyParser from "body-parser";
 import mongoose from "mongoose";
 import { createServer } from "http";
@@ -10,6 +10,7 @@ import feedRoutes from "./routes/feed";
 import userRoutes from "./routes/user";
 import { multerImageMilldeware } from "./utils/multer";
 import { socketService } from "./socket";
+import { ExtendedError } from "./types/types";
 
 dotenv.config();
 const mongoDbUri = process.env.MONGODB_URI;
@@ -35,13 +36,15 @@ app.use("/auth", authRoutes);
 app.use("/feed", feedRoutes);
 app.use("/user", userRoutes);
 
-app.use((error, req, res, next) => {
-  console.log(error);
-  const status = error.statusCode || 500;
-  const message = error.message;
-  const data = error.data;
-  res.status(status).json({ message, data });
-});
+app.use(
+  (error: ExtendedError, req: Request, res: Response, next: NextFunction) => {
+    console.log(error);
+    const status = error.statusCode || 500;
+    const message = error.message;
+    const data = error.data;
+    return res.status(status).json({ message, data });
+  }
+);
 
 mongoose
   .connect(mongoDbUri)

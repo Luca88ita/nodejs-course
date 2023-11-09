@@ -1,4 +1,4 @@
-import { RequestHandler } from "express";
+import { NextFunction, RequestHandler, Response, Request } from "express";
 import { validationResult } from "express-validator";
 import dotenv from "dotenv";
 import bcrypt from "bcrypt";
@@ -32,7 +32,11 @@ export namespace AuthController {
     }
   };
 
-  export const postLogin: RequestHandler = async (req, res, next) => {
+  export const postLogin: RequestHandler = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty())
@@ -55,8 +59,10 @@ export namespace AuthController {
         expiresIn: "1h",
       });
       res.status(200).json({ token, userId });
+      return;
     } catch (error) {
       Utils.errorHandler(next, error);
+      return error;
     }
   };
 }

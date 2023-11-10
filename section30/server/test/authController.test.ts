@@ -23,7 +23,7 @@ describe("Auth Controller - Login", () => {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     } as ConnectOptions);
-    await User.deleteMany({});
+    await User.deleteOne({ _id: "654d23f602690f28ce0ddd73" });
     user._id = "654d23f602690f28ce0ddd73";
     user.email = "test3@test3.com";
     user.password = await bcrypt.hash(unhashedPW, 12);
@@ -48,11 +48,11 @@ describe("Auth Controller - Login", () => {
   });
 
   afterAll(async () => {
-    await User.deleteMany({});
+    await User.deleteOne({ _id: "654d23f602690f28ce0ddd73" });
     await connection.connection.close();
   });
 
-  test("throw 401 statusCode if db access fails", async () => {
+  test("throw statusCode 401 if db access fails", async () => {
     mockRequest = {
       body: {
         //@ts-ignore
@@ -74,7 +74,7 @@ describe("Auth Controller - Login", () => {
     ).resolves.toHaveProperty("statusCode", 401);
   });
 
-  test("return undefined if db access succeeds", async () => {
+  test("return statusCode 200 if db access succeeds", async () => {
     mockRequest = {
       body: {
         //@ts-ignore
@@ -93,10 +93,10 @@ describe("Auth Controller - Login", () => {
           nextFunction
         )
       )
-    ).resolves.toBeUndefined();
+    ).resolves.toHaveProperty("statusCode", 200);
   });
 
-  test("read statusCode 200 if user is present", async () => {
+  test("return statusCode 200 if user is present", async () => {
     const userId = user._id;
     mockRequest = {
       //@ts-ignore

@@ -59,7 +59,7 @@ export namespace AuthController {
         expiresIn: "1h",
       });
       res.status(200).json({ token, userId });
-      return;
+      return res;
     } catch (error) {
       Utils.errorHandler(next, error);
       return error;

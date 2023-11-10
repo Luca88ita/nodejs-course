@@ -1,16 +1,23 @@
 import { NextFunction } from "express";
 import bcrypt from "bcrypt";
+import dotenv from "dotenv";
 import { AuthController } from "../controllers/auth";
 import mongoose, { ConnectOptions } from "mongoose";
 import { UserController } from "../controllers/user";
+import { FeedController } from "../controllers/feed";
 import User from "../models/user";
+import Post from "../models/post";
+import { socketService } from "../socket";
+import { Server } from "socket.io";
+
+dotenv.config();
 
 afterEach(() => {
   // restore the spy created with spyOn
   jest.restoreAllMocks();
 });
 
-describe("Auth Controller - Login", () => {
+describe("Feed Controller", () => {
   let connection: typeof mongoose;
   let mockRequest: Partial<Request>;
   let mockResponse: Partial<Response>;
@@ -23,12 +30,13 @@ describe("Auth Controller - Login", () => {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     } as ConnectOptions);
-    await User.deleteMany({});
-    user._id = "654d23f602690f28ce0ddd73";
-    user.email = "test3@test3.com";
+    await User.deleteOne({ _id: "65427d3a657fd954fe1454e5" });
+    await Post.deleteMany({});
+    user._id = "65427d3a657fd954fe1454e5";
+    user.email = "test2@test2.com";
     user.password = await bcrypt.hash(unhashedPW, 12);
     user.name = "Test Test Test";
-    const foundUser = await User.findById("654d23f602690f28ce0ddd73");
+    const foundUser = await User.findById("65427d3a657fd954fe1454e5");
     if (!foundUser) await user.save();
   });
 
@@ -37,7 +45,9 @@ describe("Auth Controller - Login", () => {
     mockResponse = {
       //@ts-ignore
       json: jest.fn(function (data) {
-        this.userStatus = data.status;
+        this.message = data.message;
+        this.post = data.post;
+        this.creator = data.creator;
       }),
       //@ts-ignore
       status: jest.fn(function (code) {
@@ -48,70 +58,35 @@ describe("Auth Controller - Login", () => {
   });
 
   afterAll(async () => {
-    await User.deleteMany({});
+    await User.deleteOne({ _id: "65427d3a657fd954fe1454e5" });
+    await Post.deleteMany({});
     await connection.connection.close();
   });
 
-  test("throw 401 statusCode if db access fails", async () => {
+  test("add a created post to the creator's posts", async () => {
+    jest.spyOn(socketService, "getIO").mockImplementation(() => new Server());
     mockRequest = {
       body: {
         //@ts-ignore
-        email: "fail@fail.co.uk",
+        title: "Test Post Title",
         //@ts-ignore
-        password: "failingPassw0rd!",
+        content: "Test Post Content",
       },
-    };
-
-    await expect(
-      Promise.resolve(
-        AuthController.postLogin(
-          //@ts-ignore
-          mockRequest as Request,
-          mockResponse as Response,
-          nextFunction
-        )
-      )
-    ).resolves.toHaveProperty("statusCode", 401);
-  });
-
-  test("return undefined if db access succeeds", async () => {
-    mockRequest = {
-      body: {
-        //@ts-ignore
-        email: user.email,
-        //@ts-ignore
-        password: unhashedPW,
+      file: {
+        path: "img.jpeg",
       },
+      userId: user._id,
     };
 
     await expect(
       Promise.resolve(
-        AuthController.postLogin(
+        FeedController.postPost(
           //@ts-ignore
           mockRequest as Request,
           mockResponse as Response,
           nextFunction
         )
       )
-    ).resolves.toBeUndefined();
-  });
-
-  test("read statusCode 200 if user is present", async () => {
-    const userId = user._id;
-    mockRequest = {
-      //@ts-ignore
-      userId,
-    };
-
-    await expect(
-      Promise.resolve(
-        UserController.getStatus(
-          //@ts-ignore
-          mockRequest as Request,
-          mockResponse as Response,
-          nextFunction
-        )
-      )
-    ).resolves.toHaveProperty("statusCode", 200);
+    ).resolves.toHaveProperty("post");
   });
 });

@@ -10,10 +10,11 @@ export namespace UserController {
       const user = await User.findById(userId);
       if (!user) Utils.throwNewError("Unable to find the requested user", 401);
       res.status(200).json({ message: "Post fetched", status: user.status });
+      return res;
     } catch (error) {
       Utils.errorHandler(next, error);
+      return error;
     }
-    return res;
   };
 
   export const postStatus: RequestHandler = async (req, res, next) => {

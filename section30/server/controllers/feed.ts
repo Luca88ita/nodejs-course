@@ -128,8 +128,10 @@ export namespace FeedController {
         post,
         creator,
       });
+      return res;
     } catch (error) {
       Utils.errorHandler(next, error);
+      return error;
     }
   };
 }

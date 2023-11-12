@@ -1,7 +1,4 @@
 import Todos from "./components/Todos";
 
-function App() {
-  return <Todos />;
-}
-
+const App = () => <Todos />;
 export default App;

@@ -26,6 +26,19 @@ app.use(async (_ctx, next) => {
   await next();
 });
 
+app.use(async (ctx, next) => {
+  ctx.response.headers.set(
+    "Access-Control-Allow-Origin",
+    "*" //"http://localhost:3000"
+  );
+  ctx.response.headers.set(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PUT, DELETE, PATCH"
+  );
+  ctx.response.headers.set("Access-Control-Allow-Headers", "Content-Type");
+  await next();
+});
+
 app.use(todoRoutes.routes());
 app.use(todoRoutes.allowedMethods());
 

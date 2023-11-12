@@ -1,4 +1,4 @@
-import React, {
+import {
   useState,
   useEffect,
   useCallback,
@@ -20,7 +20,7 @@ const Todos = () => {
 
   const getTodos = useCallback(async () => {
     try {
-      const response = await fetch("http://localhost:3000/todos");
+      const response = await fetch("http://localhost:8080/todos");
       const todosData = await response.json();
       setTodos(todosData.todos);
     } catch (err) {
@@ -44,7 +44,7 @@ const Todos = () => {
   };
 
   const deleteTodoHandler = async (todoId: string) => {
-    const response = await fetch("http://localhost:3000/todos/" + todoId, {
+    const response = await fetch("http://localhost:8080/todos/" + todoId, {
       method: "DELETE",
     });
     const data = await response.json();
@@ -61,7 +61,7 @@ const Todos = () => {
     event.preventDefault();
     setEditedTodo(null);
     setEnteredText("");
-    let url = "http://localhost:3000/todos";
+    let url = "http://localhost:8080/todos";
     let method = "POST";
     if (editedTodo) {
       url = url + "/" + editedTodo.id;
@@ -82,7 +82,7 @@ const Todos = () => {
   };
 
   return (
-    <React.Fragment>
+    <>
       <div className={styles["todos__form"]}>
         <form onSubmit={submitHandler}>
           <label>Todo Text</label>
@@ -107,7 +107,7 @@ const Todos = () => {
           ))}
         </ul>
       )}
-    </React.Fragment>
+    </>
   );
 };
 

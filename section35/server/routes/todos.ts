@@ -9,7 +9,7 @@ const router = new Router();
 
 const todos: Todo[] = [];
 
-router.get("/", (ctx) => {
+router.get("/todos", (ctx) => {
   ctx.response.body = { todos };
 });
 

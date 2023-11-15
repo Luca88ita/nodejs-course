@@ -47,9 +47,7 @@ const Todos = () => {
     const response = await fetch("http://localhost:8080/todos/" + todoId, {
       method: "DELETE",
     });
-    const data = await response.json();
-
-    console.log(data);
+    await response.json();
     getTodos();
   };
 
@@ -76,8 +74,7 @@ const Todos = () => {
         "Content-Type": "application/json",
       },
     });
-    const data = await response.json();
-    console.log(data);
+    await response.json();
     getTodos();
   };
 

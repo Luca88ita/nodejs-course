@@ -1,4 +1,5 @@
 import { load } from "https://deno.land/std@0.206.0/dotenv/mod.ts";
+import { Context, Next } from "https://deno.land/x/oak@v12.6.1/mod.ts";
 
 const env = await load();
 
@@ -16,22 +17,16 @@ const options = {
   body: "",
 };
 
-export const addTodo = async ({
-  request,
-  response,
-}: {
-  request: any;
-  response: any;
-}) => {
+export const addTodo = async (ctx: Context, next: Next) => {
   try {
-    if (!request.hasBody) {
-      response.status = 400;
-      response.body = {
+    if (!ctx.request.hasBody) {
+      ctx.response.status = 400;
+      ctx.response.body = {
         success: false,
         msg: "No Data",
       };
     } else {
-      const body = await request.body();
+      const body = await ctx.request.body();
       const todo = await body.value;
       const URI = `${BASE_URI}/insertOne`;
       const query = {
@@ -43,22 +38,23 @@ export const addTodo = async ({
       options.body = JSON.stringify(query);
       const dataResponse = await fetch(URI, options);
       const { insertedId } = await dataResponse.json();
-      response.status = 201;
-      response.body = {
+      ctx.response.status = 201;
+      ctx.response.body = {
         success: true,
         data: todo,
         insertedId,
       };
     }
   } catch (err) {
-    response.body = {
+    ctx.response.body = {
       success: false,
       msg: err.toString(),
     };
   }
+  await next();
 };
 
-export const getTodos = async ({ response }: { response: any }) => {
+export const getTodos = async (ctx: Context, next: Next) => {
   try {
     const URI = `${BASE_URI}/find`;
     const query = {
@@ -70,92 +66,82 @@ export const getTodos = async ({ response }: { response: any }) => {
     const dataResponse = await fetch(URI, options);
     const allTodos = await dataResponse.json();
     if (allTodos) {
-      response.status = 200;
-      response.body = {
+      ctx.response.status = 200;
+      ctx.response.body = {
         success: true,
         data: allTodos,
       };
     } else {
-      response.status = 500;
-      response.body = {
+      ctx.response.status = 500;
+      ctx.response.body = {
         success: false,
         msg: "Internal Server Error",
       };
     }
   } catch (err) {
-    response.body = {
+    ctx.response.body = {
       success: false,
       msg: err.toString(),
     };
   }
+  await next();
 };
 
-export const updateTodo = async ({
-  params,
-  request,
-  response,
-}: {
-  params: { todoId: string };
-  request: any;
-  response: any;
-}) => {
+export const updateTodo = async (ctx: Context, next: Next) => {
   try {
-    const body = await request.body();
+    const body = ctx.request.body();
     const { text } = await body.value;
-    console.log(text, params.todoId);
     const URI = `${BASE_URI}/updateOne`;
     const query = {
       collection: COLLECTION,
       database: DATABASE,
       dataSource: DATA_SOURCE,
-      filter: { _id: { $oid: params.todoId } },
+      //@ts-ignore // params exists in ctx
+      filter: { _id: { $oid: ctx.params.todoId } },
       update: { $set: { text } },
     };
     options.body = JSON.stringify(query);
-    console.log(query);
     const dataResponse = await fetch(URI, options);
     const todoUpdated = await dataResponse.json();
 
-    response.status = 200;
-    response.body = {
+    ctx.response.status = 200;
+    ctx.response.body = {
       success: true,
       todoUpdated,
     };
   } catch (err) {
-    response.body = {
+    ctx.response.body = {
       success: false,
       msg: err.toString(),
     };
   }
+  await next();
 };
 
-export const deleteTodo = async ({
-  params,
-  response,
-}: {
-  params: { todoId: string };
-  response: any;
-}) => {
+export const deleteTodo = async (ctx: Context, next: Next) => {
   try {
     const URI = `${BASE_URI}/deleteOne`;
+    console.log(ctx);
     const query = {
       collection: COLLECTION,
       database: DATABASE,
       dataSource: DATA_SOURCE,
-      filter: { _id: { $oid: params.todoId } },
+      //@ts-ignore // params exists in ctx
+      filter: { _id: { $oid: ctx.params.todoId } },
     };
     options.body = JSON.stringify(query);
     const dataResponse = await fetch(URI, options);
     const todoDeleted = await dataResponse.json();
 
-    response.status = 201;
-    response.body = {
+    ctx.response.status = 201;
+    ctx.response.body = {
       todoDeleted,
     };
   } catch (err) {
-    response.body = {
+    ctx.response.body = {
       success: false,
       msg: err.toString(),
     };
   }
+  await next();
 };

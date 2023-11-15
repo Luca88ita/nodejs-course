@@ -9,7 +9,7 @@ import {
 import styles from "./Todos.module.css";
 
 interface Todo {
-  id: string;
+  _id: string;
   text: string;
 }
 
@@ -22,7 +22,7 @@ const Todos = () => {
     try {
       const response = await fetch("http://localhost:8080/todos");
       const todosData = await response.json();
-      setTodos(todosData.todos);
+      setTodos(todosData.data.documents);
     } catch (err) {
       // Error handling would be implemented here
       console.log(err);
@@ -64,7 +64,7 @@ const Todos = () => {
     let url = "http://localhost:8080/todos";
     let method = "POST";
     if (editedTodo) {
-      url = url + "/" + editedTodo.id;
+      url = url + "/" + editedTodo._id;
       method = "PUT";
     }
     const response = await fetch(url, {
@@ -93,13 +93,13 @@ const Todos = () => {
       {todos && todos.length > 0 && (
         <ul className={styles["todos__list"]}>
           {todos.map((todo) => (
-            <li key={todo.id}>
+            <li key={todo._id}>
               <span>{todo.text}</span>
               <div className={styles["todo__actions"]}>
                 <button onClick={startEditHandler.bind(null, todo)}>
                   Edit
                 </button>
-                <button onClick={deleteTodoHandler.bind(null, todo.id)}>
+                <button onClick={deleteTodoHandler.bind(null, todo._id)}>
                   Delete
                 </button>
               </div>

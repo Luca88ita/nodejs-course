@@ -15,7 +15,10 @@ Deno.readFile("message.txt").then((res) => console.log(decoder.decode(res)));
  */
 
 import { Application } from "https://deno.land/x/oak@v12.6.1/mod.ts";
+import { load } from "https://deno.land/std@0.206.0/dotenv/mod.ts";
 import todoRoutes from "./routes/todos.ts";
+
+const env = await load();
 
 const app = new Application();
 

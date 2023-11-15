@@ -1,4 +1,5 @@
 import { Router } from "https://deno.land/x/oak@v12.6.1/mod.ts";
+import { addTodo, getTodos } from "../controllers/todo.ts";
 
 interface Todo {
   id: string;
@@ -9,11 +10,13 @@ const router = new Router();
 
 const todos: Todo[] = [];
 
-router.get("/todos", (ctx) => {
+/* router.get("/todos", (ctx) => {
   ctx.response.body = { todos };
-});
+}); */
 
-router.post("/todos", async (ctx) => {
+router.get("/todos", getTodos);
+
+/* router.post("/todos", async (ctx) => {
   const data = await ctx.request.body().value;
   const newTodo: Todo = {
     id: Date.now().toString(),
@@ -21,7 +24,9 @@ router.post("/todos", async (ctx) => {
   };
   todos.push(newTodo);
   ctx.response.body = { message: "Created new todo task", todo: newTodo };
-});
+}); */
+
+router.post("/todos", addTodo);
 
 router.put("/todos/:todoId", async (ctx) => {
   const tid = ctx.params.todoId;

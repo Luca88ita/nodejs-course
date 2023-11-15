@@ -1,5 +1,10 @@
 import { Router } from "https://deno.land/x/oak@v12.6.1/mod.ts";
-import { addTodo, getTodos } from "../controllers/todo.ts";
+import {
+  addTodo,
+  getTodos,
+  updateTodo,
+  deleteTodo,
+} from "../controllers/todo.ts";
 
 interface Todo {
   id: string;
@@ -8,7 +13,7 @@ interface Todo {
 
 const router = new Router();
 
-const todos: Todo[] = [];
+//const todos: Todo[] = [];
 
 /* router.get("/todos", (ctx) => {
   ctx.response.body = { todos };
@@ -28,7 +33,7 @@ router.get("/todos", getTodos);
 
 router.post("/todos", addTodo);
 
-router.put("/todos/:todoId", async (ctx) => {
+/* router.put("/todos/:todoId", async (ctx) => {
   const tid = ctx.params.todoId;
   const todoIndex = todos.findIndex((todo) => {
     return todo.id === tid;
@@ -48,9 +53,11 @@ router.put("/todos/:todoId", async (ctx) => {
       message: "Task id not found",
     };
   }
-});
+}); */
 
-router.delete("/todos/:todoId", (ctx) => {
+router.put("/todos/:todoId", updateTodo);
+
+/* router.delete("/todos/:todoId", (ctx) => {
   const tid = ctx.params.todoId;
   const todoIndex = todos.findIndex((todo) => {
     return todo.id === tid;
@@ -65,6 +72,8 @@ router.delete("/todos/:todoId", (ctx) => {
       message: "Task id not found",
     };
   }
-});
+}); */
+
+router.delete("/todos/:todoId", deleteTodo);
 
 export default router;

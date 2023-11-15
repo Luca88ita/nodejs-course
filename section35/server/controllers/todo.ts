@@ -43,14 +43,12 @@ export const addTodo = async ({
       options.body = JSON.stringify(query);
       const dataResponse = await fetch(URI, options);
       const { insertedId } = await dataResponse.json();
-
       response.status = 201;
       response.body = {
         success: true,
         data: todo,
         insertedId,
       };
-      console.log(response);
     }
   } catch (err) {
     response.body = {
@@ -71,14 +69,12 @@ export const getTodos = async ({ response }: { response: any }) => {
     options.body = JSON.stringify(query);
     const dataResponse = await fetch(URI, options);
     const allTodos = await dataResponse.json();
-
     if (allTodos) {
       response.status = 200;
       response.body = {
         success: true,
         data: allTodos,
       };
-      console.log(allTodos);
     } else {
       response.status = 500;
       response.body = {
@@ -86,6 +82,76 @@ export const getTodos = async ({ response }: { response: any }) => {
         msg: "Internal Server Error",
       };
     }
+  } catch (err) {
+    response.body = {
+      success: false,
+      msg: err.toString(),
+    };
+  }
+};
+
+export const updateTodo = async ({
+  params,
+  request,
+  response,
+}: {
+  params: { todoId: string };
+  request: any;
+  response: any;
+}) => {
+  try {
+    const body = await request.body();
+    const { text } = await body.value;
+    console.log(text, params.todoId);
+    const URI = `${BASE_URI}/updateOne`;
+    const query = {
+      collection: COLLECTION,
+      database: DATABASE,
+      dataSource: DATA_SOURCE,
+      filter: { _id: { $oid: params.todoId } },
+      update: { $set: { text } },
+    };
+    options.body = JSON.stringify(query);
+    console.log(query);
+    const dataResponse = await fetch(URI, options);
+    const todoUpdated = await dataResponse.json();
+
+    response.status = 200;
+    response.body = {
+      success: true,
+      todoUpdated,
+    };
+  } catch (err) {
+    response.body = {
+      success: false,
+      msg: err.toString(),
+    };
+  }
+};
+
+export const deleteTodo = async ({
+  params,
+  response,
+}: {
+  params: { todoId: string };
+  response: any;
+}) => {
+  try {
+    const URI = `${BASE_URI}/deleteOne`;
+    const query = {
+      collection: COLLECTION,
+      database: DATABASE,
+      dataSource: DATA_SOURCE,
+      filter: { _id: { $oid: params.todoId } },
+    };
+    options.body = JSON.stringify(query);
+    const dataResponse = await fetch(URI, options);
+    const todoDeleted = await dataResponse.json();
+
+    response.status = 201;
+    response.body = {
+      todoDeleted,
+    };
   } catch (err) {
     response.body = {
       success: false,
